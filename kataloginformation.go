@@ -30,7 +30,7 @@ func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 		ctx,
 		"GET",
 		fmt.Sprintf("%s", "kataloginformation/anvandare/autentiserad"),
-		LadokAcceptHeader[s.contentType][s.client.Format],
+		LadokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
@@ -102,7 +102,7 @@ func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cf
 		ctx,
 		"GET",
 		fmt.Sprintf("%s/%s", "kataloginformation/behorighetsprofil", cfg.UID),
-		LadokAcceptHeader[s.contentType][s.client.Format],
+		LadokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
@@ -159,7 +159,7 @@ func (s *KataloginformationService) GetAnvandarbehorighetEgna(ctx context.Contex
 		ctx,
 		"GET",
 		fmt.Sprintf("%s", "kataloginformation/anvandarbehorighet/egna"),
-		LadokAcceptHeader[s.contentType][s.client.Format],
+		LadokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {

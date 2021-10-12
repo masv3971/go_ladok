@@ -31,16 +31,16 @@ type Config struct {
 
 // Client holds the ladok object
 type Client struct {
-	Certificate    *x509.Certificate
-	Chain          *x509.CertPool
-	CertificatePEM []byte
-	PrivateKey     *rsa.PrivateKey
-	PrivateKeyPEM  []byte
-	Password       string
-	Format         string
-	LadokRestURL   string
+	certificate    *x509.Certificate
+	chain          *x509.CertPool
+	certificatePEM []byte
+	privateKey     *rsa.PrivateKey
+	privateKeyPEM  []byte
+	password       string
+	format         string
+	ladokRestURL   string
 	httpClient     *http.Client
-	Pkcs12         []byte
+	pkcs12         []byte
 
 	KataloginformationService *KataloginformationService
 	StudentinformationService *StudentinformationService
@@ -50,10 +50,10 @@ type Client struct {
 // New creats a new instanace of ladok
 func New(config Config) (*Client, error) {
 	c := &Client{
-		Password:     config.Password,
-		Format:       config.Format,
-		LadokRestURL: config.LadokRestURL,
-		Pkcs12:       config.Pkck12,
+		password:     config.Password,
+		format:       config.Format,
+		ladokRestURL: config.LadokRestURL,
+		pkcs12:       config.Pkck12,
 	}
 
 	if err := c.unwrapPkcs12(); err != nil {
@@ -70,7 +70,7 @@ func New(config Config) (*Client, error) {
 	return c, nil
 }
 func (c *Client) unwrapPkcs12() error {
-	privateKey, clientCert, chainCerts, err := pkcs12.DecodeChain(c.Pkcs12, c.Password)
+	privateKey, clientCert, chainCerts, err := pkcs12.DecodeChain(c.pkcs12, c.password)
 	if err != nil {
 		return err
 	}
@@ -84,21 +84,21 @@ func (c *Client) unwrapPkcs12() error {
 		Bytes: x509.MarshalPKCS1PrivateKey(privateKey.(*rsa.PrivateKey)),
 	}
 
-	c.Certificate = clientCert
-	c.PrivateKey = privateKey.(*rsa.PrivateKey)
-	c.CertificatePEM = pem.EncodeToMemory(certPem)
-	c.PrivateKeyPEM = pem.EncodeToMemory(keyPEM)
+	c.certificate = clientCert
+	c.privateKey = privateKey.(*rsa.PrivateKey)
+	c.certificatePEM = pem.EncodeToMemory(certPem)
+	c.privateKeyPEM = pem.EncodeToMemory(keyPEM)
 
-	c.Chain = x509.NewCertPool()
+	c.chain = x509.NewCertPool()
 	for _, chainCert := range chainCerts {
-		c.Chain.AddCert(chainCert)
+		c.chain.AddCert(chainCert)
 	}
 
 	return nil
 }
 
 func (c *Client) httpConfigure() error {
-	keyPair, err := tls.X509KeyPair(c.CertificatePEM, c.PrivateKeyPEM)
+	keyPair, err := tls.X509KeyPair(c.certificatePEM, c.privateKeyPEM)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (c *Client) httpConfigure() error {
 		Certificates:       []tls.Certificate{keyPair},
 		NextProtos:         []string{},
 		ClientAuth:         tls.RequireAndVerifyClientCert,
-		ClientCAs:          c.Chain,
+		ClientCAs:          c.chain,
 		InsecureSkipVerify: false,
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -173,7 +173,7 @@ func (c *Client) newRequest(ctx context.Context, method, path, acceptHeader stri
 		return nil, err
 	}
 
-	u, err := url.Parse(c.LadokRestURL)
+	u, err := url.Parse(c.ladokRestURL)
 	if err != nil {
 		return nil, err
 	}

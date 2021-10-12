@@ -58,7 +58,7 @@ func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *Student
 		ctx,
 		"GET",
 		fmt.Sprintf("%s/%s", "studentinformation/student", cfg.UID),
-		LadokAcceptHeader[s.contentType][s.client.Format],
+		LadokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
