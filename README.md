@@ -4,7 +4,7 @@
 
 ## Installation 
 ```
-go get   github.com/masv3971/ladok3
+go get github.com/masv3971/ladok3
  ```
 
  ## Example
