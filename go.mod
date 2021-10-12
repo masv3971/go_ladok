@@ -1,4 +1,4 @@
-module goladokrest
+module github.com/masv3971/goladokrest
 
 go 1.17
 
