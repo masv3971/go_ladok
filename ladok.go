@@ -8,34 +8,39 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"software.sslmate.com/src/go-pkcs12"
 )
 
 // Config configures new function
 type Config struct {
-	Certificate    *x509.Certificate
-	Chain          []*x509.Certificate
-	CertificatePEM []byte
-	PrivateKey     *rsa.PrivateKey
-	PrivateKeyPEM  []byte
-	Password       string
-	Format         string
+	//Certificate  *x509.Certificate
+	//Chain        *x509.CertPool
+	//PrivateKey   *rsa.PrivateKey
+	Password     string
+	Format       string
+	LadokRestURL string
+	Pkck12       []byte
 }
 
 // Client holds the ladok object
 type Client struct {
 	Certificate    *x509.Certificate
-	Chain          []*x509.Certificate
+	Chain          *x509.CertPool
 	CertificatePEM []byte
 	PrivateKey     *rsa.PrivateKey
 	PrivateKeyPEM  []byte
 	Password       string
 	Format         string
+	LadokRestURL   string
 	httpClient     *http.Client
+	Pkcs12         []byte
 
 	KataloginformationService *KataloginformationService
 	StudentinformationService *StudentinformationService
@@ -45,25 +50,55 @@ type Client struct {
 // New creats a new instanace of ladok
 func New(config Config) (*Client, error) {
 	c := &Client{
-		Certificate: config.Certificate,
-		PrivateKey:  config.PrivateKey,
-		Password:    config.Password,
-		Format:      config.Format,
+		Password:     config.Password,
+		Format:       config.Format,
+		LadokRestURL: config.LadokRestURL,
+		Pkcs12:       config.Pkck12,
+	}
+
+	if err := c.unwrapPkcs12(); err != nil {
+		return nil, err
 	}
 
 	if err := c.httpConfigure(); err != nil {
 		return nil, err
 	}
-
-	c.KataloginformationService = KataloginformationService{client: c, contentType: "kataloginformation"}
-	c.StudentinformationService = StudentinformationService{client: c, contentType: "studentinformation"}
-	c.StudentdeltagandeService = StudentdeltagandeService{client: c, contentType: "studentdeltagande"}
+	c.KataloginformationService = &KataloginformationService{client: c, contentType: "kataloginformation"}
+	c.StudentinformationService = &StudentinformationService{client: c, contentType: "studentinformation"}
+	c.StudentdeltagandeService = &StudentdeltagandeService{client: c, contentType: "studentdeltagande"}
 
 	return c, nil
 }
+func (c *Client) unwrapPkcs12() error {
+	privateKey, clientCert, chainCerts, err := pkcs12.DecodeChain(c.Pkcs12, c.Password)
+	if err != nil {
+		return err
+	}
+
+	certPem := &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: clientCert.Raw,
+	}
+	keyPEM := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(privateKey.(*rsa.PrivateKey)),
+	}
+
+	c.Certificate = clientCert
+	c.PrivateKey = privateKey.(*rsa.PrivateKey)
+	c.CertificatePEM = pem.EncodeToMemory(certPem)
+	c.PrivateKeyPEM = pem.EncodeToMemory(keyPEM)
+
+	c.Chain = x509.NewCertPool()
+	for _, chainCert := range chainCerts {
+		c.Chain.AddCert(chainCert)
+	}
+
+	return nil
+}
 
 func (c *Client) httpConfigure() error {
-	keyPair, err := tls.X509KeyPair(c.CertificatePEM, c.CertifiatePEM)
+	keyPair, err := tls.X509KeyPair(c.CertificatePEM, c.PrivateKeyPEM)
 	if err != nil {
 		return err
 	}
@@ -131,14 +166,14 @@ var LadokAcceptHeader = map[string]map[string]string{
 }
 
 func (c *Client) newRequest(ctx context.Context, method, path, acceptHeader string, body interface{}) (*http.Request, error) {
-	c.logger.Info("newRequest", "method", method, "path", path)
+	//c.logger.Info("newRequest", "method", method, "path", path)
 
 	rel, err := url.Parse(path)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := url.Parse(c.Service.config.LadokRestURL)
+	u, err := url.Parse(c.LadokRestURL)
 	if err != nil {
 		return nil, err
 	}

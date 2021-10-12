@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 // StudentinformationService handles studentinformation
@@ -15,48 +14,50 @@ type StudentinformationService struct {
 
 // StudentReply is ladok reply from /studentinformation/student/{studentuid}
 type StudentReply struct {
-	Avliden                           bool      `json:"Avliden"`
-	Fornamn                           string    `json:"Fornamn"`
-	Efternamn                         string    `json:"Efternamn"`
-	ExterntUID                        string    `json:"ExterntUID"`
-	FelVidEtableringExternt           bool      `json:"FelVidEtableringExternt"`
-	Fodelsedata                       time.Time `json:"Fodelsedata"`
-	FolkbokforingsbevakningTillOchMed time.Time `json:"FolkbokforingsbevakningTillOchMed"`
-	KonID                             int       `json:"KonID"`
-	LarosateID                        int       `json:"LarosateID"`
-	Personnummer                      string    `json:"Personnummer"`
-	SenastAndradAv                    string    `json:"SenastAndradAv"`
-	SenastSparad                      time.Time `json:"SenastSparad"`
-	UID                               string    `json:"Uid"`
+	Avliden                           bool   `json:"Avliden"`
+	Efternamn                         string `json:"Efternamn"`
+	ExterntUID                        string `json:"ExterntUID"`
+	FelVidEtableringExternt           bool   `json:"FelVidEtableringExternt"`
+	Fodelsedata                       string `json:"Fodelsedata"`
+	FolkbokforingsbevakningTillOchMed string `json:"FolkbokforingsbevakningTillOchMed"`
+	Fornamn                           string `json:"Fornamn"`
+	KonID                             int    `json:"KonID"`
+	LarosateID                        int    `json:"LarosateID"`
+	Personnummer                      string `json:"Personnummer"`
+	SenastAndradAv                    string `json:"SenastAndradAv"`
+	SenastSparad                      string `json:"SenastSparad"`
+	UID                               string `json:"Uid"`
 	UnikaIdentifierare                struct {
 		LarosateID        int `json:"LarosateID"`
 		UnikIdentifierare []struct {
-			LarosateID     int       `json:"LarosateID"`
-			SenastAndradAv string    `json:"SenastAndradAv"`
-			SenastSparad   time.Time `json:"SenastSparad"`
-			Typ            string    `json:"Typ"`
-			UID            string    `json:"Uid"`
-			Varde          string    `json:"Varde"`
-			Link           Link      `json:"link"`
+			LarosateID     int    `json:"LarosateID"`
+			SenastAndradAv string `json:"SenastAndradAv"`
+			SenastSparad   string `json:"SenastSparad"`
+			Typ            string `json:"Typ"`
+			UID            string `json:"Uid"`
+			Varde          string `json:"Varde"`
+			Link           []Link `json:"link"`
 		} `json:"UnikIdentifierare"`
-		Link Link `json:"link`
+		Link []Link `json:"link"`
 	} `json:"UnikaIdentifierare"`
-	Link Link `json:"link`
+	Link []Link `json:"link"`
 }
 
 // StudentCfg config for GetStudent
 type StudentCfg struct {
-	UID string
+	UID string `validate:"required,uuid"`
 }
 
-type StudentReply struct{}
-
 // GetStudent return student
-func (s *StudentinformationService) GetStudent(ctx context.Context, indata StudentCfg) (*StudentReply, *http.Response, error) {
+func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *StudentCfg) (*StudentReply, *http.Response, error) {
+	if err := validate(cfg); err != nil {
+		return nil, nil, err
+	}
+
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",
-		fmt.Sprintf("%s/%s", "studentinformation/student", indata.UID),
+		fmt.Sprintf("%s/%s", "studentinformation/student", cfg.UID),
 		LadokAcceptHeader[s.contentType][s.client.Format],
 		nil,
 	)

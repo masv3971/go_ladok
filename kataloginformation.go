@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 // KataloginformationService handles kataloginformation
@@ -15,14 +14,14 @@ type KataloginformationService struct {
 
 // AnvandareAutentiseradReply is ladok response from /kataloginformation/anvandare/autentiserad
 type AnvandareAutentiseradReply struct {
-	Anvandarnamn   string    `json:"Anvandarnamn"`
-	Efternamen     string    `json:"Efternamn"`
-	Fornamn        string    `json:"Fornamn"`
-	SenastAndradAv string    `json:"SenastAndradAv"`
-	SenastSparad   time.Time `json:"SenastSparad"`
-	LarosateID     int       `json:"LarosateID"`
-	UID            string    `json:"Uid"`
-	Link           []Link    `json:"link"`
+	Anvandarnamn   string `json:"Anvandarnamn"`
+	Efternamen     string `json:"Efternamn"`
+	Fornamn        string `json:"Fornamn"`
+	SenastAndradAv string `json:"SenastAndradAv"`
+	SenastSparad   string `json:"SenastSparad"`
+	LarosateID     int    `json:"LarosateID"`
+	UID            string `json:"Uid"`
+	Link           []Link `json:"link"`
 }
 
 // GetAnvandareAutentiserad gets kataloginformation/anvandare/autentiserad
@@ -39,7 +38,7 @@ func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 	}
 
 	reply := &AnvandareAutentiseradReply{}
-	resp, err := s.do(req, reply)
+	resp, err := s.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -50,52 +49,59 @@ func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 // BehorighetsprofilReply is ladok reply from kataloginformation/behorighetsprofil/{uid}
 type BehorighetsprofilReply struct {
 	Behorighetsprofiler []struct {
-		Benamning map[string]string `json:"Benaming"`
-	} `json:"Behorighetsprofiler"`
-	Dataavgransningar struct {
-		LarosateID int `json:"LarosateID"`
-		Lista      []struct {
-			DataDimension  string    `json:"DataDimension"`
-			DataID         string    `json:"DataId"`
-			LarosateID     int       `json:"LarosateID"`
-			SenastAndradAv string    `json:"SenastAndradAv"`
-			SenastSparad   time.Time `json:"SenastSparad"`
-			UID            string    `json:"Uid"`
-			Link           []Link    `json:"link"`
-		}
-		SenastAndradAv string    `json"SenastAndradAv"`
-		SenastSparad   time.Time `json:"SenastSparad"`
-		UID            string    `json:"Uid"`
-		Link           []Link    `json:"link"`
-	}
-	LarosateID        int       `json:"LarosateID"`
-	Rattighetsniva    string    `json:"Rattighetsniva"`
-	SenastAndradAv    string    `json:"SenastAndradAv"`
-	SenastSparad      time.Time `json:"SenastSparad"`
-	Systemaktiviteter []struct {
-		Betafunktion      bool   `json:"Betafunktion"`
-		I18nNyckel        string `json:"I18nNyckel"`
-		ID                int    `json:"Id"`
-		KlarForProduktion bool   `json:"KlarForProduktion"`
+		Benamning struct {
+			Sv string `json:"sv"`
+		} `json:"Benamning"`
+		Dataavgransningar struct {
+			LarosateID int `json:"LarosateID"`
+			Lista      []struct {
+				DataDimension  string `json:"DataDimension"`
+				DataID         string `json:"DataId"`
+				LarosateID     int    `json:"LarosateID"`
+				SenastAndradAv string `json:"SenastAndradAv"`
+				SenastSparad   string `json:"SenastSparad"`
+				UID            string `json:"Uid"`
+				Link           []Link `json:"link"`
+			} `json:"Lista"`
+			SenastAndradAv string `json:"SenastAndradAv"`
+			SenastSparad   string `json:"SenastSparad"`
+			UID            string `json:"Uid"`
+			Link           []Link `json:"link"`
+		} `json:"Dataavgransningar"`
 		LarosateID        int    `json:"LarosateID"`
 		Rattighetsniva    string `json:"Rattighetsniva"`
-		Link              []Link `json:"link"`
-	}
-	UID            string    `json:"Uid"`
-	Link           []Link    `json:"link"`
-	LarosateID     int       `json:"LarosateID"`
-	SenastAndradAv string    `json:"SenastAndradAv"`
-	SenastSparad   time.Time `json:"SenastSparad"`
-	UID            string    `json:"Uid"`
-	Link           []Link    `json:"links"`
+		SenastAndradAv    string `json:"SenastAndradAv"`
+		SenastSparad      string `json:"SenastSparad"`
+		Systemaktiviteter []struct {
+			Betafunktion      bool   `json:"Betafunktion"`
+			I18NNyckel        string `json:"I18nNyckel"`
+			ID                int64  `json:"Id"`
+			KlarForProduktion bool   `json:"KlarForProduktion"`
+			LarosateID        int    `json:"LarosateID"`
+			Rattighetsniva    string `json:"Rattighetsniva"`
+			Link              []Link `json:"link"`
+		} `json:"Systemaktiviteter"`
+		UID  string `json:"Uid"`
+		Link []Link `json:"link"`
+	} `json:"Behorighetsprofiler"`
+	LarosateID     int    `json:"LarosateID"`
+	SenastAndradAv string `json:"SenastAndradAv"`
+	SenastSparad   string `json:"SenastSparad"`
+	UID            string `json:"Uid"`
+	Link           []Link `json:"link"`
+}
+
+// BehorighetsprofilerCfg configuration for GetBehorighetsprofil
+type BehorighetsprofilerCfg struct {
+	UID string `validate:"required,uuid"`
 }
 
 // GetBehorighetsprofil return structure of rights for uid
-func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, uid string) (*BehorighetsprofilReply, *http.Response, error) {
+func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cfg *BehorighetsprofilerCfg) (*BehorighetsprofilReply, *http.Response, error) {
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",
-		fmt.Sprintf("%s/%s", "kataloginformation/behorighetsprofil", uid),
+		fmt.Sprintf("%s/%s", "kataloginformation/behorighetsprofil", cfg.UID),
 		LadokAcceptHeader[s.contentType][s.client.Format],
 		nil,
 	)
@@ -121,25 +127,30 @@ type AnvandarbehorighetEgnaReply struct {
 			Fornamn      string `json:"Fornamn"`
 			UID          string `json:"Uid"`
 			Link         Link   `json:"link"`
-		}
+		} `json:"AnvandareRef"`
 		BehorighetsprofilRef struct {
 			Benamning []Benamning `json:"Benamning"`
 			UID       string      `json:"Uid"`
 			Link      Link        `json:"link"`
-		}
-	}
-	BestalldTidpunkt time.Time `json:"BestalldTidpunkt"`
-	LarosateID       int       `json:"LarosateID"`
-	OrganisationRef  struct {
-		Benamning []Benamning `json:"Benamning"`
-		UID       string      `json:"Uid"`
-		Link      Link        `json:"link"`
-	}
-	SenastAndradAv string    `json:"SenastAndradAv"`
-	SenastSparad   time.Time `json:"SenastSparad"`
-	Status         string    `json:"Status"`
-	UID            string    `json:"Uid"`
-	Link           []Link    `json:"link"`
+		} `json:"BehorighetsprofilRef"`
+		BestalldTidpunkt string `json:"BestalldTidpunkt"`
+		LarosateID       int    `json:"LarosateID"`
+		OrganisationRef  struct {
+			Benamning []Benamning `json:"Benamning"`
+			UID       string      `json:"Uid"`
+			Link      Link        `json:"link"`
+		} `json:"OrganisationRef"`
+		SenastAndradAv string `json:"SenastAndradAv"`
+		SenastSparad   string `json:"SenastSparad"`
+		Status         string `json:"Status"`
+		UID            string `json:"Uid"`
+		Link           []Link `json:"link"`
+	} `json:"Anvandarbehorighet"`
+	LarosateID     int    `json:"LarosateID"`
+	SenastAndradAv string `json:"SenastAndradAv"`
+	SenastSparad   string `json:"SenastSparad"`
+	UID            string `json:"Uid"`
+	Link           []Link `json:"link"`
 }
 
 // GetAnvandarbehorighetEgna return structure of ladok permission

@@ -10,7 +10,7 @@ type Link struct {
 
 // Benamning is a general ladok Benamning structure
 type Benamning struct {
-	Sprakkod string `json:"Sprakkod"`
-	Text     string `json:"Text"`
-	Link     Link   `json:"link"`
+	Sprakkod string     `json:"Sprakkod"`
+	Text     string     `json:"Text"`
+	Link     []struct{} `json:"link"`
 }

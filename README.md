@@ -1,2 +1,3 @@
-# go_ladok
+# go_ladok_rest
 Ladok lib written in golang
+
