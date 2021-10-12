@@ -1,4 +1,4 @@
-package goladokrest
+package ladok3
 
 // StudentdeltagandeService xx
 type StudentdeltagandeService struct {

@@ -1,6 +1,6 @@
 .PHONY: update clean build build-all run package deploy test authors dist
 
-NAME 					:= go_ladok_rest
+NAME 					:= ladok3
 VERSION                 := $(shell cat VERSION)
 
 default: release-patch
