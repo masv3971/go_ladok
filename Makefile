@@ -19,7 +19,7 @@ add:
 	git add .
 
 commit-msg:
-		git commit -S -m"Humantouch release ${VERSION}"
+		git commit -S -m"${NAME} release ${VERSION}"
 
 release-tag:
 		git tag ${VERSION}

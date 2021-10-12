@@ -1,4 +1,4 @@
-# go_ladok_rest
+# ladok3
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/masv3971/ladok3.svg)](https://pkg.go.dev/github.com/masv3971/ladok3)
 
