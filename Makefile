@@ -28,5 +28,4 @@ push-tag:
 		git push origin ${VERSION}
 
 go-list:	
-		GOPROXY=proxy.golang.org go list -m github.com/masv3971/${NAME}@${VERSION}
-		GOPROXY=https://proxy.golang.org GO111MODULE=on go get github.com/masv3971/${NAME}@v${VERSION}
+		GOPROXY=proxy.golang.org go list -m github.com/masv3971/${NAME}@v${VERSION}
