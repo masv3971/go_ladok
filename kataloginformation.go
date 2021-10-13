@@ -12,8 +12,8 @@ type KataloginformationService struct {
 	contentType string
 }
 
-// AnvandareAutentiseradReply is ladok response from /kataloginformation/anvandare/autentiserad
-type AnvandareAutentiseradReply struct {
+// GetAnvandareAutentiseradReply is ladok response from /kataloginformation/anvandare/autentiserad
+type GetAnvandareAutentiseradReply struct {
 	Anvandarnamn   string `json:"Anvandarnamn"`
 	Efternamen     string `json:"Efternamn"`
 	Fornamn        string `json:"Fornamn"`
@@ -25,19 +25,19 @@ type AnvandareAutentiseradReply struct {
 }
 
 // GetAnvandareAutentiserad gets kataloginformation/anvandare/autentiserad
-func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*AnvandareAutentiseradReply, *http.Response, error) {
+func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*GetAnvandareAutentiseradReply, *http.Response, error) {
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",
 		fmt.Sprintf("%s", "kataloginformation/anvandare/autentiserad"),
-		LadokAcceptHeader[s.contentType][s.client.format],
+		ladokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	reply := &AnvandareAutentiseradReply{}
+	reply := &GetAnvandareAutentiseradReply{}
 	resp, err := s.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err
@@ -46,8 +46,8 @@ func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 	return reply, resp, nil
 }
 
-// BehorighetsprofilReply is ladok reply from kataloginformation/behorighetsprofil/{uid}
-type BehorighetsprofilReply struct {
+// GetBehorighetsprofilReply is ladok reply from kataloginformation/behorighetsprofil/{uid}
+type GetBehorighetsprofilReply struct {
 	Behorighetsprofiler []struct {
 		Benamning struct {
 			Sv string `json:"sv"`
@@ -91,25 +91,25 @@ type BehorighetsprofilReply struct {
 	Link           []Link `json:"link"`
 }
 
-// BehorighetsprofilerCfg configuration for GetBehorighetsprofil
-type BehorighetsprofilerCfg struct {
+// GetBehorighetsprofilerCfg configuration for GetBehorighetsprofil
+type GetBehorighetsprofilerCfg struct {
 	UID string `validate:"required,uuid"`
 }
 
 // GetBehorighetsprofil return structure of rights for uid
-func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cfg *BehorighetsprofilerCfg) (*BehorighetsprofilReply, *http.Response, error) {
+func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cfg *GetBehorighetsprofilerCfg) (*GetBehorighetsprofilReply, *http.Response, error) {
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",
 		fmt.Sprintf("%s/%s", "kataloginformation/behorighetsprofil", cfg.UID),
-		LadokAcceptHeader[s.contentType][s.client.format],
+		ladokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	reply := &BehorighetsprofilReply{}
+	reply := &GetBehorighetsprofilReply{}
 	resp, err := s.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err
@@ -118,8 +118,8 @@ func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cf
 	return reply, resp, nil
 }
 
-// AnvandarbehorighetEgnaReply is ladok response from kataloginformation/anvandarbehorighet/egna
-type AnvandarbehorighetEgnaReply struct {
+// GetAnvandarbehorighetEgnaReply is ladok response from kataloginformation/anvandarbehorighet/egna
+type GetAnvandarbehorighetEgnaReply struct {
 	Anvandarbehorighet []struct {
 		AnvandareRef struct {
 			Anvandarnamn string `json:"Anvandarnamn"`
@@ -154,18 +154,18 @@ type AnvandarbehorighetEgnaReply struct {
 }
 
 // GetAnvandarbehorighetEgna return structure of ladok permission
-func (s *KataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*AnvandarbehorighetEgnaReply, *http.Response, error) {
+func (s *KataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*GetAnvandarbehorighetEgnaReply, *http.Response, error) {
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",
 		fmt.Sprintf("%s", "kataloginformation/anvandarbehorighet/egna"),
-		LadokAcceptHeader[s.contentType][s.client.format],
+		ladokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
 		return nil, nil, err
 	}
-	reply := &AnvandarbehorighetEgnaReply{}
+	reply := &GetAnvandarbehorighetEgnaReply{}
 	resp, err := s.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err

@@ -1,7 +1,7 @@
 package ladok3
 
 // GenderString translate from KonID to the equal string value
-func (s *StudentReply) GenderString() string {
+func (s *GetStudentReply) GenderString() string {
 	switch s.KonID { //TODO(masv): Is this correct?
 	case 1:
 		return "female"

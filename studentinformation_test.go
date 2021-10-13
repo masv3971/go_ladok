@@ -57,7 +57,7 @@ func TestGetStudent(t *testing.T) {
 			}]
 		}`)
 
-	d := &StudentReply{}
+	d := &GetStudentReply{}
 	if err := json.Unmarshal(payload, d); err != nil {
 		assert.NoError(t, err)
 		t.Fatal()
@@ -71,7 +71,7 @@ func TestGetStudent(t *testing.T) {
 	mux, server, client := mockSetup(t)
 	defer takeDown(server)
 
-	cfg := &StudentCfg{
+	cfg := &GetStudentCfg{
 		UID: newUUID(),
 	}
 

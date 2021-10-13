@@ -28,7 +28,7 @@ func TestGetAnvandareAutentiserad(t *testing.T) {
 		} ]
 	  }`)
 
-	d := &AnvandareAutentiseradReply{}
+	d := &GetAnvandareAutentiseradReply{}
 	if err := json.Unmarshal(payload, d); err != nil {
 		assert.NoError(t, err)
 	}
@@ -132,7 +132,7 @@ func TestGetAnvandarbehorighetEgna(t *testing.T) {
 		}]
 	  }`)
 
-	d := &AnvandarbehorighetEgnaReply{}
+	d := &GetAnvandarbehorighetEgnaReply{}
 	if err := json.Unmarshal(payload, d); err != nil {
 		assert.NoError(t, err)
 	}
@@ -228,7 +228,7 @@ func TestGetBehorighetsprofil(t *testing.T) {
 	}]
 }`)
 
-	d := &BehorighetsprofilReply{}
+	d := &GetBehorighetsprofilReply{}
 	if err := json.Unmarshal(payload, d); err != nil {
 		assert.NoError(t, err)
 	}
@@ -241,7 +241,7 @@ func TestGetBehorighetsprofil(t *testing.T) {
 	mux, server, client := mockSetup(t)
 	defer takeDown(server)
 
-	cfg := &BehorighetsprofilerCfg{
+	cfg := &GetBehorighetsprofilerCfg{
 		UID: newUUID(),
 	}
 

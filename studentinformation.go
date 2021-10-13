@@ -12,8 +12,8 @@ type StudentinformationService struct {
 	contentType string
 }
 
-// StudentReply is ladok reply from /studentinformation/student/{studentuid}
-type StudentReply struct {
+// GetStudentReply is ladok reply from /studentinformation/student/{studentuid}
+type GetStudentReply struct {
 	Avliden                           bool   `json:"Avliden"`
 	Efternamn                         string `json:"Efternamn"`
 	ExterntUID                        string `json:"ExterntUID"`
@@ -43,13 +43,13 @@ type StudentReply struct {
 	Link []Link `json:"link"`
 }
 
-// StudentCfg config for GetStudent
-type StudentCfg struct {
+// GetStudentCfg config for GetStudent
+type GetStudentCfg struct {
 	UID string `validate:"required,uuid"`
 }
 
 // GetStudent return student
-func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *StudentCfg) (*StudentReply, *http.Response, error) {
+func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *GetStudentCfg) (*GetStudentReply, *http.Response, error) {
 	if err := validate(cfg); err != nil {
 		return nil, nil, err
 	}
@@ -58,14 +58,14 @@ func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *Student
 		ctx,
 		"GET",
 		fmt.Sprintf("%s/%s", "studentinformation/student", cfg.UID),
-		LadokAcceptHeader[s.contentType][s.client.format],
+		ladokAcceptHeader[s.contentType][s.client.format],
 		nil,
 	)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	reply := &StudentReply{}
+	reply := &GetStudentReply{}
 	resp, err := s.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err

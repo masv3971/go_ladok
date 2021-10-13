@@ -75,7 +75,6 @@ func mockNew(t *testing.T, url string) *Client {
 
 	cfg := Config{
 		Password:     "test",
-		Format:       "json",
 		LadokRestURL: url,
 		Pkck12:       pkcs12,
 	}

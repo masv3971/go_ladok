@@ -20,11 +20,8 @@ import (
 
 // Config configures new function
 type Config struct {
-	//Certificate  *x509.Certificate
-	//Chain        *x509.CertPool
-	//PrivateKey   *rsa.PrivateKey
-	Password     string
-	Format       string
+	Password string
+	//Format       string
 	LadokRestURL string
 	Pkck12       []byte
 }
@@ -51,7 +48,7 @@ type Client struct {
 func New(config Config) (*Client, error) {
 	c := &Client{
 		password:     config.Password,
-		format:       config.Format,
+		format:       "json",
 		ladokRestURL: config.LadokRestURL,
 		pkcs12:       config.Pkck12,
 	}
@@ -133,8 +130,7 @@ func (c *Client) httpConfigure() error {
 	return nil
 }
 
-// LadokAcceptHeader map consists of different accept headers for ladok
-var LadokAcceptHeader = map[string]map[string]string{
+var ladokAcceptHeader = map[string]map[string]string{
 	"studentinformation": {
 		"json": "application/vnd.ladok-studentinformation+json",
 		"xml":  "application/vnd.ladok-studentinformation+xml",

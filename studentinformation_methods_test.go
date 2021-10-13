@@ -9,26 +9,26 @@ import (
 func TestGenderString(t *testing.T) {
 	tts := []struct {
 		name string
-		have *StudentReply
+		have *GetStudentReply
 		want string
 	}{
 		{
 			name: "1",
-			have: &StudentReply{
+			have: &GetStudentReply{
 				KonID: 1,
 			},
 			want: "female",
 		},
 		{
 			name: "2",
-			have: &StudentReply{
+			have: &GetStudentReply{
 				KonID: 2,
 			},
 			want: "male",
 		},
 		{
 			name: "10",
-			have: &StudentReply{
+			have: &GetStudentReply{
 				KonID: 10,
 			},
 			want: "n/a",
