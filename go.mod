@@ -1,4 +1,4 @@
-module github.com/masv3971/ladok3
+module github.com/masv3971/goladok3
 
 go 1.17
 

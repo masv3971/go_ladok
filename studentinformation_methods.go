@@ -1,4 +1,4 @@
-package ladok3
+package goladok3
 
 // GenderString translate from KonID to the equal string value
 func (s *GetStudentReply) GenderString() string {

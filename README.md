@@ -1,10 +1,10 @@
-# ladok3
+# goladok3
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/masv3971/ladok3.svg)](https://pkg.go.dev/github.com/masv3971/ladok3)
+[![Go Reference](https://pkg.go.dev/badge/github.com/masv3971/goladok3.svg)](https://pkg.go.dev/github.com/masv3971/goladok3)
 
 ## Installation 
 ```
-go get github.com/masv3971/ladok3
+go get github.com/masv3971/goladok3
  ```
 
  ## Example
@@ -12,7 +12,7 @@ go get github.com/masv3971/ladok3
  package main
 
 import (
-    "github.com/masv3971/ladok3"
+    "github.com/masv3971/goladok3"
 )
 
 func main() {

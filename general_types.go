@@ -1,4 +1,4 @@
-package ladok3
+package goladok3
 
 // Link is a general ladok link structure
 type Link struct {

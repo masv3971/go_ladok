@@ -1,4 +1,4 @@
-package ladok3
+package goladok3
 
 import "github.com/google/uuid"
 
