@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -42,6 +43,7 @@ type Client struct {
 	KataloginformationService *KataloginformationService
 	StudentinformationService *StudentinformationService
 	StudentdeltagandeService  *StudentdeltagandeService
+	UppfoljningService        *UppfoljningService
 }
 
 // New creats a new instanace of ladok
@@ -63,6 +65,7 @@ func New(config Config) (*Client, error) {
 	c.KataloginformationService = &KataloginformationService{client: c, contentType: "kataloginformation"}
 	c.StudentinformationService = &StudentinformationService{client: c, contentType: "studentinformation"}
 	c.StudentdeltagandeService = &StudentdeltagandeService{client: c, contentType: "studentdeltagande"}
+	c.UppfoljningService = &UppfoljningService{client: c, contentType: "uppfoljning-feed"}
 
 	return c, nil
 }
@@ -159,11 +162,12 @@ var ladokAcceptHeader = map[string]map[string]string{
 		"json": "application/vnd.ladok-kataloginformation+json",
 		"xml":  "application/vnd.ladok-kataloginformation+xml",
 	},
+	"uppfoljning-feed": {
+		"xml": "",
+	},
 }
 
 func (c *Client) newRequest(ctx context.Context, method, path, acceptHeader string, body interface{}) (*http.Request, error) {
-	//c.logger.Info("newRequest", "method", method, "path", path)
-
 	rel, err := url.Parse(path)
 	if err != nil {
 		return nil, err
@@ -197,6 +201,7 @@ func (c *Client) newRequest(ctx context.Context, method, path, acceptHeader stri
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Accept", acceptHeader)
+	req.Header.Set("User-Agent", "goladok3/0.0.13")
 
 	return req, nil
 }
@@ -206,15 +211,23 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
 	if err := checkResponse(resp); err != nil {
 		return nil, err
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(value); err != nil {
-		return nil, err
+	switch resp.Header.Get("Content-Type") {
+	case ContentTypeAtomXML:
+		if err := xml.NewDecoder(resp.Body).Decode(value); err != nil {
+			return nil, err
+		}
+	case ContentTypeKataloginformationJSON, ContentTypeStudiedeltagandeJSON, ContentTypeStudentinformationJSON:
+		if err := json.NewDecoder(resp.Body).Decode(value); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, ErrNoValidContentType
 	}
 
 	return resp, nil

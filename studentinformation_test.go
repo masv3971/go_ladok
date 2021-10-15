@@ -11,8 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetStudent(t *testing.T) {
-	payload := []byte(`{
+var payloadStudent = []byte(`{
 			"Avliden": false,
 			"Efternamn": "TestEfternamn",
 			"ExterntUID": "11111111-2222-0000-0000-000000000000",
@@ -57,8 +56,10 @@ func TestGetStudent(t *testing.T) {
 			}]
 		}`)
 
+func TestGetStudent(t *testing.T) {
+
 	d := &GetStudentReply{}
-	if err := json.Unmarshal(payload, d); err != nil {
+	if err := json.Unmarshal(payloadStudent, d); err != nil {
 		assert.NoError(t, err)
 		t.Fatal()
 	}
@@ -66,7 +67,7 @@ func TestGetStudent(t *testing.T) {
 	got, err := json.Marshal(d)
 	assert.NoError(t, err)
 
-	require.JSONEq(t, string(payload), string(got))
+	require.JSONEq(t, string(payloadStudent), string(got))
 
 	mux, server, client := mockSetup(t)
 	defer takeDown(server)
@@ -77,9 +78,10 @@ func TestGetStudent(t *testing.T) {
 
 	mux.HandleFunc(fmt.Sprintf("/studentinformation/student/%s", cfg.UID),
 		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", ContentTypeStudentinformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, fmt.Sprintf("/studentinformation/student/%s", cfg.UID))
-			fmt.Fprint(w, string(payload))
+			w.Write(payloadStudent)
 		},
 	)
 

@@ -12,10 +12,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"software.sslmate.com/src/go-pkcs12"
 )
+
+func newUUID() string { return uuid.New().String() }
 
 func mockNewCertificateBundle(t *testing.T, password string) []byte {
 	certTemplate := mockCertificateTemplate(t)

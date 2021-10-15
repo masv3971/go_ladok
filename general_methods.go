@@ -1,5 +1,46 @@
 package goladok3
 
-import "github.com/google/uuid"
+import (
+	"context"
+	"errors"
+	"fmt"
+)
 
-func newUUID() string { return uuid.New().String() }
+// IsLadokPermissionsSufficent compare ladok permissions with p
+func (c *Client) IsLadokPermissionsSufficent(ctx context.Context, ps Permissions) (Permissions, error) {
+	egna, _, err := c.KataloginformationService.GetAnvandarbehorighetEgna(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(egna.Anvandarbehorighet) < 1 {
+		return nil, errors.New("missing Användarbehörigheter")
+	}
+
+	cfg := &GetBehorighetsprofilerCfg{
+		UID: egna.UID,
+	}
+	profil, _, err := c.KataloginformationService.GetBehorighetsprofil(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	missingPermission := Permissions{}
+	if missingPermission == nil {
+		fmt.Println("is nil")
+	}
+
+	for pk, pv := range ps {
+		for _, behorighet := range profil.Behorighetsprofiler {
+			for _, s := range behorighet.Systemaktiviteter {
+				if s.ID == pk {
+					if pv == s.Rattighetsniva {
+						continue
+					}
+				}
+			}
+		}
+		missingPermission[pk] = pv
+	}
+	return missingPermission, nil
+}
