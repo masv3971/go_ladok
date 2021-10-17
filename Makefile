@@ -1,11 +1,12 @@
-.PHONY: update clean build build-all run package deploy test authors dist
+.PHONY: update clean build build-all run package deploy test authors dist check-tag
 
 NAME 					:= goladok3
 VERSION                 := $(shell cat VERSION)
+TAGS					:= $(shell git tag)
 
 default: release-patch
 
-release-patch: tidy test add commit-msg release-tag push-tag go-list
+release-patch: check-tag tidy test add commit-msg release-tag push-tag go-list
 		@echo relese ${NAME}@${VERSION} 
 
 tidy:
@@ -26,6 +27,12 @@ release-tag:
 
 push-tag:
 		git push origin ${VERSION}
+
+check-tag:
+ifeq ($(filter $(TAGS), $(VERSION)) ,$(VERSION))
+	@echo tag $(VERSION) is already used, make other one please
+	@exit 
+endif
 
 go-list:	
 		GOPROXY=proxy.golang.org go list -m github.com/masv3971/${NAME}@${VERSION}
