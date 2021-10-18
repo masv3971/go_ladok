@@ -23,15 +23,17 @@ type Benamning struct {
 var (
 	// ErrNoValidContentType if no valid content-type is found
 	ErrNoValidContentType = errors.New("No valid content-type found")
+	// ErrNoEnvFound if no valid environment is found in certificate (ou)
+	ErrNoEnvFound = errors.New("No valid environment (ou) found")
 )
 
 const (
-	// ContentTypeStudiedeltagandeJSON ladok specefic type
-	ContentTypeStudiedeltagandeJSON = "application/vnd.ladok-studiedeltagande+json;charset=UTF-8"
-	// ContentTypeKataloginformationJSON ladok specefic type
-	ContentTypeKataloginformationJSON = "application/vnd.ladok-kataloginformation+json;charset=UTF-8"
-	// ContentTypeStudentinformationJSON ladok specefic type
-	ContentTypeStudentinformationJSON = "application/vnd.ladok-studentinformation+json;charset=UTF-8"
-	// ContentTypeAtomXML ladok specefic type
-	ContentTypeAtomXML = "application/atom+xml;charset=UTF-8"
+	contentTypeStudiedeltagandeJSON   = "application/vnd.ladok-studiedeltagande+json;charset=UTF-8"
+	contentTypeKataloginformationJSON = "application/vnd.ladok-kataloginformation+json;charset=UTF-8"
+	contentTypeStudentinformationJSON = "application/vnd.ladok-studentinformation+json;charset=UTF-8"
+	contentTypeAtomXML                = "application/atom+xml;charset=UTF-8"
+
+	envIntTestAPI = "Int-test-API"
+	envProdAPI    = "Prod-API"
+	envTestAPI    = "Test-API"
 )

@@ -671,12 +671,12 @@ func TestFeedRecent(t *testing.T) {
 
 	assert.Equal(t, p, g)
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envTestAPI)
 	defer takeDown(server)
 
 	mux.HandleFunc("/uppfoljning/feed/recent",
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeAtomXML)
+			w.Header().Set("Content-Type", contentTypeAtomXML)
 			testMethod(t, r, "GET")
 			testURL(t, r, "/uppfoljning/feed/recent")
 			w.Write(payloadFeedRecent)

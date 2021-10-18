@@ -201,7 +201,7 @@ func (c *Client) newRequest(ctx context.Context, method, path, acceptHeader stri
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Accept", acceptHeader)
-	req.Header.Set("User-Agent", "goladok3/0.0.13")
+	req.Header.Set("User-Agent", "goladok3/0.0.15")
 
 	return req, nil
 }
@@ -218,11 +218,11 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	}
 
 	switch resp.Header.Get("Content-Type") {
-	case ContentTypeAtomXML:
+	case contentTypeAtomXML:
 		if err := xml.NewDecoder(resp.Body).Decode(value); err != nil {
 			return nil, err
 		}
-	case ContentTypeKataloginformationJSON, ContentTypeStudiedeltagandeJSON, ContentTypeStudentinformationJSON:
+	case contentTypeKataloginformationJSON, contentTypeStudiedeltagandeJSON, contentTypeStudentinformationJSON:
 		if err := json.NewDecoder(resp.Body).Decode(value); err != nil {
 			return nil, err
 		}

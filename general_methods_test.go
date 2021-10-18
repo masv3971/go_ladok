@@ -27,12 +27,12 @@ func TestIsLadokPermissionsSufficent(t *testing.T) {
 		},
 	}
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envIntTestAPI)
 	takeDown(server)
 
 	mux.HandleFunc("/kataloginformation/anvandarbehorighet/egna",
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeKataloginformationJSON)
+			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, "/kataloginformation/anvandarbehorighet/egna")
 			w.Write(payloadEgna)
@@ -43,7 +43,7 @@ func TestIsLadokPermissionsSufficent(t *testing.T) {
 
 	mux.HandleFunc(fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeKataloginformationJSON)
+			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid))
 			w.Write(payloadProfil)

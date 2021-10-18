@@ -182,12 +182,12 @@ func TestGetAnvandareAutentiserad(t *testing.T) {
 
 	require.JSONEq(t, string(payloadAutentiserad), string(got))
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envIntTestAPI)
 	defer takeDown(server)
 
 	mux.HandleFunc("/kataloginformation/anvandare/autentiserad",
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeKataloginformationJSON)
+			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, "/kataloginformation/anvandare/autentiserad")
 			w.Write(payloadAutentiserad)
@@ -212,12 +212,12 @@ func TestGetAnvandarbehorighetEgna(t *testing.T) {
 
 	require.JSONEq(t, string(payloadEgna), string(got))
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envIntTestAPI)
 	defer takeDown(server)
 
 	mux.HandleFunc("/kataloginformation/anvandarbehorighet/egna",
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeKataloginformationJSON)
+			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, "/kataloginformation/anvandarbehorighet/egna")
 			w.Write(payloadEgna)
@@ -240,7 +240,7 @@ func TestGetBehorighetsprofil(t *testing.T) {
 
 	require.JSONEq(t, string(payloadProfil), string(got))
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envIntTestAPI)
 	defer takeDown(server)
 
 	cfg := &GetBehorighetsprofilerCfg{
@@ -249,7 +249,7 @@ func TestGetBehorighetsprofil(t *testing.T) {
 
 	mux.HandleFunc(fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", cfg.UID),
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeKataloginformationJSON)
+			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", cfg.UID))
 			w.Write(payloadProfil)

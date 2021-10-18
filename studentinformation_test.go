@@ -69,7 +69,7 @@ func TestGetStudent(t *testing.T) {
 
 	require.JSONEq(t, string(payloadStudent), string(got))
 
-	mux, server, client := mockSetup(t)
+	mux, server, client := mockSetup(t, envIntTestAPI)
 	defer takeDown(server)
 
 	cfg := &GetStudentCfg{
@@ -78,7 +78,7 @@ func TestGetStudent(t *testing.T) {
 
 	mux.HandleFunc(fmt.Sprintf("/studentinformation/student/%s", cfg.UID),
 		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", ContentTypeStudentinformationJSON)
+			w.Header().Set("Content-Type", contentTypeStudentinformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, fmt.Sprintf("/studentinformation/student/%s", cfg.UID))
 			w.Write(payloadStudent)

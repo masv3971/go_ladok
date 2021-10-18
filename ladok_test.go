@@ -20,8 +20,8 @@ import (
 
 func newUUID() string { return uuid.New().String() }
 
-func mockNewCertificateBundle(t *testing.T, password string) []byte {
-	certTemplate := mockCertificateTemplate(t)
+func mockNewCertificateBundle(t *testing.T, env, password string) []byte {
+	certTemplate := mockCertificateTemplate(t, env)
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -45,7 +45,7 @@ func mockNewCertificateBundle(t *testing.T, password string) []byte {
 
 	return data
 }
-func mockCertificateTemplate(t *testing.T) *x509.Certificate {
+func mockCertificateTemplate(t *testing.T, env string) *x509.Certificate {
 	certTemplate := &x509.Certificate{
 		SignatureAlgorithm: x509.SHA256WithRSA,
 		PublicKeyAlgorithm: x509.RSA,
@@ -58,7 +58,7 @@ func mockCertificateTemplate(t *testing.T) *x509.Certificate {
 		Subject: pkix.Name{
 			Country:            []string{"SE"},
 			Organization:       []string{"Ladok"},
-			OrganizationalUnit: []string{"LED", "Int-test-API"},
+			OrganizationalUnit: []string{"LED", env},
 			Locality:           []string{"Stockholm"},
 			SerialNumber:       "",
 			CommonName:         "sunet@KF",
@@ -73,8 +73,8 @@ func mockCertificateTemplate(t *testing.T) *x509.Certificate {
 	return certTemplate
 }
 
-func mockNew(t *testing.T, url string) *Client {
-	pkcs12 := mockNewCertificateBundle(t, "test")
+func mockNew(t *testing.T, env, url string) *Client {
+	pkcs12 := mockNewCertificateBundle(t, env, "test")
 
 	cfg := Config{
 		Password:     "test",
@@ -86,13 +86,13 @@ func mockNew(t *testing.T, url string) *Client {
 	return client
 }
 
-func mockSetup(t *testing.T) (*http.ServeMux, *httptest.Server, *Client) {
+func mockSetup(t *testing.T, env string) (*http.ServeMux, *httptest.Server, *Client) {
 	mux := http.NewServeMux()
 
 	//	server := httptest.NewTLSServer(mux)
 	server := httptest.NewServer(mux)
 
-	client := mockNew(t, server.URL)
+	client := mockNew(t, env, server.URL)
 
 	return mux, server, client
 }

@@ -6,20 +6,26 @@ TAGS					:= $(shell git tag)
 
 default: release-patch
 
-release-patch: check-tag tidy test add commit-msg release-tag push-tag go-list
-		@echo relese ${NAME}@${VERSION} 
+release-patch: check-tag check-files tidy test add commit release-tag push-tag go-list push-main
+		$(info relese ${NAME}@${VERSION})
 
 tidy:
-		@echo tidy up..
+		$(info tidy up..)
 		go mod tidy
 
 test:
-		@echo test ${NAME}
+		$(info test ${NAME})
 		go test -v --cover .
-add:
+
+git-status:
+	$(info files to be added:)
+	@git status
+	read -p "Press enter in order to precede"
+
+add: git-status
 	git add .
 
-commit-msg:
+commit:
 		git commit -S -m"${NAME} release ${VERSION}"
 
 release-tag:
@@ -28,11 +34,31 @@ release-tag:
 push-tag:
 		git push origin ${VERSION}
 
+push-main:
+		git push origin main
+
 check-tag:
+	git fetch --tags
 ifeq ($(filter $(TAGS), $(VERSION)) ,$(VERSION))
-	@echo tag $(VERSION) is already used, make other one please
-	@exit 
+	$(error $(VERSION) is already used, make other one please)
 endif
 
 go-list:	
 		GOPROXY=proxy.golang.org go list -m github.com/masv3971/${NAME}@${VERSION}
+
+check-files: check-version-file check-license-file check-readme-file
+
+check-version-file:
+ifeq (,$(wildcard ./VERSION))
+	$(error version file does not exists, make it!)
+endif
+
+check-license-file:
+ifeq (,$(wildcard ./LICENSE.md))
+	$(error license file does not exists, make it!)
+endif
+
+check-readme-file:
+ifeq (,$(wildcard ./README.md))
+	$(error README file does not exists, make it!)
+endif
