@@ -1,7 +1,6 @@
 package goladok3
 
 import (
-	"bytes"
 	"context"
 	"encoding/xml"
 	"net/http"
@@ -645,32 +644,6 @@ var payloadFeedRecent = []byte(`
 `)
 
 func TestFeedRecent(t *testing.T) {
-	d := &FeedRecent{}
-	if err := xml.Unmarshal(payloadFeedRecent, d); err != nil {
-		if !assert.NoError(t, err) {
-			t.Fail()
-		}
-	}
-
-	got, err := xml.Marshal(d)
-	if !assert.NoError(t, err) {
-		t.Fail()
-	}
-
-	p := &FeedRecent{}
-	g := &FeedRecent{}
-
-	if err := xml.NewDecoder(bytes.NewReader(payloadFeedRecent)).Decode(p); err != nil {
-		assert.NoError(t, err)
-		t.Fail()
-	}
-
-	if err := xml.NewDecoder(bytes.NewReader(got)).Decode(g); err != nil {
-		assert.NoError(t, err)
-	}
-
-	assert.Equal(t, p, g)
-
 	mux, server, client := mockSetup(t, envTestAPI)
 	defer takeDown(server)
 
@@ -682,10 +655,26 @@ func TestFeedRecent(t *testing.T) {
 			w.Write(payloadFeedRecent)
 		},
 	)
-	reply, _, err := client.UppfoljningService.FeedRecent(context.TODO())
+	_, _, err := client.UppfoljningService.FeedRecent(context.TODO())
 	if !assert.NoError(t, err) {
 		t.Fatal()
 	}
 
-	assert.Equal(t, d, reply, "Should be equal")
+}
+
+func TestParse(t *testing.T) {
+	d := &FeedRecent{}
+
+	if err := xml.Unmarshal(payloadFeedRecent, d); err != nil {
+		if !assert.NoError(t, err) {
+			t.Fail()
+		}
+	}
+
+	superFeed, err := d.parse()
+	if !assert.NoError(t, err) {
+		t.Fail()
+	}
+
+	assert.Equal(t, 4856, superFeed.ID)
 }

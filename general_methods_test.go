@@ -60,3 +60,14 @@ func TestIsLadokPermissionsSufficent(t *testing.T) {
 		assert.Equal(t, tt.want, got)
 	}
 }
+
+func TestSane(t *testing.T) {
+	got := FeedID("urn:id:4856").sane()
+
+	assert.Equal(t, FeedID("4856"), got, "sane")
+
+	gotInt, err := got.int()
+	assert.NoError(t, err)
+
+	assert.Equal(t, 4856, gotInt, "int")
+}

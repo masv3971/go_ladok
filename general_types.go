@@ -20,6 +20,11 @@ type Benamning struct {
 	Link     []struct{} `json:"link"`
 }
 
+type (
+	// FeedID ladok id is an int
+	FeedID string
+)
+
 var (
 	// ErrNoValidContentType if no valid content-type is found
 	ErrNoValidContentType = errors.New("No valid content-type found")

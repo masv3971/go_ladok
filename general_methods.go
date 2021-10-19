@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 // IsLadokPermissionsSufficent compare ladok permissions with p
@@ -56,4 +58,17 @@ func (c *Client) environment() (string, error) {
 	default:
 		return "", ErrNoEnvFound
 	}
+}
+
+// Sane return a saner version of ID
+func (id FeedID) sane() FeedID {
+	return FeedID(strings.Split(string(id), ":")[2])
+}
+
+func (id FeedID) int() (int, error) {
+	i, err := strconv.Atoi(string(id))
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
 }

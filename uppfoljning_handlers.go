@@ -13,10 +13,10 @@ type UppfoljningService struct {
 }
 
 // FeedRecent atom feed /uppfoljning/feed/recent
-func (s *UppfoljningService) FeedRecent(ctx context.Context) (*FeedRecent, *http.Response, error) {
+func (s *UppfoljningService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Response, error) {
 	env, err := s.client.environment()
 	if err != nil {
-		// TODO(masv): handle error
+		return nil, nil, err
 	}
 
 	var url string
@@ -44,5 +44,10 @@ func (s *UppfoljningService) FeedRecent(ctx context.Context) (*FeedRecent, *http
 		return nil, resp, err
 	}
 
-	return reply, resp, nil
+	superFeed, err := reply.parse()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return superFeed, resp, nil
 }
