@@ -2,13 +2,12 @@ package goladok3
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-// IsLadokPermissionsSufficent compare ladok permissions with p
+// IsLadokPermissionsSufficent compare ladok permissions with ps
 func (c *Client) IsLadokPermissionsSufficent(ctx context.Context, ps Permissions) (Permissions, error) {
 	egna, _, err := c.KataloginformationService.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
@@ -16,15 +15,16 @@ func (c *Client) IsLadokPermissionsSufficent(ctx context.Context, ps Permissions
 	}
 
 	if len(egna.Anvandarbehorighet) < 1 {
-		return nil, errors.New("missing Användarbehörigheter")
+		return nil, ErrNotSufficentPermissions
 	}
 
-	cfg := &GetBehorighetsprofilerCfg{
-		UID: egna.UID,
-	}
-	profil, _, err := c.KataloginformationService.GetBehorighetsprofil(ctx, cfg)
+	profil, _, err := c.KataloginformationService.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
 	if err != nil {
 		return nil, err
+	}
+
+	if len(profil.Behorighetsprofiler[0].Systemaktiviteter) == 0 {
+		return nil, ErrNotSufficentPermissions
 	}
 
 	missingPermission := Permissions{}

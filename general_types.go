@@ -30,6 +30,8 @@ var (
 	ErrNoValidContentType = errors.New("No valid content-type found")
 	// ErrNoEnvFound if no valid environment is found in certificate (ou)
 	ErrNoEnvFound = errors.New("No valid environment (ou) found")
+	// ErrNotSufficentPermissions if not all provided permissions are met
+	ErrNotSufficentPermissions = errors.New("Not sufficent permissions")
 )
 
 const (
