@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsLadokPermissionsSufficent(t *testing.T) {
+func TestIsLadokPermissionsSufficient(t *testing.T) {
 	t.SkipNow()
 	tts := []struct {
 		name string
@@ -35,7 +35,7 @@ func TestIsLadokPermissionsSufficent(t *testing.T) {
 			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, "/kataloginformation/anvandarbehorighet/egna")
-			w.Write(payloadEgna)
+			w.Write(jsonEgna)
 		},
 	)
 
@@ -46,13 +46,13 @@ func TestIsLadokPermissionsSufficent(t *testing.T) {
 			w.Header().Set("Content-Type", contentTypeKataloginformationJSON)
 			testMethod(t, r, "GET")
 			testURL(t, r, fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid))
-			w.Write(payloadProfil)
+			w.Write(jsonProfil)
 		},
 	)
 
 	for _, tt := range tts {
 		ctx := context.TODO()
-		got, err := client.IsLadokPermissionsSufficent(ctx, tt.have)
+		got, err := client.IsLadokPermissionsSufficient(ctx, tt.have)
 		if !assert.NoError(t, err) {
 			t.Fail()
 		}

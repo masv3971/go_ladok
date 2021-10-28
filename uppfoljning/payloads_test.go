@@ -1,13 +1,4 @@
-package goladok3
-
-import (
-	"context"
-	"encoding/xml"
-	"net/http"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
+package uppfoljning
 
 var payloadFeedRecent = []byte(`
 <?xml version="1.0" encoding="UTF-8"?>
@@ -134,7 +125,7 @@ var payloadFeedRecent = []byte(`
           <si:Land>Sverige</si:Land>
           <si:PostadressTyp>FOLKBOKFORINGSADRESS</si:PostadressTyp>
           <si:Postnummer>10020</si:Postnummer>
-          <si:Postort>CIRY</si:Postort>
+          <si:Postort>CITY</si:Postort>
           <si:Utdelningsadress>TESTGATAN 1 LGH 1000</si:Utdelningsadress>
         </si:Postadresser>
         <si:StudentUID>041e8b44-b593-11e7-96e6-896ca17746d1</si:StudentUID>
@@ -642,39 +633,3 @@ var payloadFeedRecent = []byte(`
   </entry>
 </feed>
 `)
-
-func TestFeedRecent(t *testing.T) {
-	mux, server, client := mockSetup(t, envTestAPI)
-	defer takeDown(server)
-
-	mux.HandleFunc("/uppfoljning/feed/recent",
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", contentTypeAtomXML)
-			testMethod(t, r, "GET")
-			testURL(t, r, "/uppfoljning/feed/recent")
-			w.Write(payloadFeedRecent)
-		},
-	)
-	_, _, err := client.UppfoljningService.FeedRecent(context.TODO())
-	if !assert.NoError(t, err) {
-		t.Fatal()
-	}
-
-}
-
-func TestParse(t *testing.T) {
-	d := &FeedRecent{}
-
-	if err := xml.Unmarshal(payloadFeedRecent, d); err != nil {
-		if !assert.NoError(t, err) {
-			t.Fail()
-		}
-	}
-
-	superFeed, err := d.parse()
-	if !assert.NoError(t, err) {
-		t.Fail()
-	}
-
-	assert.Equal(t, 4856, superFeed.ID)
-}

@@ -1,24 +1,26 @@
-package goladok3
+package kataloginformation
 
 import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/masv3971/goladok3"
 )
 
-// KataloginformationService handles kataloginformation
-type KataloginformationService struct {
-	client      *Client
+// Client handles kataloginformation
+type Client struct {
 	contentType string
+	client      *goladok3.Client
 }
 
 // GetAnvandareAutentiserad gets kataloginformation/anvandare/autentiserad
-func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*GetAnvandareAutentiseradReply, *http.Response, error) {
-	req, err := s.client.newRequest(
+func (c *Client) GetAnvandareAutentiserad(ctx context.Context) (*GetAnvandareAutentiseradReply, *http.Response, error) {
+	req, err := c.client.HTTPClient.newRequest(
 		ctx,
 		"GET",
 		fmt.Sprintf("%s", "kataloginformation/anvandare/autentiserad"),
-		ladokAcceptHeader[s.contentType][s.client.format],
+		ladokAcceptHeader[c.contentType][c.client.format],
 		nil,
 	)
 	if err != nil {
@@ -26,7 +28,7 @@ func (s *KataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 	}
 
 	reply := &GetAnvandareAutentiseradReply{}
-	resp, err := s.client.do(req, reply)
+	resp, err := c.client.do(req, reply)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -40,8 +42,8 @@ type GetBehorighetsprofilerCfg struct {
 }
 
 // GetBehorighetsprofil return structure of rights for uid
-func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cfg *GetBehorighetsprofilerCfg) (*GetBehorighetsprofilReply, *http.Response, error) {
-	req, err := s.client.newRequest(
+func (c *Client) GetBehorighetsprofil(ctx context.Context, cfg *GetBehorighetsprofilerCfg) (*GetBehorighetsprofilReply, *http.Response, error) {
+	req, err := c.client.newRequest(
 		ctx,
 		"GET",
 		fmt.Sprintf("%s/%s", "kataloginformation/behorighetsprofil", cfg.UID),
@@ -62,7 +64,7 @@ func (s *KataloginformationService) GetBehorighetsprofil(ctx context.Context, cf
 }
 
 // GetAnvandarbehorighetEgna return structure of ladok permission
-func (s *KataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*GetAnvandarbehorighetEgnaReply, *http.Response, error) {
+func (c *Client) GetAnvandarbehorighetEgna(ctx context.Context) (*GetAnvandarbehorighetEgnaReply, *http.Response, error) {
 	req, err := s.client.newRequest(
 		ctx,
 		"GET",

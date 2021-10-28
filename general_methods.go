@@ -7,15 +7,15 @@ import (
 	"strings"
 )
 
-// IsLadokPermissionsSufficent compare ladok permissions with ps
-func (c *Client) IsLadokPermissionsSufficent(ctx context.Context, ps Permissions) (Permissions, error) {
+// IsLadokPermissionsSufficient compare ladok permissions with ps
+func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, ps Permissions) (Permissions, error) {
 	egna, _, err := c.KataloginformationService.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(egna.Anvandarbehorighet) < 1 {
-		return nil, ErrNotSufficentPermissions
+		return nil, ErrNotSufficientPermissions
 	}
 
 	profil, _, err := c.KataloginformationService.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
@@ -24,7 +24,7 @@ func (c *Client) IsLadokPermissionsSufficent(ctx context.Context, ps Permissions
 	}
 
 	if len(profil.Behorighetsprofiler[0].Systemaktiviteter) == 0 {
-		return nil, ErrNotSufficentPermissions
+		return nil, ErrNotSufficientPermissions
 	}
 
 	missingPermission := Permissions{}

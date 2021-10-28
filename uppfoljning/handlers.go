@@ -1,4 +1,4 @@
-package goladok3
+package uppfoljning
 
 import (
 	"context"
@@ -6,14 +6,14 @@ import (
 	"net/http"
 )
 
-// UppfoljningService holds uppfoljning feed object
-type UppfoljningService struct {
-	client      *Client
+// Service holds uppfoljning feed object
+type Service struct {
+	client      *Service
 	contentType string
 }
 
 // FeedRecent atom feed /uppfoljning/feed/recent
-func (s *UppfoljningService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Response, error) {
+func (s *Service) FeedRecent(ctx context.Context) (*SuperFeed, *http.Response, error) {
 	env, err := s.client.environment()
 	if err != nil {
 		return nil, nil, err

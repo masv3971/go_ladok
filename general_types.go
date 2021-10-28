@@ -2,7 +2,7 @@ package goladok3
 
 import "errors"
 
-// Permissions is a simplfy permissions object
+// Permissions is a simplify permissions object
 type Permissions map[int64]string
 
 // Link is a general ladok link structure
@@ -30,16 +30,11 @@ var (
 	ErrNoValidContentType = errors.New("No valid content-type found")
 	// ErrNoEnvFound if no valid environment is found in certificate (ou)
 	ErrNoEnvFound = errors.New("No valid environment (ou) found")
-	// ErrNotSufficentPermissions if not all provided permissions are met
-	ErrNotSufficentPermissions = errors.New("Not sufficent permissions")
+	// ErrNotSufficientPermissions if not all provided permissions are met
+	ErrNotSufficientPermissions = errors.New("Not sufficient permissions")
 )
 
 const (
-	contentTypeStudiedeltagandeJSON   = "application/vnd.ladok-studiedeltagande+json;charset=UTF-8"
-	contentTypeKataloginformationJSON = "application/vnd.ladok-kataloginformation+json;charset=UTF-8"
-	contentTypeStudentinformationJSON = "application/vnd.ladok-studentinformation+json;charset=UTF-8"
-	contentTypeAtomXML                = "application/atom+xml;charset=UTF-8"
-
 	envIntTestAPI = "Int-test-API"
 	envProdAPI    = "Prod-API"
 	envTestAPI    = "Test-API"

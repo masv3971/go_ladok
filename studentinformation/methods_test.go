@@ -13,21 +13,21 @@ func TestGenderString(t *testing.T) {
 		want string
 	}{
 		{
-			name: "1",
+			name: "female",
 			have: &GetStudentReply{
 				KonID: 1,
 			},
 			want: "female",
 		},
 		{
-			name: "2",
+			name: "male",
 			have: &GetStudentReply{
 				KonID: 2,
 			},
 			want: "male",
 		},
 		{
-			name: "10",
+			name: "n/a",
 			have: &GetStudentReply{
 				KonID: 10,
 			},

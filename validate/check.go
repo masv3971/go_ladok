@@ -1,13 +1,14 @@
-package goladok3
+package validate
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
-func validate(s interface{}) error {
+// Check checks for validation error
+func Check(s interface{}) error {
 	validate := validator.New()
 
 	err := validate.Struct(s)

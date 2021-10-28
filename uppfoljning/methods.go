@@ -1,4 +1,4 @@
-package goladok3
+package uppfoljning
 
 func (feedRecent *FeedRecent) parse() (*SuperFeed, error) {
 	superFeed := &SuperFeed{}

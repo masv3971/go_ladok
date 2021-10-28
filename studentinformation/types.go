@@ -1,16 +1,4 @@
-package goladok3
-
-import (
-	"context"
-	"fmt"
-	"net/http"
-)
-
-// StudentinformationService handles studentinformation
-type StudentinformationService struct {
-	client      *Client
-	contentType string
-}
+package studentinformation
 
 // GetStudentReply is ladok reply from /studentinformation/student/{studentuid}
 type GetStudentReply struct {
@@ -43,33 +31,10 @@ type GetStudentReply struct {
 	Link []Link `json:"link"`
 }
 
-// GetStudentCfg config for GetStudent
-type GetStudentCfg struct {
-	UID string `validate:"required,uuid"`
-}
-
-// GetStudent return student
-func (s *StudentinformationService) GetStudent(ctx context.Context, cfg *GetStudentCfg) (*GetStudentReply, *http.Response, error) {
-	if err := validate(cfg); err != nil {
-		return nil, nil, err
-	}
-
-	req, err := s.client.newRequest(
-		ctx,
-		"GET",
-		fmt.Sprintf("%s/%s", "studentinformation/student", cfg.UID),
-		ladokAcceptHeader[s.contentType][s.client.format],
-		nil,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	reply := &GetStudentReply{}
-	resp, err := s.client.do(req, reply)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return reply, resp, nil
+// Link is a general ladok link structure
+type Link struct {
+	Method    string `json:"method"`
+	URI       string `json:"uri"`
+	MediaType string `json:"mediaType"`
+	Rel       string `json:"rel"`
 }

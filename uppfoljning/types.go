@@ -1,4 +1,4 @@
-package goladok3
+package uppfoljning
 
 import "encoding/xml"
 
@@ -52,7 +52,7 @@ type EventContext struct {
 	LarosateID   string `xml:"LarosateID"`
 }
 
-// SuperFeed is a made up type, in order to make unstructrued data to structued data.
+// SuperFeed is a made up type, in order to make unstructured data to structured data.
 type SuperFeed struct {
 	ID          int           `json:"id,omitempty"`
 	SuperEvents []*SuperEvent `json:"super_events,omitempty"`

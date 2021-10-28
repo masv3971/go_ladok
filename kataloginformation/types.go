@@ -1,4 +1,4 @@
-package goladok3
+package kataloginformation
 
 // GetAnvandareAutentiseradReply is ladok response from /kataloginformation/anvandare/autentiserad
 type GetAnvandareAutentiseradReply struct {
