@@ -7,6 +7,8 @@ COMMIT_MSG				:= $(shell tail -1 RELEASE|awk -F" : " '{print $$2}')
 
 default: release-patch
 
+release: add commit release-tag push-tag go-list
+
 release-patch: check-tag check-files tidy test add commit release-tag push-tag go-list push-main
 		$(info relese ${NAME}@${VERSION})
 
@@ -54,9 +56,9 @@ endif
 go-list:	
 		GOPROXY=proxy.golang.org go list -m github.com/masv3971/${NAME}@${VERSION}
 
-check-files: check-version-file check-license-file check-readme-file
+check-files: check-release-file check-license-file check-readme-file
 
-check-version-file:
+check-release-file:
 ifeq (,$(wildcard ./RELEASE))
 	$(error RELEASE file does not exists, make it!)
 endif
@@ -70,7 +72,3 @@ check-readme-file:
 ifeq (,$(wildcard ./README.md))
 	$(error README file does not exists, make it!)
 endif
-
-v:
-		$(info $(VERSION)  $(COMMIT_MSG))
-		@echo ${VERSION}
