@@ -1,25 +1,7 @@
 {
     "folders": [
         {
-            "path": "./studentdeltagande"
-        },
-        {
-            "path": "./studentinformation"
-        },
-        {
-            "path": "httpclient"
-        },
-        {
-            "path": "kataloginformation"
-        },
-        {
-            "path": "uppfoljning"
-        },
-        {
-            "path": "validate"
-        },
-        {
-            "path": "./"
+            "path": "."
         }
     ]
 }

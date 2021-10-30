@@ -1,7 +1,23 @@
-package kataloginformation
+package goladok3
 
-// GetAnvandareAutentiseradReply is ladok response from /kataloginformation/anvandare/autentiserad
-type GetAnvandareAutentiseradReply struct {
+import (
+	"context"
+	"fmt"
+	"net/http"
+)
+
+// kataloginformationService handles kataloginformation
+type kataloginformationService struct {
+	client  *Client
+	service string
+}
+
+func (s *kataloginformationService) acceptHeader() string {
+	return ladokAcceptHeader[s.service][s.client.format]
+}
+
+// AnvandareAutentiserad is ladok response from /kataloginformation/anvandare/autentiserad
+type AnvandareAutentiserad struct {
 	Anvandarnamn   string `json:"Anvandarnamn"`
 	Efternamen     string `json:"Efternamn"`
 	Fornamn        string `json:"Fornamn"`
@@ -12,8 +28,8 @@ type GetAnvandareAutentiseradReply struct {
 	Link           []Link `json:"link"`
 }
 
-// GetBehorighetsprofilReply is ladok reply from kataloginformation/behorighetsprofil/{uid}
-type GetBehorighetsprofilReply struct {
+// Behorighetsprofil is ladok reply from kataloginformation/behorighetsprofil/{uid}
+type Behorighetsprofil struct {
 	Behorighetsprofiler []struct {
 		Benamning struct {
 			Sv string `json:"sv"`
@@ -57,8 +73,8 @@ type GetBehorighetsprofilReply struct {
 	Link           []Link `json:"link"`
 }
 
-// GetAnvandarbehorighetEgnaReply is ladok response from kataloginformation/anvandarbehorighet/egna
-type GetAnvandarbehorighetEgnaReply struct {
+// AnvandarbehorighetEgna is ladok response from kataloginformation/anvandarbehorighet/egna
+type AnvandarbehorighetEgna struct {
 	Anvandarbehorighet []struct {
 		AnvandareRef struct {
 			Anvandarnamn string `json:"Anvandarnamn"`
@@ -90,4 +106,43 @@ type GetAnvandarbehorighetEgnaReply struct {
 	SenastSparad   string `json:"SenastSparad"`
 	UID            string `json:"Uid"`
 	Link           []Link `json:"link"`
+}
+
+// GetAnvandareAutentiserad gets kataloginformation/anvandare/autentiserad
+func (s *kataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*AnvandareAutentiserad, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s", s.service, "anvandare/autentiserad")
+	reply := &AnvandareAutentiserad{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return reply, resp, nil
+}
+
+// GetBehorighetsprofilerCfg configuration for GetBehorighetsprofil
+type GetBehorighetsprofilerCfg struct {
+	UID string `validate:"required,uuid"`
+}
+
+// GetBehorighetsprofil return structure of rights for uid
+func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, req *GetBehorighetsprofilerCfg) (*Behorighetsprofil, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s", s.service, "behorighetsprofil")
+	reply := &Behorighetsprofil{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, req.UID, nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+	return reply, resp, nil
+}
+
+// GetAnvandarbehorighetEgna return structure of ladok permission
+func (s *kataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*AnvandarbehorighetEgna, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s", s.service, "anvandarbehorighet/egna")
+	reply := &AnvandarbehorighetEgna{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+	return reply, resp, nil
 }

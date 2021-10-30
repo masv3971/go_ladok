@@ -1,7 +1,23 @@
-package studentinformation
+package goladok3
 
-// GetStudentReply is ladok reply from /studentinformation/student/{studentuid}
-type GetStudentReply struct {
+import (
+	"context"
+	"fmt"
+	"net/http"
+)
+
+// studentinformationService handles studentinformation
+type studentinformationService struct {
+	client  *Client
+	service string
+}
+
+func (s *studentinformationService) acceptHeader() string {
+	return ladokAcceptHeader[s.service][s.client.format]
+}
+
+// Student is ladok reply from /studentinformation/student/{studentuid}
+type Student struct {
 	Avliden                           bool   `json:"Avliden"`
 	Efternamn                         string `json:"Efternamn"`
 	ExterntUID                        string `json:"ExterntUID"`
@@ -31,10 +47,31 @@ type GetStudentReply struct {
 	Link []Link `json:"link"`
 }
 
-// Link is a general ladok link structure
-type Link struct {
-	Method    string `json:"method"`
-	URI       string `json:"uri"`
-	MediaType string `json:"mediaType"`
-	Rel       string `json:"rel"`
+// GenderString translate from KonID to the equal string value
+func (s *Student) GenderString() string {
+	switch s.KonID {
+	case 1:
+		return "female"
+	case 2:
+		return "male"
+	default:
+		return "n/a"
+	}
+}
+
+// GetStudentReq config for GetStudent
+type GetStudentReq struct {
+	UID string `validate:"required,uuid"`
+}
+
+// GetStudent return student
+func (s *studentinformationService) GetStudent(ctx context.Context, req *GetStudentReq) (*Student, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s", s.service, "student")
+	reply := &Student{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, req.UID, nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return reply, resp, nil
 }

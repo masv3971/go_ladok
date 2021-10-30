@@ -28,7 +28,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 	}
 
 	mux, server, client := mockSetup(t, envIntTestAPI)
-	takeDown(server)
+	defer server.Close()
 
 	mux.HandleFunc("/kataloginformation/anvandarbehorighet/egna",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -51,13 +51,15 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 	)
 
 	for _, tt := range tts {
-		ctx := context.TODO()
-		got, err := client.IsLadokPermissionsSufficient(ctx, tt.have)
-		if !assert.NoError(t, err) {
-			t.Fail()
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
+			got, err := client.IsLadokPermissionsSufficient(ctx, tt.have)
+			if !assert.NoError(t, err) {
+				t.Fail()
+			}
 
-		assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.want, got)
+		})
 	}
 }
 

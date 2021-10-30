@@ -1,4 +1,4 @@
-package validate
+package goladok3
 
 import (
 	"errors"

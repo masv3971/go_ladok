@@ -9,7 +9,7 @@ import (
 
 // IsLadokPermissionsSufficient compare ladok permissions with ps
 func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, ps Permissions) (Permissions, error) {
-	egna, _, err := c.KataloginformationService.GetAnvandarbehorighetEgna(ctx)
+	egna, _, err := c.Kataloginformation.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, ps Permission
 		return nil, ErrNotSufficientPermissions
 	}
 
-	profil, _, err := c.KataloginformationService.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
+	profil, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
 	if err != nil {
 		return nil, err
 	}

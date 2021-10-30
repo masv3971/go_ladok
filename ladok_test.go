@@ -6,19 +6,43 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"software.sslmate.com/src/go-pkcs12"
 )
 
-func newUUID() string { return uuid.New().String() }
+var jsonErrors = []byte(`
+{
+	"details": [{
+			"msg": "mura",
+			"type": "mura"
+		},
+		{
+			"msg": "mura2",
+			"type": "mura2"
+		}
+	]
+}
+`)
+
+func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, method, url, param string, payload []byte, statusCode int) {
+	mux.HandleFunc(fmt.Sprintf("%s/%s", url, param),
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", contentType)
+			w.WriteHeader(statusCode)
+			testMethod(t, r, method)
+			testURL(t, r, fmt.Sprintf("%s/%s", url, param))
+			w.Write(payload)
+		},
+	)
+}
 
 func mockNewCertificateBundle(t *testing.T, env, password string) []byte {
 	certTemplate := mockCertificateTemplate(t, env)
@@ -73,16 +97,16 @@ func mockCertificateTemplate(t *testing.T, env string) *x509.Certificate {
 	return certTemplate
 }
 
-func mockNew(t *testing.T, env, url string) *Client {
-	pkcs12 := mockNewCertificateBundle(t, env, "test")
-
+func mockNewClient(t *testing.T, env, url string) *Client {
 	cfg := Config{
-		Password:     "test",
-		LadokRestURL: url,
-		Pkck12:       pkcs12,
+		Password: "test",
+		URL:      url,
+		Pkcs12:   mockNewCertificateBundle(t, env, "test"),
 	}
 	client, err := New(cfg)
-	assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
 	return client
 }
 
@@ -92,12 +116,10 @@ func mockSetup(t *testing.T, env string) (*http.ServeMux, *httptest.Server, *Cli
 	//	server := httptest.NewTLSServer(mux)
 	server := httptest.NewServer(mux)
 
-	client := mockNew(t, env, server.URL)
+	client := mockNewClient(t, env, server.URL)
 
 	return mux, server, client
 }
-
-func takeDown(server *httptest.Server) { server.Close() }
 
 func testMethod(t *testing.T, r *http.Request, want string) {
 	got := r.Method

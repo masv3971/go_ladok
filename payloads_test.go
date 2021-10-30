@@ -69,12 +69,13 @@ var jsonProfil = []byte(`{
 	}]
 }`)
 
-var jsonAutentiserad = []byte(`{
+var jsonAutentiserad = []byte(`
+{
 		"Anvandarnamn": "mail@school.se",
 		"Efternamn": "testEfternamn",
 		"Fornamn": "testFornamn",
 		"LarosateID": 96,
-		"SenastAndradAv": "eva@ladok3.ladok.se",
+		"SenastAndradAv": "name@ladok3.ladok.se",
 		"SenastSparad": "2012-01-11T12:45:45",
 		"Uid": "11111111-2222-0000-0000-000000000000",
 		"link": [ {
@@ -83,7 +84,8 @@ var jsonAutentiserad = []byte(`{
 		  "mediaType": "application/vnd.ladok+xml",
 		  "rel": "http://schemas.ladok.se"
 		} ]
-	  }`)
+	  }
+`)
 
 var jsonEgna = []byte(`{
 		"Anvandarbehorighet": [{

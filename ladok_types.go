@@ -1,6 +1,9 @@
 package goladok3
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // Permissions is a simplify permissions object
 type Permissions map[int64]string
@@ -25,6 +28,29 @@ type (
 	FeedID string
 )
 
+type serviceTypes struct {
+	client       *Client
+	service      string
+	acceptHeader string
+}
+
+// Errors is the bespoke error struct
+type Errors struct {
+	Details []struct {
+		Msg  string `json:"msg"`
+		Type string `json:"type"`
+	} `json:"details"`
+}
+
+func (e *Errors) Error() string {
+	return fmt.Sprintf("error: %v", e.Details)
+}
+
+// Error interface
+type Error interface {
+	Error() string
+}
+
 var (
 	// ErrNoValidContentType if no valid content-type is found
 	ErrNoValidContentType = errors.New("No valid content-type found")
@@ -38,4 +64,11 @@ const (
 	envIntTestAPI = "Int-test-API"
 	envProdAPI    = "Prod-API"
 	envTestAPI    = "Test-API"
+)
+
+var (
+	contentTypeStudiedeltagandeJSON   = "application/vnd.ladok-studiedeltagande+json;charset=UTF-8"
+	contentTypeKataloginformationJSON = "application/vnd.ladok-kataloginformation+json;charset=UTF-8"
+	contentTypeStudentinformationJSON = "application/vnd.ladok-studentinformation+json;charset=UTF-8"
+	contentTypeAtomXML                = "application/atom+xml;charset=UTF-8"
 )
