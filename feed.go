@@ -15,8 +15,7 @@ func (s *feedService) acceptHeader() string {
 	return ladokAcceptHeader[s.service][s.client.format]
 }
 
-// FeedRecent xx
-type FeedRecent struct {
+type feedRecent struct {
 	XMLName xml.Name `xml:"feed"`
 	Text    string   `xml:",chardata"`
 	Xmlns   string   `xml:"xmlns,attr"`
@@ -48,19 +47,18 @@ type FeedRecent struct {
 		Content struct {
 			Text                             string                 `xml:",chardata"`
 			Type                             string                 `xml:"type,attr"`
-			AnvandareAndradEvent             *AnvandareEvent        `xml:"AnvandareAndradEvent,omitempty"`
-			AnvandareSkapadEvent             *AnvandareEvent        `xml:"AnvandareSkapadEvent,omitempty"`
-			KontaktuppgifterEvent            *KontaktuppgifterEvent `xml:"KontaktuppgifterEvent,omitempty"`
-			ExternPartEvent                  *ExternPartEvent       `xml:"ExternPartEvent,omitempty"`
-			LokalStudentEvent                *LokalStudentEvent     `xml:"LokalStudentEvent,omitempty"`
-			ResultatPaModulAttesteratEvent   *ResultatEvent         `xml:"ResultatPaModulAttesteratEvent,omitempty"`
-			ResultatPaHelKursAttesteratEvent *ResultatEvent         `xml:"ResultatPaHelKursAttesteratEvent,omitempty"`
+			AnvandareAndradEvent             *anvandareEvent        `xml:"AnvandareAndradEvent,omitempty"`
+			AnvandareSkapadEvent             *anvandareEvent        `xml:"AnvandareSkapadEvent,omitempty"`
+			KontaktuppgifterEvent            *kontaktuppgifterEvent `xml:"KontaktuppgifterEvent,omitempty"`
+			ExternPartEvent                  *externPartEvent       `xml:"ExternPartEvent,omitempty"`
+			LokalStudentEvent                *lokalStudentEvent     `xml:"LokalStudentEvent,omitempty"`
+			ResultatPaModulAttesteratEvent   *resultatEvent         `xml:"ResultatPaModulAttesteratEvent,omitempty"`
+			ResultatPaHelKursAttesteratEvent *resultatEvent         `xml:"ResultatPaHelKursAttesteratEvent,omitempty"`
 		} `xml:"content"`
 	} `xml:"entry"`
 }
 
-// EventContext ladok atom type
-type EventContext struct {
+type eventContext struct {
 	Text         string `xml:",chardata"`
 	AnvandareUID string `xml:"AnvandareUID"`
 	Anvandarnamn string `xml:"Anvandarnamn"`
@@ -113,7 +111,7 @@ type SuperResultat struct {
 type SuperEvent struct {
 	EventTypeName         string            `json:"event_type_name"`
 	EventContext          SuperEventContext `json:"event_context"`
-	HandelseUID           string            `json:"handelse_id"`
+	HandelseUID           string            `json:"handelse_uid"`
 	ID                    string            `json:"id"`
 	AnvandareUID          string            `json:"anvandare_uid"`
 	Efternamn             string            `json:"efternamn"`
@@ -127,7 +125,7 @@ type SuperEvent struct {
 	Resultat              SuperResultat     `json:"resultat"`
 	UtbildningsinstansUID string            `json:"utbildningsinstans_uid"`
 	Anvandarnamnet        string            `json:"anvandarnamnet"`
-	EventTyp              string            `json:"event_type"`
+	EventTyp              string            `json:"event_typ"`
 	Giltighetsperiod      string            `json:"giltighetsperiod"`
 	Kod                   string            `json:"kod"`
 	LandID                string            `json:"land_id"`
@@ -136,20 +134,19 @@ type SuperEvent struct {
 	KursinstansUID        string            `json:"kursinstans_uid"`
 	KurstillfalleUID      string            `json:"kurstillfalle_uid"`
 	ExterntStudentUID     string            `json:"externt_student_uid"`
-	Fodelsedata           string            `json:"fodelse_data"`
+	Fodelsedata           string            `json:"fodelsedata"`
 	Kon                   string            `json:"kon"`
 	Personnummer          string            `json:"personnummer"`
 }
 
-// AnvandareEvent event
-type AnvandareEvent struct {
+type anvandareEvent struct {
 	Text           string       `xml:",chardata"`
 	Ki             string       `xml:"ki,attr"`
 	Base           string       `xml:"base,attr"`
 	Dap            string       `xml:"dap,attr"`
 	Events         string       `xml:"events,attr"`
 	HandelseUID    string       `xml:"HandelseUID"`
-	EventContext   EventContext `xml:"EventContext"`
+	EventContext   eventContext `xml:"EventContext"`
 	AnvandareUID   string       `xml:"AnvandareUID"`
 	Anvandarnamnet string       `xml:"Anvandarnamnet"`
 	Efternamn      string       `xml:"Efternamn"`
@@ -157,15 +154,31 @@ type AnvandareEvent struct {
 	Email          string       `xml:"Email"`
 }
 
-//KontaktuppgifterEvent event
-type KontaktuppgifterEvent struct {
+func (a *anvandareEvent) parse(eventTypeName string) *SuperEvent {
+	s := &SuperEvent{
+		EventTypeName: eventTypeName,
+		HandelseUID:   a.HandelseUID,
+		EventContext: SuperEventContext{
+			AnvandareUID: a.EventContext.AnvandareUID,
+			Anvandarnamn: a.EventContext.Anvandarnamn,
+			LarosateID:   a.EventContext.LarosateID,
+		},
+		AnvandareUID:   a.AnvandareUID,
+		Anvandarnamnet: a.Anvandarnamnet,
+		Efternamn:      a.Efternamn,
+		Fornamn:        a.Fornamn,
+	}
+	return s
+}
+
+type kontaktuppgifterEvent struct {
 	Text         string       `xml:",chardata"`
 	Si           string       `xml:"si,attr"`
 	Base         string       `xml:"base,attr"`
 	Dap          string       `xml:"dap,attr"`
 	Events       string       `xml:"events,attr"`
 	HandelseUID  string       `xml:"HandelseUID"`
-	EventContext EventContext `xml:"EventContext"`
+	EventContext eventContext `xml:"EventContext"`
 	Handelsetyp  string       `xml:"Handelsetyp"`
 	Epostadress  string       `xml:"Epostadress"`
 	Postadresser []struct {
@@ -181,8 +194,39 @@ type KontaktuppgifterEvent struct {
 	Telefonnummer string `xml:"Telefonnummer"`
 }
 
-// LokalStudentEvent event
-type LokalStudentEvent struct {
+func (e *kontaktuppgifterEvent) parse() *SuperEvent {
+	superAdresser := []SuperPostadress{}
+
+	for _, adress := range e.Postadresser {
+		ad := SuperPostadress{
+			Land:             adress.Land,
+			PostadressTyp:    adress.PostadressTyp,
+			Postnummer:       adress.Postnummer,
+			Postort:          adress.Postort,
+			Utdelningsadress: adress.Utdelningsadress,
+			CareOf:           adress.CareOf,
+		}
+		superAdresser = append(superAdresser, ad)
+	}
+
+	s := &SuperEvent{
+		EventTypeName: "KontaktuppgifterEvent",
+		HandelseUID:   e.HandelseUID,
+		EventContext: SuperEventContext{
+			AnvandareUID: e.EventContext.AnvandareUID,
+			Anvandarnamn: e.EventContext.Anvandarnamn,
+			LarosateID:   e.EventContext.LarosateID,
+		},
+		Handelsetyp:   e.Handelsetyp,
+		Email:         e.Epostadress,
+		StudentUID:    e.StudentUID,
+		Telefonnummer: e.Telefonnummer,
+		Postadresser:  superAdresser,
+	}
+	return s
+}
+
+type lokalStudentEvent struct {
 	Text         string `xml:",chardata"`
 	Si           string `xml:"si,attr"`
 	Base         string `xml:"base,attr"`
@@ -205,15 +249,35 @@ type LokalStudentEvent struct {
 	StudentUID        string `xml:"StudentUID"`
 }
 
-//ExternPartEvent event
-type ExternPartEvent struct {
+func (e *lokalStudentEvent) parse() *SuperEvent {
+	s := &SuperEvent{
+		EventTypeName: "LokalStudentEvent",
+		EventContext: SuperEventContext{
+			AnvandareUID: e.EventContext.AnvandareUID,
+			Anvandarnamn: e.EventContext.Anvandarnamn,
+			LarosateID:   e.EventContext.LarosateID,
+		},
+		HandelseUID:       e.HandelseUID,
+		Efternamn:         e.Efternamn,
+		Fornamn:           e.Fornamn,
+		Handelsetyp:       e.Handelsetyp,
+		StudentUID:        e.StudentUID,
+		ExterntStudentUID: e.ExterntStudentUID,
+		Fodelsedata:       e.Fodelsedata,
+		Kon:               e.Kon,
+		Personnummer:      e.Personnummer,
+	}
+	return s
+}
+
+type externPartEvent struct {
 	Text         string       `xml:",chardata"`
 	Ki           string       `xml:"ki,attr"`
 	Base         string       `xml:"base,attr"`
 	Dap          string       `xml:"dap,attr"`
 	Events       string       `xml:"events,attr"`
 	HandelseUID  string       `xml:"HandelseUID"`
-	EventContext EventContext `xml:"EventContext"`
+	EventContext eventContext `xml:"EventContext"`
 	Benamningar  struct {
 		Text      string `xml:",chardata"`
 		Benamning []struct {
@@ -238,8 +302,26 @@ type ExternPartEvent struct {
 	TypAvExternPartID string `xml:"TypAvExternPartID"`
 }
 
-// ResultatEvent event
-type ResultatEvent struct {
+func (e *externPartEvent) parse() *SuperEvent {
+	s := &SuperEvent{
+		EventTypeName: "ExternPartEvent",
+		HandelseUID:   e.HandelseUID,
+		EventContext: SuperEventContext{
+			AnvandareUID: e.EventContext.AnvandareUID,
+			Anvandarnamn: e.EventContext.Anvandarnamn,
+			LarosateID:   e.EventContext.LarosateID,
+		},
+		EventTyp:          e.EventTyp,
+		Giltighetsperiod:  e.Giltighetsperiod,
+		ID:                e.ID,
+		Kod:               e.Kod,
+		LandID:            e.LandID,
+		TypAvExternPartID: e.TypAvExternPartID,
+	}
+	return s
+}
+
+type resultatEvent struct {
 	Text         string `xml:",chardata"`
 	Rr           string `xml:"rr,attr"`
 	Base         string `xml:"base,attr"`
@@ -276,6 +358,39 @@ type ResultatEvent struct {
 	UtbildningsinstansUID string `xml:"UtbildningsinstansUID"`
 }
 
+func (e *resultatEvent) parse(eventTypeName string) *SuperEvent {
+	s := &SuperEvent{
+		EventTypeName: eventTypeName,
+		HandelseUID:   e.HandelseUID,
+		EventContext: SuperEventContext{
+			AnvandareUID: e.EventContext.AnvandareUID,
+			Anvandarnamn: e.EventContext.Anvandarnamn,
+			LarosateID:   e.EventContext.LarosateID,
+		},
+		Beslut: SuperBeslut{
+			BeslutUID:         e.Beslut.BeslutUID,
+			Beslutsdatum:      e.Beslut.Beslutsdatum,
+			Beslutsfattare:    e.Beslut.Beslutsfattare,
+			BeslutsfattareUID: e.Beslut.BeslutsfattareUID,
+		},
+		KursUID:          e.KursUID,
+		KursinstansUID:   e.KursinstansUID,
+		KurstillfalleUID: e.KurstillfalleUID,
+		Resultat: SuperResultat{
+			BetygsgradID:       e.Resultat.BetygsgradID,
+			BetygsskalaID:      e.Resultat.BetygsskalaID,
+			Examinationsdatum:  e.Resultat.Examinationsdatum,
+			GiltigSomSlutbetyg: e.Resultat.GiltigSomSlutbetyg,
+			OmfattningsPoang:   e.Resultat.OmfattningsPoang,
+			PrestationsPoang:   e.Resultat.PrestationsPoang,
+			ResultatUID:        e.Resultat.ResultatUID,
+		},
+		StudentUID:            e.StudentUID,
+		UtbildningsinstansUID: e.UtbildningsinstansUID,
+	}
+	return s
+}
+
 // FeedRecent atom feed /uppfoljning/feed/recent
 func (s *feedService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Response, error) {
 	env, err := s.client.environment()
@@ -291,7 +406,7 @@ func (s *feedService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Respons
 		url = "uppfoljning/feed/recent"
 	}
 
-	reply := &FeedRecent{}
+	reply := &feedRecent{}
 	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
 	if err != nil {
 		return nil, resp, err
@@ -305,17 +420,16 @@ func (s *feedService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Respons
 	return superFeed, resp, nil
 }
 
-func (feedRecent *FeedRecent) parse() (*SuperFeed, error) {
+func (f *feedRecent) parse() (*SuperFeed, error) {
 	superFeed := &SuperFeed{}
-
-	feedID, err := feedRecent.ID.sane().int()
+	feedID, err := f.ID.trim().int()
 	if err != nil {
 		return nil, err
 	}
 
 	superFeed.ID = feedID
 
-	for _, entry := range feedRecent.Entry {
+	for _, entry := range f.Entry {
 		if entry.Content.AnvandareAndradEvent != nil {
 			event := entry.Content.AnvandareAndradEvent.parse("AnvandareAndradEvent")
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
@@ -347,137 +461,17 @@ func (feedRecent *FeedRecent) parse() (*SuperFeed, error) {
 		}
 
 		if entry.Content.ResultatPaHelKursAttesteratEvent != nil {
-			event := entry.Content.ResultatPaModulAttesteratEvent.parse("ResultatPaHelKursAttesteratEvent")
+			event := entry.Content.ResultatPaHelKursAttesteratEvent.parse("ResultatPaHelKursAttesteratEvent")
+			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
+			continue
+		}
+
+		if entry.Content.LokalStudentEvent != nil {
+			event := entry.Content.LokalStudentEvent.parse()
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 	}
 
 	return superFeed, nil
-}
-
-func (a *AnvandareEvent) parse(eventTypeName string) *SuperEvent {
-	s := &SuperEvent{
-		EventTypeName: eventTypeName,
-		HandelseUID:   a.HandelseUID,
-		EventContext: SuperEventContext{
-			AnvandareUID: a.EventContext.AnvandareUID,
-			Anvandarnamn: a.EventContext.Anvandarnamn,
-			LarosateID:   a.EventContext.LarosateID,
-		},
-		AnvandareUID:   a.AnvandareUID,
-		Anvandarnamnet: a.Anvandarnamnet,
-		Efternamn:      a.Efternamn,
-		Fornamn:        a.Fornamn,
-	}
-	return s
-}
-
-func (e *ExternPartEvent) parse() *SuperEvent {
-	s := &SuperEvent{
-		EventTypeName: "ExternPartEvent",
-		HandelseUID:   e.HandelseUID,
-		EventContext: SuperEventContext{
-			AnvandareUID: e.EventContext.AnvandareUID,
-			Anvandarnamn: e.EventContext.Anvandarnamn,
-			LarosateID:   e.EventContext.LarosateID,
-		},
-		EventTyp:          e.EventTyp,
-		Giltighetsperiod:  e.Giltighetsperiod,
-		ID:                e.ID,
-		Kod:               e.Kod,
-		LandID:            e.LandID,
-		TypAvExternPartID: e.TypAvExternPartID,
-	}
-	return s
-}
-
-func (e *KontaktuppgifterEvent) parse() *SuperEvent {
-	superAdresser := []SuperPostadress{}
-
-	for _, adress := range e.Postadresser {
-		ad := SuperPostadress{
-			Land:             adress.Land,
-			PostadressTyp:    adress.PostadressTyp,
-			Postnummer:       adress.Postnummer,
-			Postort:          adress.Postort,
-			Utdelningsadress: adress.Utdelningsadress,
-			CareOf:           adress.CareOf,
-		}
-		superAdresser = append(superAdresser, ad)
-	}
-
-	s := &SuperEvent{
-		EventTypeName: "KontaktuppgifterEvent",
-		HandelseUID:   e.HandelseUID,
-		EventContext: SuperEventContext{
-			AnvandareUID: e.EventContext.AnvandareUID,
-			Anvandarnamn: e.EventContext.Anvandarnamn,
-			LarosateID:   e.EventContext.LarosateID,
-		},
-		Handelsetyp:   e.Handelsetyp,
-		Email:         e.Epostadress,
-		StudentUID:    e.StudentUID,
-		Telefonnummer: e.Telefonnummer,
-		Postadresser:  superAdresser,
-	}
-	return s
-}
-
-func (e *LokalStudentEvent) parse() *SuperEvent {
-	s := &SuperEvent{
-		EventTypeName: "LokalStudentEvent",
-		EventContext: SuperEventContext{
-			AnvandareUID: e.EventContext.AnvandareUID,
-			Anvandarnamn: e.EventContext.Anvandarnamn,
-			LarosateID:   e.EventContext.LarosateID,
-		},
-		HandelseUID:       e.HandelseUID,
-		Efternamn:         e.Efternamn,
-		Fornamn:           e.Fornamn,
-		Handelsetyp:       e.Handelsetyp,
-		StudentUID:        e.StudentUID,
-		Postadresser:      []SuperPostadress{},
-		Beslut:            SuperBeslut{},
-		Resultat:          SuperResultat{},
-		ExterntStudentUID: e.ExterntStudentUID,
-		Fodelsedata:       e.Fodelsedata,
-		Kon:               e.Kon,
-		Personnummer:      e.Personnummer,
-	}
-	return s
-}
-
-func (e *ResultatEvent) parse(eventTypeName string) *SuperEvent {
-	s := &SuperEvent{
-		EventTypeName: eventTypeName,
-		HandelseUID:   e.HandelseUID,
-		EventContext: SuperEventContext{
-			AnvandareUID: e.EventContext.AnvandareUID,
-			Anvandarnamn: e.EventContext.Anvandarnamn,
-			LarosateID:   e.EventContext.LarosateID,
-		},
-		Beslut: SuperBeslut{
-			BeslutUID:         e.Beslut.BeslutUID,
-			Beslutsdatum:      e.Beslut.Beslutsdatum,
-			Beslutsfattare:    e.Beslut.Beslutsfattare,
-			BeslutsfattareUID: e.Beslut.BeslutsfattareUID,
-		},
-		KursUID:          e.KursUID,
-		KursinstansUID:   e.KursinstansUID,
-		KurstillfalleUID: e.KurstillfalleUID,
-		Resultat: SuperResultat{
-
-			BetygsgradID:       e.Resultat.BetygsgradID,
-			BetygsskalaID:      e.Resultat.BetygsskalaID,
-			Examinationsdatum:  e.Resultat.Examinationsdatum,
-			GiltigSomSlutbetyg: e.Resultat.GiltigSomSlutbetyg,
-			OmfattningsPoang:   e.Resultat.OmfattningsPoang,
-			PrestationsPoang:   e.Resultat.PrestationsPoang,
-			ResultatUID:        e.Resultat.ResultatUID,
-		},
-		StudentUID:            e.StudentUID,
-		UtbildningsinstansUID: e.UtbildningsinstansUID,
-	}
-	return s
 }

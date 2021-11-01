@@ -28,53 +28,8 @@ type AnvandareAutentiserad struct {
 	Link           []Link `json:"link"`
 }
 
-// Behorighetsprofil is ladok reply from kataloginformation/behorighetsprofil/{uid}
-type Behorighetsprofil struct {
-	Behorighetsprofiler []struct {
-		Benamning struct {
-			Sv string `json:"sv"`
-		} `json:"Benamning"`
-		Dataavgransningar struct {
-			LarosateID int `json:"LarosateID"`
-			Lista      []struct {
-				DataDimension  string `json:"DataDimension"`
-				DataID         string `json:"DataId"`
-				LarosateID     int    `json:"LarosateID"`
-				SenastAndradAv string `json:"SenastAndradAv"`
-				SenastSparad   string `json:"SenastSparad"`
-				UID            string `json:"Uid"`
-				Link           []Link `json:"link"`
-			} `json:"Lista"`
-			SenastAndradAv string `json:"SenastAndradAv"`
-			SenastSparad   string `json:"SenastSparad"`
-			UID            string `json:"Uid"`
-			Link           []Link `json:"link"`
-		} `json:"Dataavgransningar"`
-		LarosateID        int    `json:"LarosateID"`
-		Rattighetsniva    string `json:"Rattighetsniva"`
-		SenastAndradAv    string `json:"SenastAndradAv"`
-		SenastSparad      string `json:"SenastSparad"`
-		Systemaktiviteter []struct {
-			Betafunktion      bool   `json:"Betafunktion"`
-			I18NNyckel        string `json:"I18nNyckel"`
-			ID                int64  `json:"Id"`
-			KlarForProduktion bool   `json:"KlarForProduktion"`
-			LarosateID        int    `json:"LarosateID"`
-			Rattighetsniva    string `json:"Rattighetsniva"`
-			Link              []Link `json:"link"`
-		} `json:"Systemaktiviteter"`
-		UID  string `json:"Uid"`
-		Link []Link `json:"link"`
-	} `json:"Behorighetsprofiler"`
-	LarosateID     int    `json:"LarosateID"`
-	SenastAndradAv string `json:"SenastAndradAv"`
-	SenastSparad   string `json:"SenastSparad"`
-	UID            string `json:"Uid"`
-	Link           []Link `json:"link"`
-}
-
-// AnvandarbehorighetEgna is ladok response from kataloginformation/anvandarbehorighet/egna
-type AnvandarbehorighetEgna struct {
+// KataloginformationAnvandarbehorighetEgna is ladok response from kataloginformation/anvandarbehorighet/egna
+type KataloginformationAnvandarbehorighetEgna struct {
 	Anvandarbehorighet []struct {
 		AnvandareRef struct {
 			Anvandarnamn string `json:"Anvandarnamn"`
@@ -108,6 +63,33 @@ type AnvandarbehorighetEgna struct {
 	Link           []Link `json:"link"`
 }
 
+// Systemaktiviteter type
+type Systemaktiviteter struct {
+	Betafunktion      bool          `json:"Betafunktion"`
+	I18NNyckel        string        `json:"I18nNyckel"`
+	ID                int64         `json:"Id"`
+	KlarForProduktion bool          `json:"KlarForProduktion"`
+	Rattighetsniva    string        `json:"Rattighetsniva"`
+	Link              []interface{} `json:"link"`
+}
+
+// KataloginformationBehorighetsprofil type
+type KataloginformationBehorighetsprofil struct {
+	Benamning struct {
+		Sv string `json:"sv"`
+		En string `json:"en"`
+	} `json:"Benamning"`
+	Dataavgransningar struct {
+		Lista []interface{} `json:"Lista"`
+		Link  []interface{} `json:"link"`
+	} `json:"Dataavgransningar"`
+	LarosateID        int                 `json:"LarosateID"`
+	Rattighetsniva    string              `json:"Rattighetsniva"`
+	Systemaktiviteter []Systemaktiviteter `json:"Systemaktiviteter"`
+	UID               string              `json:"Uid"`
+	Link              []Link              `json:"link"`
+}
+
 // GetAnvandareAutentiserad gets kataloginformation/anvandare/autentiserad
 func (s *kataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*AnvandareAutentiserad, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", s.service, "anvandare/autentiserad")
@@ -116,7 +98,6 @@ func (s *kataloginformationService) GetAnvandareAutentiserad(ctx context.Context
 	if err != nil {
 		return nil, resp, err
 	}
-
 	return reply, resp, nil
 }
 
@@ -126,9 +107,9 @@ type GetBehorighetsprofilerCfg struct {
 }
 
 // GetBehorighetsprofil return structure of rights for uid
-func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, req *GetBehorighetsprofilerCfg) (*Behorighetsprofil, *http.Response, error) {
+func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, req *GetBehorighetsprofilerCfg) (*KataloginformationBehorighetsprofil, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", s.service, "behorighetsprofil")
-	reply := &Behorighetsprofil{}
+	reply := &KataloginformationBehorighetsprofil{}
 	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, req.UID, nil, reply)
 	if err != nil {
 		return nil, resp, err
@@ -137,9 +118,9 @@ func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, re
 }
 
 // GetAnvandarbehorighetEgna return structure of ladok permission
-func (s *kataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*AnvandarbehorighetEgna, *http.Response, error) {
+func (s *kataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*KataloginformationAnvandarbehorighetEgna, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", s.service, "anvandarbehorighet/egna")
-	reply := &AnvandarbehorighetEgna{}
+	reply := &KataloginformationAnvandarbehorighetEgna{}
 	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
 	if err != nil {
 		return nil, resp, err

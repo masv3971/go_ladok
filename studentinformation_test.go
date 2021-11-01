@@ -78,10 +78,16 @@ func TestGetStudent(t *testing.T) {
 			fn:         c.Studentinformation.GetStudent,
 		},
 		{
-			name:       "Get:/student 500",
-			url:        "/studentinformation/student",
-			payload:    jsonErrors,
-			reply:      &Errors{},
+			name:    "Get:/student 500",
+			url:     "/studentinformation/student",
+			payload: jsonErrors500,
+			reply: &Errors{Ladok: &LadokError{
+				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
+				Felkategori:     "commons.fel.kategori.applikationsfel",
+				FelkategoriText: "Generellt fel i applikationen",
+				Meddelande:      "java.lang.NullPointerException null",
+				Link:            []interface{}{},
+			}},
 			req:        &GetStudentReq{UID: uuid.NewString()},
 			statusCode: 500,
 			fn:         c.Studentinformation.GetStudent,
@@ -111,10 +117,8 @@ func TestGetStudent(t *testing.T) {
 					t.FailNow()
 				}
 			case 500:
-				r := tt.reply.(*Errors)
-
 				_, _, err = tt.fn(context.TODO(), tt.req)
-				assert.Equal(t, err.Error(), r.Error())
+				assert.Equal(t, err, tt.reply.(*Errors))
 			}
 
 			server.Close() // Close server after each run

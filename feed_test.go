@@ -4,67 +4,90 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFeedRecent(t *testing.T) {
-	t.SkipNow()
-	var (
-		c = mockNewClient(t, envProdAPI, "")
-		//client = &Client{}
-	)
+	type payload struct {
+		client, server []byte
+	}
 	tts := []struct {
-		name          string
-		url           string
-		clientPayload []byte
-		clientReply   interface{}
-		serverPayload []byte
-		statusCode    int
-		env           string
-		fn            func(context.Context) (*SuperFeed, *http.Response, error)
+		name       string
+		url        string
+		payload    payload
+		reply      interface{}
+		statusCode int
+		env        string
 	}{
 		{
-			name:          "Prod_GET:/uppfoljning/feed/recent 200",
-			url:           "/uppfoljning/feed/recent",
-			clientPayload: jsonSuperFeed,
-			clientReply:   &SuperFeed{},
-			serverPayload: xmlFeedRecent,
-			statusCode:    200,
-			env:           envProdAPI,
-			fn:            c.Feed.FeedRecent,
+			name:       "Prod_GET:/uppfoljning/feed/recent 200",
+			url:        "/uppfoljning/feed/recent",
+			payload:    payload{jsonSuperFeed(t), xmlFeedRecent},
+			reply:      &SuperFeed{},
+			statusCode: 200,
+			env:        envProdAPI,
+		},
+		{
+			name:    "Prod_GET:/uppfoljning/feed/recent 500",
+			url:     "/uppfoljning/feed/recent",
+			payload: payload{jsonSuperFeed(t), jsonErrors500},
+			reply: &Errors{Ladok: &LadokError{
+				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
+				Felkategori:     "commons.fel.kategori.applikationsfel",
+				FelkategoriText: "Generellt fel i applikationen",
+				Meddelande:      "java.lang.NullPointerException null",
+				Link:            []interface{}{},
+			}},
+			statusCode: 500,
+			env:        envProdAPI,
+		},
+		{
+			name:       "IntTest_GET:/handelse/feed/recent 200",
+			url:        "/handelse/feed/recent",
+			payload:    payload{jsonSuperFeed(t), xmlFeedRecent},
+			reply:      &SuperFeed{},
+			statusCode: 200,
+			env:        envIntTestAPI,
+		},
+		{
+			name:       "Test_GET:/uppfoljning/feed/recent 200",
+			url:        "/uppfoljning/feed/recent",
+			payload:    payload{jsonSuperFeed(t), xmlFeedRecent},
+			reply:      &SuperFeed{},
+			statusCode: 200,
+			env:        envTestAPI,
+		},
+		{
+			name:       "Invalid ladok-environment",
+			url:        "/uppfoljning/feed/recent",
+			payload:    payload{jsonSuperFeed(t), xmlFeedRecent},
+			reply:      &Errors{Internal: []InternalError{{Msg: "No valid ladok-environment (OU) found in certificate"}}},
+			statusCode: 200,
+			env:        "test",
 		},
 	}
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			mux, server, _ := mockSetup(t, tt.env)
-			c.url = server.URL
+			mux, server, client := mockSetup(t, tt.env)
 
-			mockGenericEndpointServer(t, mux, contentTypeAtomXML, "GET", tt.url, "", tt.serverPayload, tt.statusCode)
+			mockGenericEndpointServer(t, mux, contentTypeAtomXML, "GET", tt.url, "", tt.payload.server, tt.statusCode)
 
-			err := json.Unmarshal(tt.clientPayload, tt.clientReply)
+			err := json.Unmarshal(tt.payload.client, tt.reply)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
 
-			switch tt.statusCode {
-			case 200:
-				reply, _, err := tt.fn(context.TODO())
-				if !assert.NoError(t, err) {
-					t.Fatal(err)
-				}
+			switch tt.reply.(type) {
+			case *SuperFeed:
+				got, _, _ := client.Feed.FeedRecent(context.TODO())
 
-				if !assert.Equal(t, tt.clientReply, reply, "Should be equal") {
-					t.FailNow()
-				}
-			case 500:
-				r := tt.clientReply.(*Errors)
-
-				_, _, err = tt.fn(context.TODO())
-				assert.Equal(t, err.Error(), r.Error())
+				assert.Equal(t, tt.reply, got, "Should be equal")
+			case *Errors:
+				_, _, err = client.Feed.FeedRecent(context.TODO())
+				assert.Equal(t, tt.reply.(*Errors), err)
 			}
 
 			server.Close() // Close server after each run
@@ -319,50 +342,6 @@ var mockResultatPaModulAttesteratEvent = &SuperEvent{
 	KurstillfalleUID:      "1aac3ee2-ae07-11e8-8034-bd68ea484fc7",
 }
 
-var xmlLokalStudentEvent = []byte(`
-<si:LokalStudentEvent
-xmlns:si="http://schemas.ladok.se/studentinformation"
-xmlns:base="http://schemas.ladok.se"
-xmlns:dap="http://schemas.ladok.se/dap"
-xmlns:events="http://schemas.ladok.se/events">
-<events:HandelseUID>79a2cce2-32be-11ec-aeeb-67874d294267</events:HandelseUID>
-<events:EventContext>
-  <events:AnvandareUID>799b04af-32be-11ec-aeeb-67874d294267</events:AnvandareUID>
-  <events:Anvandarnamn>feedevent@ladokintern.se</events:Anvandarnamn>
-  <events:LarosateID>27</events:LarosateID>
-</events:EventContext>
-<events:Handelsetyp>UPPDATERAD</events:Handelsetyp>
-<si:Efternamn>TestEfternamn</si:Efternamn>
-<si:ExterntStudentUID>1e32b258-2ad3-4804-b288-11338efe6e44</si:ExterntStudentUID>
-<si:Fodelsedata>1970-01-01</si:Fodelsedata>
-<si:Fornamn>TestFornamn</si:Fornamn>
-<si:Kon>1</si:Kon>
-<si:Personnummer>197001014622</si:Personnummer>
-<si:StudentUID>54871756-790b-11e7-807b-490425ec48ab</si:StudentUID>
-</si:LokalStudentEvent>
-`)
-
-var mockLokalStudentEvent = &SuperEvent{
-	EventTypeName: "LokalStudentEvent",
-	EventContext: SuperEventContext{
-		AnvandareUID: "799b04af-32be-11ec-aeeb-67874d294267",
-		Anvandarnamn: "feedevent@ladokintern.se",
-		LarosateID:   "27",
-	},
-	HandelseUID:       "79a2cce2-32be-11ec-aeeb-67874d294267",
-	Efternamn:         "TestEfternamn",
-	Fornamn:           "TestFornamn",
-	Handelsetyp:       "UPPDATERAD",
-	StudentUID:        "54871756-790b-11e7-807b-490425ec48ab",
-	Postadresser:      []SuperPostadress{},
-	Beslut:            SuperBeslut{},
-	Resultat:          SuperResultat{},
-	ExterntStudentUID: "1e32b258-2ad3-4804-b288-11338efe6e44",
-	Fodelsedata:       "1970-01-01",
-	Kon:               "1",
-	Personnummer:      "197001014622",
-}
-
 var xmlResultatPaHelKursAttesteratEvent = []byte(`
       <rr:ResultatPaHelKursAttesteratEvent
         xmlns:rr="http://schemas.ladok.se/resultat"
@@ -428,6 +407,47 @@ var mockResultatPaHelKursAttesteratEvent = &SuperEvent{
 	KurstillfalleUID:      "b4294f9e-5438-11eb-bec3-d5a2938f4dea",
 }
 
+var xmlLokalStudentEvent = []byte(`
+<si:LokalStudentEvent
+xmlns:si="http://schemas.ladok.se/studentinformation"
+xmlns:base="http://schemas.ladok.se"
+xmlns:dap="http://schemas.ladok.se/dap"
+xmlns:events="http://schemas.ladok.se/events">
+<events:HandelseUID>79a2cce2-32be-11ec-aeeb-67874d294267</events:HandelseUID>
+<events:EventContext>
+  <events:AnvandareUID>799b04af-32be-11ec-aeeb-67874d294267</events:AnvandareUID>
+  <events:Anvandarnamn>feedevent@ladokintern.se</events:Anvandarnamn>
+  <events:LarosateID>27</events:LarosateID>
+</events:EventContext>
+<events:Handelsetyp>UPPDATERAD</events:Handelsetyp>
+<si:Efternamn>TestEfternamn</si:Efternamn>
+<si:ExterntStudentUID>1e32b258-2ad3-4804-b288-11338efe6e44</si:ExterntStudentUID>
+<si:Fodelsedata>1970-01-01</si:Fodelsedata>
+<si:Fornamn>TestFornamn</si:Fornamn>
+<si:Kon>1</si:Kon>
+<si:Personnummer>197001014622</si:Personnummer>
+<si:StudentUID>54871756-790b-11e7-807b-490425ec48ab</si:StudentUID>
+</si:LokalStudentEvent>
+`)
+
+var mockLokalStudentEvent = &SuperEvent{
+	EventTypeName: "LokalStudentEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "799b04af-32be-11ec-aeeb-67874d294267",
+		Anvandarnamn: "feedevent@ladokintern.se",
+		LarosateID:   "27",
+	},
+	HandelseUID:       "79a2cce2-32be-11ec-aeeb-67874d294267",
+	Efternamn:         "TestEfternamn",
+	Fornamn:           "TestFornamn",
+	Handelsetyp:       "UPPDATERAD",
+	StudentUID:        "54871756-790b-11e7-807b-490425ec48ab",
+	ExterntStudentUID: "1e32b258-2ad3-4804-b288-11338efe6e44",
+	Fodelsedata:       "1970-01-01",
+	Kon:               "1",
+	Personnummer:      "197001014622",
+}
+
 func TestParse(t *testing.T) {
 	tts := []struct {
 		name    string
@@ -437,43 +457,43 @@ func TestParse(t *testing.T) {
 	}{
 		{
 			name:    "AnvandareAndradEvent",
-			event:   &AnvandareEvent{},
+			event:   &anvandareEvent{},
 			want:    mockAnvandareAndradEvent,
 			payload: xmlAnvandareAndraEvent,
 		},
 		{
 			name:    "AnvandareSkapadEvent",
-			event:   &AnvandareEvent{},
+			event:   &anvandareEvent{},
 			want:    mockAnvandareSkapadEventSuperEvent,
 			payload: xmlAnvandareSkapadEvent,
 		},
 		{
 			name:    "ExternPartEvent",
-			event:   &ExternPartEvent{},
+			event:   &externPartEvent{},
 			want:    mockExternPartEvent,
 			payload: xmlExternPartEvent,
 		},
 		{
 			name:    "KontaktuppgifterEvent",
-			event:   &KontaktuppgifterEvent{},
+			event:   &kontaktuppgifterEvent{},
 			want:    mockKontaktuppgifterEvent,
 			payload: xmlKontaktuppgifterEvent,
 		},
 		{
 			name:    "ResultatPaModulAttesteratEvent",
-			event:   &ResultatEvent{},
+			event:   &resultatEvent{},
 			want:    mockResultatPaModulAttesteratEvent,
 			payload: xmlResultatPaModulAttesteratEvent,
 		},
 		{
 			name:    "ResultatPaHelKursAttesteratEvent",
-			event:   &ResultatEvent{},
+			event:   &resultatEvent{},
 			want:    mockResultatPaHelKursAttesteratEvent,
 			payload: xmlResultatPaHelKursAttesteratEvent,
 		},
 		{
 			name:    "LokalStudentEvent",
-			event:   &LokalStudentEvent{},
+			event:   &lokalStudentEvent{},
 			want:    mockLokalStudentEvent,
 			payload: xmlLokalStudentEvent,
 		},
@@ -488,16 +508,16 @@ func TestParse(t *testing.T) {
 				t.FailNow()
 			}
 			switch tt.event.(type) {
-			case *AnvandareEvent:
-				got = tt.event.(*AnvandareEvent).parse(tt.name)
-			case *ExternPartEvent:
-				got = tt.event.(*ExternPartEvent).parse()
-			case *KontaktuppgifterEvent:
-				got = tt.event.(*KontaktuppgifterEvent).parse()
-			case *ResultatEvent:
-				got = tt.event.(*ResultatEvent).parse(tt.name)
-			case *LokalStudentEvent:
-				got = tt.event.(*LokalStudentEvent).parse()
+			case *anvandareEvent:
+				got = tt.event.(*anvandareEvent).parse(tt.name)
+			case *externPartEvent:
+				got = tt.event.(*externPartEvent).parse()
+			case *kontaktuppgifterEvent:
+				got = tt.event.(*kontaktuppgifterEvent).parse()
+			case *resultatEvent:
+				got = tt.event.(*resultatEvent).parse(tt.name)
+			case *lokalStudentEvent:
+				got = tt.event.(*lokalStudentEvent).parse()
 			default:
 				t.Fatalf("ERROR: type: %T not found", tt.event)
 			}
@@ -515,9 +535,8 @@ var mockFeedRecent = &SuperFeed{
 		mockKontaktuppgifterEvent,
 		mockResultatPaModulAttesteratEvent,
 		mockExternPartEvent,
-
-		//		mockLokalStudentEvent,
-		//		mockResultatPaHelKursAttesteratEvent,
+		mockLokalStudentEvent,
+		mockResultatPaHelKursAttesteratEvent,
 	},
 }
 
@@ -525,13 +544,13 @@ func TestMotherParser(t *testing.T) {
 	tts := []struct {
 		name    string
 		payload []byte
-		event   *FeedRecent
-		want    *SuperFeed
+		event   *feedRecent
+		want    interface{}
 	}{
 		{
-			name:    "mura",
+			name:    "OK",
 			payload: xmlFeedRecent,
-			event:   &FeedRecent{},
+			event:   &feedRecent{},
 			want:    mockFeedRecent,
 		},
 	}
@@ -543,11 +562,16 @@ func TestMotherParser(t *testing.T) {
 				t.FailNow()
 			}
 			got, err := tt.event.parse()
-			if !assert.NoError(t, err) {
-				t.FailNow()
-			}
 
-			assert.Equal(t, tt.want, got)
+			switch tt.want.(type) {
+			case *SuperFeed:
+				if !assert.NoError(t, err) {
+					t.FailNow()
+				}
+				assert.Equal(t, tt.want, got)
+			case *Errors:
+				assert.Equal(t, tt.want, err)
+			}
 		})
 	}
 }
@@ -727,14 +751,91 @@ var xmlFeedRecent = []byte(`
       </ki:ExternPartEvent>
     </content>
   </entry>
+  <entry>
+    <category term="http://schemas.ladok.se/studentinformation/LokalStudentEvent" label="Event-typ" />
+    <id>e8eddf7f-276b-11ec-a5df-22713cb94088</id>
+    <updated>2021-10-07T12:41:35.373Z</updated>
+    <content type="application/vnd.ladok+xml">
+      <si:LokalStudentEvent
+        xmlns:si="http://schemas.ladok.se/studentinformation"
+        xmlns:base="http://schemas.ladok.se"
+        xmlns:dap="http://schemas.ladok.se/dap"
+        xmlns:events="http://schemas.ladok.se/events">
+        <events:HandelseUID>79a2cce2-32be-11ec-aeeb-67874d294267</events:HandelseUID>
+        <events:EventContext>
+          <events:AnvandareUID>799b04af-32be-11ec-aeeb-67874d294267</events:AnvandareUID>
+          <events:Anvandarnamn>feedevent@ladokintern.se</events:Anvandarnamn>
+          <events:LarosateID>27</events:LarosateID>
+        </events:EventContext>
+        <events:Handelsetyp>UPPDATERAD</events:Handelsetyp>
+        <si:Efternamn>TestEfternamn</si:Efternamn>
+        <si:ExterntStudentUID>1e32b258-2ad3-4804-b288-11338efe6e44</si:ExterntStudentUID>
+        <si:Fodelsedata>1970-01-01</si:Fodelsedata>
+        <si:Fornamn>TestFornamn</si:Fornamn>
+        <si:Kon>1</si:Kon>
+        <si:Personnummer>197001014622</si:Personnummer>
+        <si:StudentUID>54871756-790b-11e7-807b-490425ec48ab</si:StudentUID>
+      </si:LokalStudentEvent>
+    </content>
+  </entry>
+  <entry>
+    <category term="http://schemas.ladok.se/kataloginformation/ResultatPaHelKursAttesteratEvent" label="Event-typ" />
+    <id>e8eddf7f-276b-11ec-a5df-22713cb94088</id>
+    <updated>2021-10-07T12:41:35.373Z</updated>
+    <content type="application/vnd.ladok+xml">
+      <rr:ResultatPaHelKursAttesteratEvent
+        xmlns:rr="http://schemas.ladok.se/resultat"
+        xmlns:base="http://schemas.ladok.se"
+        xmlns:dap="http://schemas.ladok.se/dap"
+        xmlns:events="http://schemas.ladok.se/events">
+        <events:HandelseUID>0e627df9-3279-11ec-871f-f5b046564fb2</events:HandelseUID>
+        <events:EventContext>
+          <events:AnvandareUID>b0289ab3-5186-11ea-8091-b70ab71540fa</events:AnvandareUID>
+          <events:Anvandarnamn>TestNamn@konstfack.se</events:Anvandarnamn>
+          <events:LarosateID>27</events:LarosateID>
+        </events:EventContext>
+        <rr:Beslut>
+          <rr:BeslutUID>b0289ab3-5186-11ea-8091-b70ab71540fa</rr:BeslutUID>
+          <rr:Beslutsdatum>2021-10-21</rr:Beslutsdatum>
+          <rr:Beslutsfattare>TestForOchEfternamn</rr:Beslutsfattare>
+          <rr:BeslutsfattareUID>b0289ab3-5186-11ea-8091-b70ab71540fa</rr:BeslutsfattareUID>
+        </rr:Beslut>
+        <rr:KursUID>bf010dbe-be5e-11e7-a74b-fbb589e24dac</rr:KursUID>
+        <rr:KursinstansUID>c9ef5dc4-ca2c-11e9-89dc-9348f6ec4783</rr:KursinstansUID>
+        <rr:KurstillfalleUID>b4294f9e-5438-11eb-bec3-d5a2938f4dea</rr:KurstillfalleUID>
+        <rr:Resultat>
+          <rr:BetygsgradID>101313</rr:BetygsgradID>
+          <rr:BetygsskalaID>101312</rr:BetygsskalaID>
+          <rr:Examinationsdatum>2021-10-21</rr:Examinationsdatum>
+          <rr:GiltigSomSlutbetyg>true</rr:GiltigSomSlutbetyg>
+          <rr:OmfattningsPoang>15.0</rr:OmfattningsPoang>
+          <rr:PrestationsPoang>0.0</rr:PrestationsPoang>
+          <rr:ResultatUID>0e627df6-3279-11ec-871f-f5b046564fb2</rr:ResultatUID>
+        </rr:Resultat>
+        <rr:StudentUID>ebac93d8-0b38-11e8-8b82-013496834cc0</rr:StudentUID>
+        <rr:UtbildningsinstansUID>c9ef5dc4-ca2c-11e9-89dc-9348f6ec4783</rr:UtbildningsinstansUID>
+      </rr:ResultatPaHelKursAttesteratEvent>
+    </content>
+  </entry>
 </feed>
 `)
 
-var jsonSuperFeed = []byte(`
-{
-	"id": 4856,
-	"super_events": [{
-		"name": "mura"
-	}]
+func jsonSuperFeed(t *testing.T) []byte {
+	superFeed := &SuperFeed{
+		ID: 4856,
+		SuperEvents: []*SuperEvent{
+			mockAnvandareAndradEvent,
+			mockAnvandareSkapadEventSuperEvent,
+			mockKontaktuppgifterEvent,
+			mockResultatPaModulAttesteratEvent,
+			mockExternPartEvent,
+			mockLokalStudentEvent,
+			mockResultatPaHelKursAttesteratEvent,
+		},
+	}
+	b, err := json.Marshal(superFeed)
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+	return b
 }
-`)

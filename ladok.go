@@ -172,12 +172,12 @@ var ladokAcceptHeader = map[string]map[string]string{
 func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, path string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(path)
 	if err != nil {
-		return nil, err
+		return nil, oneError("", "url", "newRequest", err.Error())
 	}
 
 	u, err := url.Parse(c.url)
 	if err != nil {
-		return nil, err
+		return nil, oneError("", "url", "newRequest", err.Error())
 	}
 	url := u.ResolveReference(rel)
 
@@ -191,13 +191,13 @@ func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, pa
 		buf = new(bytes.Buffer)
 		err = json.NewEncoder(buf).Encode(payload)
 		if err != nil {
-			return nil, err
+			return nil, oneError("", "json", "newRequest", err.Error())
 		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url.String(), buf)
 	if err != nil {
-		return nil, err
+		return nil, oneError("", "http.NewRequestWithContext", "newRequest", err.Error())
 	}
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
@@ -212,20 +212,22 @@ func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, pa
 func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error) {
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, oneError("", "HTTPClient.Do", "do", err.Error())
 	}
 	defer resp.Body.Close()
 
 	if err := checkResponse(resp); err != nil {
 		buf := &bytes.Buffer{}
 		if _, err := buf.ReadFrom(resp.Body); err != nil {
-			return nil, err
+			return nil, oneError("", "buf.ReadFrom", "do", err.Error())
 		}
-		errorReply := &Errors{}
-		if err := json.Unmarshal(buf.Bytes(), errorReply); err != nil {
-			return nil, err
+		ladokError := &LadokError{}
+		e := &Errors{}
+		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil {
+			return nil, oneError("", "json.Unmarshal", "do", err.Error())
 		}
-		return nil, errorReply
+		e.Ladok = ladokError
+		return nil, e
 	}
 
 	switch resp.Header.Get("Content-Type") {
@@ -245,15 +247,13 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 }
 
 func checkResponse(r *http.Response) error {
-	serviceName := "goladok"
-
 	switch r.StatusCode {
 	case 200, 201, 202, 204, 304:
 		return nil
 	case 500:
-		return fmt.Errorf("%s: not allowed", serviceName)
+		return oneError("Not allowed", "statusCode", "checkResponse", "")
 	}
-	return fmt.Errorf("%s: invalid request", serviceName)
+	return oneError("Invalid request", "statusCode", "checkResponse", "")
 }
 
 func (c *Client) call(ctx context.Context, acceptHeader, method, path, param string, req, reply interface{}) (*http.Response, error) {

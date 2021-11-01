@@ -18,20 +18,6 @@ import (
 	"software.sslmate.com/src/go-pkcs12"
 )
 
-var jsonErrors = []byte(`
-{
-	"details": [{
-			"msg": "mura",
-			"type": "mura"
-		},
-		{
-			"msg": "mura2",
-			"type": "mura2"
-		}
-	]
-}
-`)
-
 func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, method, url, param string, payload []byte, statusCode int) {
 	mux.HandleFunc(fmt.Sprintf("%s/%s", url, param),
 		func(w http.ResponseWriter, r *http.Request) {

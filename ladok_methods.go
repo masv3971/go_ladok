@@ -8,43 +8,57 @@ import (
 )
 
 // IsLadokPermissionsSufficient compare ladok permissions with ps
-func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, ps Permissions) (Permissions, error) {
+func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions Permissions) (bool, error) {
+	var (
+		e             = &Errors{}
+		internalError = []InternalError{}
+	)
+
 	egna, _, err := c.Kataloginformation.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	if len(egna.Anvandarbehorighet) < 1 {
-		return nil, ErrNotSufficientPermissions
+		return false, ErrNotSufficientPermissions
 	}
 
-	profil, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
+	ladokProfile, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerCfg{UID: egna.UID})
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	if len(profil.Behorighetsprofiler[0].Systemaktiviteter) == 0 {
-		return nil, ErrNotSufficientPermissions
+	if len(ladokProfile.Systemaktiviteter) == 0 {
+		return false, ErrNotSufficientPermissions
+	}
+	if len(myPermissions) == 0 {
+		return false, ErrNoPermissionProvided
 	}
 
-	missingPermission := Permissions{}
-	if missingPermission == nil {
-		fmt.Println("is nil")
-	}
-
-	for pk, pv := range ps {
-		for _, behorighet := range profil.Behorighetsprofiler {
-			for _, s := range behorighet.Systemaktiviteter {
-				if s.ID == pk {
-					if pv == s.Rattighetsniva {
-						continue
-					}
+	for myPermissionsID, myPermissionsValue := range myPermissions {
+		notFound := true
+		for _, systemaktivitet := range ladokProfile.Systemaktiviteter {
+			if systemaktivitet.ID == myPermissionsID {
+				if myPermissionsValue == systemaktivitet.Rattighetsniva {
+					notFound = false
+					continue
 				}
 			}
 		}
-		missingPermission[pk] = pv
+		if notFound {
+			//missingPermission[myPermissionsID] = myPermissionsValue
+			internalError = append(internalError, InternalError{
+				Msg:  fmt.Sprintf("Missing id: %d, value: %q", myPermissionsID, myPermissionsValue),
+				Type: "Permission",
+			})
+		}
 	}
-	return missingPermission, nil
+	if len(internalError) > 0 {
+		e.Internal = internalError
+		return false, e
+
+	}
+	return true, nil
 }
 
 func (c *Client) environment() (string, error) {
@@ -60,11 +74,12 @@ func (c *Client) environment() (string, error) {
 	}
 }
 
-// Sane return a saner version of ID
-func (id FeedID) sane() FeedID {
+// trim remove "urn"
+func (id FeedID) trim() FeedID {
 	return FeedID(strings.Split(string(id), ":")[2])
 }
 
+// int convert FeedID to int
 func (id FeedID) int() (int, error) {
 	i, err := strconv.Atoi(string(id))
 	if err != nil {

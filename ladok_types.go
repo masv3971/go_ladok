@@ -1,10 +1,5 @@
 package goladok3
 
-import (
-	"errors"
-	"fmt"
-)
-
 // Permissions is a simplify permissions object
 type Permissions map[int64]string
 
@@ -33,32 +28,6 @@ type serviceTypes struct {
 	service      string
 	acceptHeader string
 }
-
-// Errors is the bespoke error struct
-type Errors struct {
-	Details []struct {
-		Msg  string `json:"msg"`
-		Type string `json:"type"`
-	} `json:"details"`
-}
-
-func (e *Errors) Error() string {
-	return fmt.Sprintf("error: %v", e.Details)
-}
-
-// Error interface
-type Error interface {
-	Error() string
-}
-
-var (
-	// ErrNoValidContentType if no valid content-type is found
-	ErrNoValidContentType = errors.New("No valid content-type found")
-	// ErrNoEnvFound if no valid environment is found in certificate (ou)
-	ErrNoEnvFound = errors.New("No valid environment (ou) found")
-	// ErrNotSufficientPermissions if not all provided permissions are met
-	ErrNotSufficientPermissions = errors.New("Not sufficient permissions")
-)
 
 const (
 	envIntTestAPI = "Int-test-API"
