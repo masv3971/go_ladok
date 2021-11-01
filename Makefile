@@ -7,8 +7,6 @@ COMMIT_MSG				:= $(shell tail -1 RELEASE|awk -F" : " '{print $$2}')
 
 default: release-patch
 
-release: add commit release-tag push-tag go-list
-
 release-patch: check-tag check-files tidy test add commit release-tag push-tag go-list push-main
 		$(info relese ${NAME}@${VERSION})
 

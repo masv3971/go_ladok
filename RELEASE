@@ -3,3 +3,4 @@ v0.0.19 : test
 v0.0.20 : Add License to httpclient
 v0.0.21 : Add better testing and slicker http call function.
 v0.0.22 : Add more testing.
+v0.0.23 : Add entryID to superEvent struct.

@@ -110,6 +110,7 @@ type SuperResultat struct {
 // SuperEvent is a made up type consists of all the aviable ladok attributes
 type SuperEvent struct {
 	EventTypeName         string            `json:"event_type_name"`
+	EntryID               string            `json:"entry_id"`
 	EventContext          SuperEventContext `json:"event_context"`
 	HandelseUID           string            `json:"handelse_uid"`
 	ID                    string            `json:"id"`
@@ -154,8 +155,9 @@ type anvandareEvent struct {
 	Email          string       `xml:"Email"`
 }
 
-func (a *anvandareEvent) parse(eventTypeName string) *SuperEvent {
+func (a *anvandareEvent) parse(eventTypeName, entryID string) *SuperEvent {
 	s := &SuperEvent{
+		EntryID:       entryID,
 		EventTypeName: eventTypeName,
 		HandelseUID:   a.HandelseUID,
 		EventContext: SuperEventContext{
@@ -194,7 +196,7 @@ type kontaktuppgifterEvent struct {
 	Telefonnummer string `xml:"Telefonnummer"`
 }
 
-func (e *kontaktuppgifterEvent) parse() *SuperEvent {
+func (e *kontaktuppgifterEvent) parse(entryID string) *SuperEvent {
 	superAdresser := []SuperPostadress{}
 
 	for _, adress := range e.Postadresser {
@@ -210,6 +212,7 @@ func (e *kontaktuppgifterEvent) parse() *SuperEvent {
 	}
 
 	s := &SuperEvent{
+		EntryID:       entryID,
 		EventTypeName: "KontaktuppgifterEvent",
 		HandelseUID:   e.HandelseUID,
 		EventContext: SuperEventContext{
@@ -249,8 +252,9 @@ type lokalStudentEvent struct {
 	StudentUID        string `xml:"StudentUID"`
 }
 
-func (e *lokalStudentEvent) parse() *SuperEvent {
+func (e *lokalStudentEvent) parse(entryID string) *SuperEvent {
 	s := &SuperEvent{
+		EntryID:       entryID,
 		EventTypeName: "LokalStudentEvent",
 		EventContext: SuperEventContext{
 			AnvandareUID: e.EventContext.AnvandareUID,
@@ -302,8 +306,9 @@ type externPartEvent struct {
 	TypAvExternPartID string `xml:"TypAvExternPartID"`
 }
 
-func (e *externPartEvent) parse() *SuperEvent {
+func (e *externPartEvent) parse(entryID string) *SuperEvent {
 	s := &SuperEvent{
+		EntryID:       entryID,
 		EventTypeName: "ExternPartEvent",
 		HandelseUID:   e.HandelseUID,
 		EventContext: SuperEventContext{
@@ -358,8 +363,9 @@ type resultatEvent struct {
 	UtbildningsinstansUID string `xml:"UtbildningsinstansUID"`
 }
 
-func (e *resultatEvent) parse(eventTypeName string) *SuperEvent {
+func (e *resultatEvent) parse(eventTypeName, entryID string) *SuperEvent {
 	s := &SuperEvent{
+		EntryID:       entryID,
 		EventTypeName: eventTypeName,
 		HandelseUID:   e.HandelseUID,
 		EventContext: SuperEventContext{
@@ -431,43 +437,43 @@ func (f *feedRecent) parse() (*SuperFeed, error) {
 
 	for _, entry := range f.Entry {
 		if entry.Content.AnvandareAndradEvent != nil {
-			event := entry.Content.AnvandareAndradEvent.parse("AnvandareAndradEvent")
+			event := entry.Content.AnvandareAndradEvent.parse("AnvandareAndradEvent", entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.AnvandareSkapadEvent != nil {
-			event := entry.Content.AnvandareSkapadEvent.parse("AnvandareSkapadEvent")
+			event := entry.Content.AnvandareSkapadEvent.parse("AnvandareSkapadEvent", entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.ExternPartEvent != nil {
-			event := entry.Content.ExternPartEvent.parse()
+			event := entry.Content.ExternPartEvent.parse(entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.KontaktuppgifterEvent != nil {
-			event := entry.Content.KontaktuppgifterEvent.parse()
+			event := entry.Content.KontaktuppgifterEvent.parse(entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.ResultatPaModulAttesteratEvent != nil {
-			event := entry.Content.ResultatPaModulAttesteratEvent.parse("ResultatPaModulAttesteratEvent")
+			event := entry.Content.ResultatPaModulAttesteratEvent.parse("ResultatPaModulAttesteratEvent", entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.ResultatPaHelKursAttesteratEvent != nil {
-			event := entry.Content.ResultatPaHelKursAttesteratEvent.parse("ResultatPaHelKursAttesteratEvent")
+			event := entry.Content.ResultatPaHelKursAttesteratEvent.parse("ResultatPaHelKursAttesteratEvent", entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.LokalStudentEvent != nil {
-			event := entry.Content.LokalStudentEvent.parse()
+			event := entry.Content.LokalStudentEvent.parse(entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}

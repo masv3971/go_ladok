@@ -116,6 +116,7 @@ var xmlAnvandareAndraEvent = []byte(`
 `)
 
 var mockAnvandareAndradEvent = &SuperEvent{
+	EntryID:       "e01ec574-2815-11ec-989a-cc769fd346b3",
 	EventTypeName: "AnvandareAndradEvent",
 	HandelseUID:   "df3ca2cd-2815-11ec-b525-441c04d24542",
 	EventContext: SuperEventContext{
@@ -148,6 +149,7 @@ var xmlAnvandareSkapadEvent = []byte(`
 `)
 
 var mockAnvandareSkapadEventSuperEvent = &SuperEvent{
+	EntryID:       "df7ae52e-2815-11ec-989a-cc769fd346b3",
 	EventTypeName: "AnvandareSkapadEvent",
 	HandelseUID:   "deeef7f0-2815-11ec-b525-441c04d24542",
 	EventContext: SuperEventContext{
@@ -198,6 +200,7 @@ var xmlExternPartEvent = []byte(`
 `)
 
 var mockExternPartEvent = &SuperEvent{
+	EntryID:       "4994B8E2-B4E9-41CB-B73D-F9A26D454294",
 	EventTypeName: "ExternPartEvent",
 	EventContext: SuperEventContext{
 		AnvandareUID: "3d284b5a-8dc6-11e5-923c-c49715df4966",
@@ -247,6 +250,7 @@ var xmlKontaktuppgifterEvent = []byte(`
 `)
 
 var mockKontaktuppgifterEvent = &SuperEvent{
+	EntryID:       "63073d13-27c2-11ec-a5df-22713cb94088",
 	EventTypeName: "KontaktuppgifterEvent",
 	EventContext: SuperEventContext{
 		AnvandareUID: "6209f0e8-27c2-11ec-b742-49fcffce49ad",
@@ -312,6 +316,7 @@ var xmlResultatPaModulAttesteratEvent = []byte(`
 `)
 
 var mockResultatPaModulAttesteratEvent = &SuperEvent{
+	EntryID:       "684731cb-276c-11ec-a5df-22713cb94088",
 	EventTypeName: "ResultatPaModulAttesteratEvent",
 	EventContext: SuperEventContext{
 		AnvandareUID: "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
@@ -378,6 +383,7 @@ var xmlResultatPaHelKursAttesteratEvent = []byte(`
 `)
 
 var mockResultatPaHelKursAttesteratEvent = &SuperEvent{
+	EntryID:       "A2D30F0A-2CD6-4EBF-B814-426646030252",
 	EventTypeName: "ResultatPaHelKursAttesteratEvent",
 	EventContext: SuperEventContext{
 		AnvandareUID: "b0289ab3-5186-11ea-8091-b70ab71540fa",
@@ -431,6 +437,7 @@ xmlns:events="http://schemas.ladok.se/events">
 `)
 
 var mockLokalStudentEvent = &SuperEvent{
+	EntryID:       "36E561D5-88D4-42E0-953B-6C86FA47E299",
 	EventTypeName: "LokalStudentEvent",
 	EventContext: SuperEventContext{
 		AnvandareUID: "799b04af-32be-11ec-aeeb-67874d294267",
@@ -452,48 +459,56 @@ func TestParse(t *testing.T) {
 	tts := []struct {
 		name    string
 		event   interface{}
+		entryID string
 		payload []byte
 		want    *SuperEvent
 	}{
 		{
 			name:    "AnvandareAndradEvent",
 			event:   &anvandareEvent{},
+			entryID: "e01ec574-2815-11ec-989a-cc769fd346b3",
 			want:    mockAnvandareAndradEvent,
 			payload: xmlAnvandareAndraEvent,
 		},
 		{
 			name:    "AnvandareSkapadEvent",
 			event:   &anvandareEvent{},
+			entryID: "df7ae52e-2815-11ec-989a-cc769fd346b3",
 			want:    mockAnvandareSkapadEventSuperEvent,
 			payload: xmlAnvandareSkapadEvent,
 		},
 		{
 			name:    "ExternPartEvent",
 			event:   &externPartEvent{},
+			entryID: "4994B8E2-B4E9-41CB-B73D-F9A26D454294",
 			want:    mockExternPartEvent,
 			payload: xmlExternPartEvent,
 		},
 		{
 			name:    "KontaktuppgifterEvent",
 			event:   &kontaktuppgifterEvent{},
+			entryID: "63073d13-27c2-11ec-a5df-22713cb94088",
 			want:    mockKontaktuppgifterEvent,
 			payload: xmlKontaktuppgifterEvent,
 		},
 		{
 			name:    "ResultatPaModulAttesteratEvent",
 			event:   &resultatEvent{},
+			entryID: "684731cb-276c-11ec-a5df-22713cb94088",
 			want:    mockResultatPaModulAttesteratEvent,
 			payload: xmlResultatPaModulAttesteratEvent,
 		},
 		{
 			name:    "ResultatPaHelKursAttesteratEvent",
 			event:   &resultatEvent{},
+			entryID: "A2D30F0A-2CD6-4EBF-B814-426646030252",
 			want:    mockResultatPaHelKursAttesteratEvent,
 			payload: xmlResultatPaHelKursAttesteratEvent,
 		},
 		{
 			name:    "LokalStudentEvent",
 			event:   &lokalStudentEvent{},
+			entryID: "36E561D5-88D4-42E0-953B-6C86FA47E299",
 			want:    mockLokalStudentEvent,
 			payload: xmlLokalStudentEvent,
 		},
@@ -509,15 +524,15 @@ func TestParse(t *testing.T) {
 			}
 			switch tt.event.(type) {
 			case *anvandareEvent:
-				got = tt.event.(*anvandareEvent).parse(tt.name)
+				got = tt.event.(*anvandareEvent).parse(tt.name, tt.entryID)
 			case *externPartEvent:
-				got = tt.event.(*externPartEvent).parse()
+				got = tt.event.(*externPartEvent).parse(tt.entryID)
 			case *kontaktuppgifterEvent:
-				got = tt.event.(*kontaktuppgifterEvent).parse()
+				got = tt.event.(*kontaktuppgifterEvent).parse(tt.entryID)
 			case *resultatEvent:
-				got = tt.event.(*resultatEvent).parse(tt.name)
+				got = tt.event.(*resultatEvent).parse(tt.name, tt.entryID)
 			case *lokalStudentEvent:
-				got = tt.event.(*lokalStudentEvent).parse()
+				got = tt.event.(*lokalStudentEvent).parse(tt.entryID)
 			default:
 				t.Fatalf("ERROR: type: %T not found", tt.event)
 			}
@@ -712,7 +727,7 @@ var xmlFeedRecent = []byte(`
   </entry>
   <entry>
     <category term="http://schemas.ladok.se/kataloginformation/ExternPartEvent" label="Event-typ" />
-    <id>e8eddf7f-276b-11ec-a5df-22713cb94088</id>
+    <id>4994B8E2-B4E9-41CB-B73D-F9A26D454294</id>
     <updated>2021-10-07T12:41:35.373Z</updated>
     <content type="application/vnd.ladok+xml">
       <ki:ExternPartEvent
@@ -753,7 +768,7 @@ var xmlFeedRecent = []byte(`
   </entry>
   <entry>
     <category term="http://schemas.ladok.se/studentinformation/LokalStudentEvent" label="Event-typ" />
-    <id>e8eddf7f-276b-11ec-a5df-22713cb94088</id>
+    <id>36E561D5-88D4-42E0-953B-6C86FA47E299</id>
     <updated>2021-10-07T12:41:35.373Z</updated>
     <content type="application/vnd.ladok+xml">
       <si:LokalStudentEvent
@@ -780,7 +795,7 @@ var xmlFeedRecent = []byte(`
   </entry>
   <entry>
     <category term="http://schemas.ladok.se/kataloginformation/ResultatPaHelKursAttesteratEvent" label="Event-typ" />
-    <id>e8eddf7f-276b-11ec-a5df-22713cb94088</id>
+    <id>A2D30F0A-2CD6-4EBF-B814-426646030252</id>
     <updated>2021-10-07T12:41:35.373Z</updated>
     <content type="application/vnd.ladok+xml">
       <rr:ResultatPaHelKursAttesteratEvent
