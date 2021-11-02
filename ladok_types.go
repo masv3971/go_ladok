@@ -33,6 +33,21 @@ const (
 	envIntTestAPI = "Int-test-API"
 	envProdAPI    = "Prod-API"
 	envTestAPI    = "Test-API"
+
+	// LokalStudentEventName type
+	LokalStudentEventName = "LokalStudentEvent"
+	// AnvandareAndradEventName type
+	AnvandareAndradEventName = "AnvandareAndradEvent"
+	// AnvandareSkapadEventName type
+	AnvandareSkapadEventName = "AnvandareSkapadEvent"
+	// ExternPartEventName type
+	ExternPartEventName = "ExternPartEvent"
+	// KontaktuppgifterEventName type
+	KontaktuppgifterEventName = "KontaktuppgifterEvent"
+	// ResultatPaModulAttesteratEventName type
+	ResultatPaModulAttesteratEventName = "ResultatPaModulAttesteratEvent"
+	// ResultatPaHelKursAttesteratEventName type
+	ResultatPaHelKursAttesteratEventName = "ResultatPaHelKursAttesteratEvent"
 )
 
 var (
@@ -40,4 +55,8 @@ var (
 	contentTypeKataloginformationJSON = "application/vnd.ladok-kataloginformation+json;charset=UTF-8"
 	contentTypeStudentinformationJSON = "application/vnd.ladok-studentinformation+json;charset=UTF-8"
 	contentTypeAtomXML                = "application/atom+xml;charset=UTF-8"
+
+	// TypeStudentinformation type
+	TypeStudentinformation = "studentinformation"
+	//  = "externstudentevent"
 )

@@ -212,8 +212,8 @@ func (e *kontaktuppgifterEvent) parse(entryID string) *SuperEvent {
 	}
 
 	s := &SuperEvent{
+		EventTypeName: KontaktuppgifterEventName,
 		EntryID:       entryID,
-		EventTypeName: "KontaktuppgifterEvent",
 		HandelseUID:   e.HandelseUID,
 		EventContext: SuperEventContext{
 			AnvandareUID: e.EventContext.AnvandareUID,
@@ -255,7 +255,7 @@ type lokalStudentEvent struct {
 func (e *lokalStudentEvent) parse(entryID string) *SuperEvent {
 	s := &SuperEvent{
 		EntryID:       entryID,
-		EventTypeName: "LokalStudentEvent",
+		EventTypeName: LokalStudentEventName,
 		EventContext: SuperEventContext{
 			AnvandareUID: e.EventContext.AnvandareUID,
 			Anvandarnamn: e.EventContext.Anvandarnamn,
@@ -397,8 +397,8 @@ func (e *resultatEvent) parse(eventTypeName, entryID string) *SuperEvent {
 	return s
 }
 
-// FeedRecent atom feed /uppfoljning/feed/recent
-func (s *feedService) FeedRecent(ctx context.Context) (*SuperFeed, *http.Response, error) {
+// Recent atom feed /uppfoljning/feed/recent
+func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, error) {
 	env, err := s.client.environment()
 	if err != nil {
 		return nil, nil, err
@@ -437,13 +437,13 @@ func (f *feedRecent) parse() (*SuperFeed, error) {
 
 	for _, entry := range f.Entry {
 		if entry.Content.AnvandareAndradEvent != nil {
-			event := entry.Content.AnvandareAndradEvent.parse("AnvandareAndradEvent", entry.ID)
+			event := entry.Content.AnvandareAndradEvent.parse(AnvandareAndradEventName, entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.AnvandareSkapadEvent != nil {
-			event := entry.Content.AnvandareSkapadEvent.parse("AnvandareSkapadEvent", entry.ID)
+			event := entry.Content.AnvandareSkapadEvent.parse(AnvandareSkapadEventName, entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
@@ -461,13 +461,13 @@ func (f *feedRecent) parse() (*SuperFeed, error) {
 		}
 
 		if entry.Content.ResultatPaModulAttesteratEvent != nil {
-			event := entry.Content.ResultatPaModulAttesteratEvent.parse("ResultatPaModulAttesteratEvent", entry.ID)
+			event := entry.Content.ResultatPaModulAttesteratEvent.parse(ResultatPaModulAttesteratEventName, entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}
 
 		if entry.Content.ResultatPaHelKursAttesteratEvent != nil {
-			event := entry.Content.ResultatPaHelKursAttesteratEvent.parse("ResultatPaHelKursAttesteratEvent", entry.ID)
+			event := entry.Content.ResultatPaHelKursAttesteratEvent.parse(ResultatPaHelKursAttesteratEventName, entry.ID)
 			superFeed.SuperEvents = append(superFeed.SuperEvents, event)
 			continue
 		}

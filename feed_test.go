@@ -82,11 +82,11 @@ func TestFeedRecent(t *testing.T) {
 
 			switch tt.reply.(type) {
 			case *SuperFeed:
-				got, _, _ := client.Feed.FeedRecent(context.TODO())
+				got, _, _ := client.Feed.Recent(context.TODO())
 
 				assert.Equal(t, tt.reply, got, "Should be equal")
 			case *Errors:
-				_, _, err = client.Feed.FeedRecent(context.TODO())
+				_, _, err = client.Feed.Recent(context.TODO())
 				assert.Equal(t, tt.reply.(*Errors), err)
 			}
 
