@@ -8,3 +8,4 @@ v0.0.24 : Add constants for event type.
 v0.0.25 : Add rate limit.
 v0.0.26 : Change type because of key/value store typeset.
 v0.0.27 : Add testinfra package.
+v0.0.28 : Test to passing by variables.
