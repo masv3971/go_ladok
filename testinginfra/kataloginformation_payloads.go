@@ -1,6 +1,7 @@
-package goladok3
+package testinginfra
 
-var jsonProfil = []byte(`{
+// JSONKataloginformationProfil ladok reply
+var JSONKataloginformationProfil = []byte(`{
 	"Behorighetsprofiler": [{
 		"Benamning": {
 			"sv": "Svensk benämning"
@@ -69,8 +70,8 @@ var jsonProfil = []byte(`{
 	}]
 }`)
 
-var jsonKataloginformationBehorighetsprofilNoPermissions = []byte(`
-
+// JSONKataloginformationBehorighetsprofilNoPermissions ladok reply
+var JSONKataloginformationBehorighetsprofilNoPermissions = []byte(`
 {
 	"Benamning": {
 	  "sv": "Intergration-Sunet",
@@ -95,7 +96,8 @@ var jsonKataloginformationBehorighetsprofilNoPermissions = []byte(`
   }
 `)
 
-var jsonKataloginformationBehorighetsprofil = []byte(`
+// JSONKataloginformationBehorighetsprofil ladok reply
+var JSONKataloginformationBehorighetsprofil = []byte(`
 {
 	"Benamning": {
 	  "sv": "Intergration-Sunet",
@@ -161,7 +163,8 @@ var jsonKataloginformationBehorighetsprofil = []byte(`
   }
 `)
 
-var jsonAutentiserad = []byte(`
+// JSONKataloginformationAutentiserad ladok reply
+var JSONKataloginformationAutentiserad = []byte(`
 {
 		"Anvandarnamn": "mail@school.se",
 		"Efternamn": "testEfternamn",
@@ -179,7 +182,8 @@ var jsonAutentiserad = []byte(`
 	  }
 `)
 
-var jsonEgna = []byte(`{
+// JSONKataloginformationEgna ladok reply
+var JSONKataloginformationEgna = []byte(`{
 		"Anvandarbehorighet": [{
 		  "AnvandareRef": {
 			"Anvandarnamn": "testEppn@example.com",
@@ -253,27 +257,3 @@ var jsonEgna = []byte(`{
 		  "rel": "http://schemas.ladok.se"
 		}]
 	  }`)
-
-var jsonErrors500 = []byte(`
-	  {
-		"FelUID": "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
-		"Felkategori": "commons.fel.kategori.applikationsfel",
-		"FelkategoriText": "Generellt fel i applikationen",
-		"Meddelande": "java.lang.NullPointerException null",
-		"link": []
-	  } 
-	  `)
-
-var jsonErrorValideringsFel = []byte(`
-	  {
-		"Detaljkod": "commons.domain.uid",
-		"DetaljkodText": "Unik identifierare",
-		"FelUID": "14c837fd-3a60-11ec-aa00-acd34b504da7",
-		"Felgrupp": "commons.fel.grupp.felaktigt_format",
-		"FelgruppText": "Felaktigt format",
-		"Felkategori": "commons.fel.kategori.valideringsfel",
-		"FelkategoriText": "Valideringsfel",
-		"Meddelande": "Uid: 6daf0d1e-114f-11ec-95ca-f52940734df",
-		"link": []
-	  } 
-	  `)

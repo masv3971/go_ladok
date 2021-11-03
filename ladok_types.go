@@ -1,7 +1,5 @@
 package goladok3
 
-import "github.com/masv3971/goladok3/testinginfra"
-
 // Permissions is a simplify permissions object
 type Permissions map[int64]string
 
@@ -61,6 +59,4 @@ var (
 	// TypeStudentinformation type
 	TypeStudentinformation = "studentinformation"
 	//  = "externstudentevent"
-
-	XMLAnvandareAndraEvent = testinginfra.XMLAnvandareAndraEvent
 )

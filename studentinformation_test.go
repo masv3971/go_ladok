@@ -7,53 +7,9 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/masv3971/goladok3/testinginfra"
 	"github.com/stretchr/testify/assert"
 )
-
-var jsonStudent = []byte(`{
-			"Avliden": false,
-			"Efternamn": "TestEfternamn",
-			"ExterntUID": "11111111-2222-0000-0000-000000000000",
-			"FelVidEtableringExternt": false,
-			"Fodelsedata": "1996-11-05",
-			"FolkbokforingsbevakningTillOchMed": "2020-03-13",
-			"Fornamn": "TestFornamn",
-			"KonID": 1,
-			"LarosateID": 96,
-			"Personnummer": "199611052383",
-			"SenastAndradAv": "testEppn@ladok3.ladok.se",
-			"SenastSparad": "2012-01-11T12:45:45",
-			"Uid": "11111111-2222-0000-0000-000000000000",
-			"UnikaIdentifierare": {
-				"LarosateID": 96,
-				"UnikIdentifierare": [{
-					"LarosateID": 96,
-					"SenastAndradAv": "testEppn@example.com",
-					"SenastSparad": "2012-01-11T12:45:45",
-					"Typ": "studentinformation.domain.unikidentifieraretyp.passnummer",
-					"Uid": "11111111-2222-0000-0000-000000000000",
-					"Varde": "1234",
-					"link": [{
-						"method": "POST",
-						"uri": "https://api.mit.ladok.se:443/test",
-						"mediaType": "application/vnd.ladok+xml",
-						"rel": "http://schemas.ladok.se"
-					}]
-				}],
-				"link": [{
-					"method": "POST",
-					"uri": "https://api.mit.ladok.se:443/test",
-					"mediaType": "application/vnd.ladok+xml",
-					"rel": "http://schemas.ladok.se"
-				}]
-			},
-			"link": [{
-				"method": "POST",
-				"uri": "https://api.mit.ladok.se:443/test",
-				"mediaType": "application/vnd.ladok+xml",
-				"rel": "http://schemas.ladok.se"
-			}]
-		}`)
 
 func TestGetStudent(t *testing.T) {
 	var (
@@ -71,7 +27,7 @@ func TestGetStudent(t *testing.T) {
 		{
 			name:       "Get:/student 200",
 			url:        "/studentinformation/student",
-			payload:    jsonStudent,
+			payload:    testinginfra.JSONStudentinformationStudent,
 			reply:      &Student{},
 			req:        &GetStudentReq{UID: uuid.NewString()},
 			statusCode: 200,
@@ -80,7 +36,7 @@ func TestGetStudent(t *testing.T) {
 		{
 			name:    "Get:/student 500",
 			url:     "/studentinformation/student",
-			payload: jsonErrors500,
+			payload: testinginfra.JSONErrors500,
 			reply: &Errors{Ladok: &LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",

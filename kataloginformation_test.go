@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/masv3971/goladok3/testinginfra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,7 +27,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:       "GetAnvandareAutentiserad 200",
 			url:        "/kataloginformation/anvandare/autentiserad",
-			payload:    jsonAutentiserad,
+			payload:    testinginfra.JSONKataloginformationAutentiserad,
 			statusCode: 200,
 			reply:      &AnvandareAutentiserad{},
 			param:      "",
@@ -35,7 +36,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:       "GetAnvandareAutentiserad 500",
 			url:        "/kataloginformation/anvandare/autentiserad",
-			payload:    jsonErrors500,
+			payload:    testinginfra.JSONErrors500,
 			statusCode: 500,
 			reply: &Errors{Ladok: &LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
@@ -50,7 +51,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:       "GetAnvandarbehorighetEgna 200",
 			url:        "/kataloginformation/anvandarbehorighet/egna",
-			payload:    jsonEgna,
+			payload:    testinginfra.JSONKataloginformationEgna,
 			statusCode: 200,
 			reply:      &KataloginformationAnvandarbehorighetEgna{},
 			param:      "",
@@ -59,7 +60,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:       "GetAnvandarbehorighetEgna 500",
 			url:        "/kataloginformation/anvandarbehorighet/egna",
-			payload:    jsonErrors500,
+			payload:    testinginfra.JSONErrors500,
 			statusCode: 500,
 			reply: &Errors{Ladok: &LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
@@ -74,7 +75,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:       "GetBehorighetsprofil 200",
 			url:        "/kataloginformation/behorighetsprofil",
-			payload:    jsonProfil,
+			payload:    testinginfra.JSONKataloginformationProfil,
 			statusCode: 200,
 			reply:      &KataloginformationBehorighetsprofil{},
 			param:      uuid.NewString(),
@@ -83,7 +84,7 @@ func TestKataloginformation(t *testing.T) {
 		{
 			name:    "GetBehorighetsprofil 500",
 			url:     "/kataloginformation/behorighetsprofil",
-			payload: jsonErrors500,
+			payload: testinginfra.JSONErrors500,
 			reply: &Errors{Ladok: &LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",

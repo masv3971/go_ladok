@@ -9,3 +9,4 @@ v0.0.25 : Add rate limit.
 v0.0.26 : Change type because of key/value store typeset.
 v0.0.27 : Add testinfra package.
 v0.0.28 : Test to passing by variables.
+v0.0.29 : Move all testing payloads to child package.
