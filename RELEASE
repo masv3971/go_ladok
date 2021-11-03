@@ -5,3 +5,4 @@ v0.0.21 : Add better testing and slicker http call function.
 v0.0.22 : Add more testing.
 v0.0.23 : Add entryID to superEvent struct.
 v0.0.24 : Add constants for event type.
+v0.0.25 : Add rate limit.

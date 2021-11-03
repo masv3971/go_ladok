@@ -16,6 +16,8 @@ import (
 	"net/url"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"software.sslmate.com/src/go-pkcs12"
 )
 
@@ -30,6 +32,7 @@ type Config struct {
 // Client holds the ladok object
 type Client struct {
 	HTTPClient     *http.Client
+	rateLimit      *rate.Limiter
 	format         string
 	url            string
 	password       string
@@ -49,10 +52,11 @@ type Client struct {
 // New create a new instanace of ladok
 func New(config Config) (*Client, error) {
 	c := &Client{
-		password: config.Password,
-		format:   "json",
-		url:      config.URL,
-		pkcs12:   config.Pkcs12,
+		password:  config.Password,
+		format:    "json",
+		url:       config.URL,
+		pkcs12:    config.Pkcs12,
+		rateLimit: rate.NewLimiter(rate.Every(1*time.Second), 30),
 	}
 
 	if err := c.unwrapPkcs12(); err != nil {
@@ -210,6 +214,11 @@ func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, pa
 
 // Do does the new request
 func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error) {
+	ctx := context.Background()
+	if err := c.rateLimit.Wait(ctx); err != nil {
+		return nil, oneError("", "HTTPClient.Do", "ratelimit", err.Error())
+	}
+
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, oneError("", "HTTPClient.Do", "do", err.Error())
