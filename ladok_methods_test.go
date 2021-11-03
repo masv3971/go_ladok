@@ -97,8 +97,8 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			mux, server, client := mockSetup(t, envIntTestAPI)
 			defer server.Close()
 
-			mockGenericEndpointServer(t, mux, contentTypeKataloginformationJSON, "GET", "/kataloginformation/anvandarbehorighet/egna", "", tt.payload.egna, tt.statusCode.egna)
-			mockGenericEndpointServer(t, mux, contentTypeKataloginformationJSON, "GET", "/kataloginformation/behorighetsprofil", tt.param, tt.payload.profile, tt.statusCode.profile)
+			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", "/kataloginformation/anvandarbehorighet/egna", "", tt.payload.egna, tt.statusCode.egna)
+			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", "/kataloginformation/behorighetsprofil", tt.param, tt.payload.profile, tt.statusCode.profile)
 
 			got, err := client.IsLadokPermissionsSufficient(context.TODO(), tt.have)
 

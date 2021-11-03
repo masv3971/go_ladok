@@ -74,7 +74,7 @@ func TestFeedRecent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mux, server, client := mockSetup(t, tt.env)
 
-			mockGenericEndpointServer(t, mux, contentTypeAtomXML, "GET", tt.url, "", tt.payload.server, tt.statusCode)
+			mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.url, "", tt.payload.server, tt.statusCode)
 
 			err := json.Unmarshal(tt.payload.client, tt.reply)
 			if !assert.NoError(t, err) {

@@ -240,11 +240,11 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	}
 
 	switch resp.Header.Get("Content-Type") {
-	case contentTypeAtomXML:
+	case ContentTypeAtomXML:
 		if err := xml.NewDecoder(resp.Body).Decode(value); err != nil {
 			return nil, err
 		}
-	case contentTypeKataloginformationJSON, contentTypeStudiedeltagandeJSON, contentTypeStudentinformationJSON:
+	case ContentTypeKataloginformationJSON, ContentTypeStudiedeltagandeJSON, ContentTypeStudentinformationJSON:
 		if err := json.NewDecoder(resp.Body).Decode(value); err != nil {
 			return nil, err
 		}

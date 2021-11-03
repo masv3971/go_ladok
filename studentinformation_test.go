@@ -55,7 +55,7 @@ func TestGetStudent(t *testing.T) {
 			mux, server, _ := mockSetup(t, envIntTestAPI)
 			c.url = server.URL
 
-			mockGenericEndpointServer(t, mux, contentTypeStudentinformationJSON, "GET", tt.url, tt.req.UID, tt.payload, tt.statusCode)
+			mockGenericEndpointServer(t, mux, ContentTypeStudentinformationJSON, "GET", tt.url, tt.req.UID, tt.payload, tt.statusCode)
 
 			err := json.Unmarshal(tt.payload, tt.reply)
 			if !assert.NoError(t, err) {

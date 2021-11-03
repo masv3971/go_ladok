@@ -102,7 +102,7 @@ func TestKataloginformation(t *testing.T) {
 			mux, server, _ := mockSetup(t, envIntTestAPI)
 			client.url = server.URL
 
-			mockGenericEndpointServer(t, mux, contentTypeKataloginformationJSON, "GET", tt.url, tt.param, tt.payload, tt.statusCode)
+			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.url, tt.param, tt.payload, tt.statusCode)
 
 			err := json.Unmarshal(tt.payload, tt.reply)
 			if !assert.NoError(t, err) {
