@@ -1,5 +1,22 @@
 package testinginfra
 
+const (
+	// AnvandareAndradEventID test entry id
+	AnvandareAndradEventID = "e01ec574-2815-11ec-989a-cc769fd346b3"
+	// AnvandareSkapadEventID test entry id
+	AnvandareSkapadEventID = "df7ae52e-2815-11ec-989a-cc769fd346b3"
+	// KontaktuppgifterEventID test entry id
+	KontaktuppgifterEventID = "63073d13-27c2-11ec-a5df-22713cb94088"
+	// ResultatPaModulAttesteratEventID test entry id
+	ResultatPaModulAttesteratEventID = "684731cb-276c-11ec-a5df-22713cb94088"
+	// ExternPartEventID test entry id
+	ExternPartEventID = "4994B8E2-B4E9-41CB-B73D-F9A26D454294"
+	// LokalStudentEventID test entry id
+	LokalStudentEventID = "36E561D5-88D4-42E0-953B-6C86FA47E299"
+	// ResultatPaHelKursAttesteratEventID test entry id
+	ResultatPaHelKursAttesteratEventID = "A2D30F0A-2CD6-4EBF-B814-426646030252"
+)
+
 // XMLAnvandareAndraEvent ladok event
 var XMLAnvandareAndraEvent = []byte(`
   <ki:AnvandareAndradEvent
