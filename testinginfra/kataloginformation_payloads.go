@@ -1,5 +1,8 @@
 package testinginfra
 
+// BehorighetsprofilUID uid for testing behörighetsprofiler
+var BehorighetsprofilUID = "3BAD6192-AEBC-4641-9EFD-C740C076E720"
+
 // JSONKataloginformationProfil ladok reply
 var JSONKataloginformationProfil = []byte(`{
 	"Behorighetsprofiler": [{
