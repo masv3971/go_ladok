@@ -3,7 +3,6 @@ package goladok3
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -75,15 +74,6 @@ func (c *Client) environment() (string, error) {
 }
 
 // trim remove "urn"
-func (id FeedID) trim() FeedID {
-	return FeedID(strings.Split(string(id), ":")[2])
-}
-
-// int convert FeedID to int
-func (id FeedID) int() (int, error) {
-	i, err := strconv.Atoi(string(id))
-	if err != nil {
-		return 0, err
-	}
-	return i, nil
+func (id FeedID) trim() string {
+	return strings.Split(string(id), ":")[2]
 }

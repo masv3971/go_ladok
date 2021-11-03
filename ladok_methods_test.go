@@ -118,7 +118,7 @@ func TestFeedIDTrim(t *testing.T) {
 	tts := []struct {
 		name string
 		have FeedID
-		want FeedID
+		want string
 	}{
 		{
 			name: "OK",
@@ -130,35 +130,6 @@ func TestFeedIDTrim(t *testing.T) {
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, tt.have.trim())
-		})
-	}
-}
-
-func TestFeedIDInt(t *testing.T) {
-	tts := []struct {
-		name string
-		have FeedID
-		want int
-	}{
-		{
-			name: "OK",
-			have: "4856",
-			want: 4856,
-		},
-		{
-			name: "OK leading zero removed",
-			have: "0856",
-			want: 856,
-		},
-	}
-
-	for _, tt := range tts {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.have.int()
-			if !assert.NoError(t, err) {
-				t.FailNow()
-			}
-			assert.Equal(t, tt.want, got, "int")
 		})
 	}
 }

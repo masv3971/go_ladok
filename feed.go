@@ -67,7 +67,7 @@ type eventContext struct {
 
 // SuperFeed is a made up type, in order to make unstructured data to structured data.
 type SuperFeed struct {
-	ID          int           `json:"id,omitempty"`
+	ID          string        `json:"id,omitempty"`
 	SuperEvents []*SuperEvent `json:"super_events,omitempty"`
 }
 
@@ -428,12 +428,7 @@ func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, e
 
 func (f *feedRecent) parse() (*SuperFeed, error) {
 	superFeed := &SuperFeed{}
-	feedID, err := f.ID.trim().int()
-	if err != nil {
-		return nil, err
-	}
-
-	superFeed.ID = feedID
+	superFeed.ID = f.ID.trim()
 
 	for _, entry := range f.Entry {
 		if entry.Content.AnvandareAndradEvent != nil {
