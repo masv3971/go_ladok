@@ -13,3 +13,4 @@ v0.0.29 : Move all testing payloads to child package.
 v0.0.30 : Exposed content type variables.
 v0.0.31 : Add UIDs for testing purpose.
 v0.0.32 : Add test entry IDs.
+v0.0.33 : Add xml to format in feed.

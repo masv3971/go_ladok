@@ -12,7 +12,7 @@ type feedService struct {
 }
 
 func (s *feedService) acceptHeader() string {
-	return ladokAcceptHeader[s.service][s.client.format]
+	return ladokAcceptHeader[s.service]["xml"]
 }
 
 type feedRecent struct {
