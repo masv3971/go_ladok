@@ -168,7 +168,7 @@ var ladokAcceptHeader = map[string]map[string]string{
 		"xml":  "application/vnd.ladok-kataloginformation+xml",
 	},
 	"feed": {
-		"xml": "",
+		"xml": "application/atom+xml",
 	},
 }
 
