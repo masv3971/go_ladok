@@ -221,7 +221,7 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, oneError("", "HTTPClient.Do", "do", err.Error())
+		return nil, oneError("cant perform http.client.do", "HTTPClient.Do", "do", err.Error())
 	}
 	defer resp.Body.Close()
 
@@ -232,7 +232,7 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 		}
 		ladokError := &LadokError{}
 		e := &Errors{}
-		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil {
+		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil { // TODO(masv): Fix xml error parsing into Errors.
 			return nil, oneError("Cant unmarshal json to  Errors ", "json.Unmarshal", "do", err.Error())
 		}
 		e.Ladok = ladokError

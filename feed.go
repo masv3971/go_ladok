@@ -407,7 +407,7 @@ func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, e
 	var url string
 	switch env {
 	case envIntTestAPI:
-		url = "handelse/feed/recent"
+		url = "handelser/feed/recent"
 	default:
 		url = "uppfoljning/feed/recent"
 	}

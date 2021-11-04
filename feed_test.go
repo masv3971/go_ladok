@@ -45,8 +45,8 @@ func TestFeedRecent(t *testing.T) {
 			env:        envProdAPI,
 		},
 		{
-			name:       "IntTest_GET:/handelse/feed/recent 200",
-			url:        "/handelse/feed/recent",
+			name:       "IntTest_GET:/handelser/feed/recent 200",
+			url:        "/handelser/feed/recent",
 			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
