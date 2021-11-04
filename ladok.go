@@ -228,12 +228,12 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	if err := checkResponse(resp); err != nil {
 		buf := &bytes.Buffer{}
 		if _, err := buf.ReadFrom(resp.Body); err != nil {
-			return nil, oneError("", "buf.ReadFrom", "do", err.Error())
+			return nil, oneError("Cant process buffer", "buf.ReadFrom", "do", err.Error())
 		}
 		ladokError := &LadokError{}
 		e := &Errors{}
 		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil {
-			return nil, oneError("", "json.Unmarshal", "do", err.Error())
+			return nil, oneError("Cant unmarshal json to  Errors ", "json.Unmarshal", "do", err.Error())
 		}
 		e.Ladok = ladokError
 		return nil, e
