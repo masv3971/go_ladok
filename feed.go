@@ -3,7 +3,9 @@ package goladok3
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type feedService struct {
@@ -397,20 +399,27 @@ func (e *resultatEvent) parse(eventTypeName, entryID string) *SuperEvent {
 	return s
 }
 
+func (s *feedService) feedURL() (string, error) {
+	env, err := s.client.environment()
+	if err != nil {
+		return "", err
+	}
+
+	switch env {
+	case envIntTestAPI:
+		return "handelser/feed", nil
+	default:
+		return "uppfoljning/feed", nil
+	}
+}
+
 // Recent atom feed /uppfoljning/feed/recent
 func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, error) {
-	env, err := s.client.environment()
+	envURL, err := s.feedURL()
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var url string
-	switch env {
-	case envIntTestAPI:
-		url = "handelser/feed/recent"
-	default:
-		url = "uppfoljning/feed/recent"
-	}
+	url := fmt.Sprintf("%s/%s", envURL, "recent")
 
 	reply := &feedRecent{}
 	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
@@ -424,6 +433,49 @@ func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, e
 	}
 
 	return superFeed, resp, nil
+}
+
+func (s *feedService) Historical(ctx context.Context, id int) (*SuperFeed, *http.Response, error) {
+	url, err := s.feedURL()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	reply := &feedRecent{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, strconv.Itoa(id), nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	superFeed, err := reply.parse()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return superFeed, resp, nil
+
+}
+
+func (s *feedService) First(ctx context.Context) (*SuperFeed, *http.Response, error) {
+	envURL, err := s.feedURL()
+	if err != nil {
+		return nil, nil, err
+	}
+	url := fmt.Sprintf("%s/%s", envURL, "first")
+
+	reply := &feedRecent{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	superFeed, err := reply.parse()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return superFeed, resp, nil
+
 }
 
 func (f *feedRecent) parse() (*SuperFeed, error) {

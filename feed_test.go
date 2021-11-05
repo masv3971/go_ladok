@@ -4,91 +4,154 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
+	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/masv3971/goladok3/testinginfra"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFeedRecent(t *testing.T) {
+func TestFeed(t *testing.T) {
+	tts := []struct {
+		env string
+		url string
+	}{
+		{
+			env: envIntTestAPI,
+			url: "/handelser/feed",
+		},
+		{
+			env: envTestAPI,
+			url: "/uppfoljning/feed",
+		},
+		{
+			env: envProdAPI,
+			url: "/uppfoljning/feed",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.env, func(t *testing.T) {
+			testFeed(t, tt.env, tt.url)
+		})
+	}
+}
+
+func testFeed(t *testing.T, env string, url string) {
+	client := mockNewClient(t, env, "")
+
+	generalErrorMessage := &LadokError{
+		FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
+		Felkategori:     "commons.fel.kategori.applikationsfel",
+		FelkategoriText: "Generellt fel i applikationen",
+		Meddelande:      "java.lang.NullPointerException null",
+		Link:            []interface{}{},
+	}
+
 	type payload struct {
 		client, server []byte
 	}
 	tts := []struct {
 		name       string
-		url        string
+		serverURL  string
+		param      int
 		payload    payload
 		reply      interface{}
 		statusCode int
-		env        string
+		fn         interface{}
 	}{
 		{
-			name:       "Prod_GET:/uppfoljning/feed/recent 200",
-			url:        "/uppfoljning/feed/recent",
+			name:       "recent 200",
+			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
 			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
-			env:        envProdAPI,
+			fn:         client.Feed.Recent,
 		},
 		{
-			name:    "Prod_GET:/uppfoljning/feed/recent 500",
-			url:     "/uppfoljning/feed/recent",
-			payload: payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
-			reply: &Errors{Ladok: &LadokError{
-				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
-				Felkategori:     "commons.fel.kategori.applikationsfel",
-				FelkategoriText: "Generellt fel i applikationen",
-				Meddelande:      "java.lang.NullPointerException null",
-				Link:            []interface{}{},
-			}},
+			name:       "recent 500",
+			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
+			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			reply:      &Errors{Ladok: generalErrorMessage},
 			statusCode: 500,
-			env:        envProdAPI,
+			fn:         client.Feed.Recent,
 		},
 		{
-			name:       "IntTest_GET:/handelser/feed/recent 200",
-			url:        "/handelser/feed/recent",
+			name:       "historical 200",
+			serverURL:  url,
+			param:      100,
 			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
-			env:        envIntTestAPI,
+			fn:         client.Feed.Historical,
 		},
 		{
-			name:       "Test_GET:/uppfoljning/feed/recent 200",
-			url:        "/uppfoljning/feed/recent",
+			name:       "historical 500",
+			serverURL:  url,
+			param:      100,
+			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			reply:      &Errors{Ladok: generalErrorMessage},
+			statusCode: 500,
+			fn:         client.Feed.Historical,
+		},
+		{
+			name:       "first 200",
+			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
 			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
-			env:        envTestAPI,
+			fn:         client.Feed.First,
 		},
 		{
-			name:       "Invalid ladok-environment",
-			url:        "/uppfoljning/feed/recent",
-			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
-			reply:      &Errors{Internal: []InternalError{{Msg: "No valid ladok-environment (OU) found in certificate"}}},
-			statusCode: 200,
-			env:        "test",
+			name:       "first 500",
+			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
+			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			reply:      &Errors{Ladok: generalErrorMessage},
+			statusCode: 500,
+			fn:         client.Feed.First,
 		},
 	}
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			mux, server, client := mockSetup(t, tt.env)
-
-			mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.url, "", tt.payload.server, tt.statusCode)
+			mux, server, _ := mockSetup(t, env)
+			client.url = server.URL
+			if tt.param != 0 {
+				mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.serverURL, strconv.Itoa(tt.param), tt.payload.server, tt.statusCode)
+			} else {
+				mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.serverURL, "", tt.payload.server, tt.statusCode)
+			}
 
 			err := json.Unmarshal(tt.payload.client, tt.reply)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
 
-			switch tt.reply.(type) {
-			case *SuperFeed:
-				got, _, _ := client.Feed.Recent(context.TODO())
+			switch tt.fn.(type) {
+			case func(context.Context) (*SuperFeed, *http.Response, error):
+				f := tt.fn.(func(context.Context) (*SuperFeed, *http.Response, error))
+				switch tt.reply.(type) {
+				case *SuperFeed:
+					got, _, _ := f(context.TODO())
 
-				assert.Equal(t, tt.reply, got, "Should be equal")
-			case *Errors:
-				_, _, err = client.Feed.Recent(context.TODO())
-				assert.Equal(t, tt.reply.(*Errors), err)
+					assert.Equal(t, tt.reply, got, "Should be equal")
+				case *Errors:
+					_, _, err = f(context.TODO())
+					assert.Equal(t, tt.reply.(*Errors), err)
+				}
+			case func(context.Context, int) (*SuperFeed, *http.Response, error):
+				f := tt.fn.(func(context.Context, int) (*SuperFeed, *http.Response, error))
+				switch tt.reply.(type) {
+				case *SuperFeed:
+					got, _, _ := f(context.TODO(), tt.param)
+
+					assert.Equal(t, tt.reply, got, "Should be equal")
+				case *Errors:
+					_, _, err = f(context.TODO(), tt.param)
+					assert.Equal(t, tt.reply.(*Errors), err)
+				}
 			}
 
 			server.Close() // Close server after each run
