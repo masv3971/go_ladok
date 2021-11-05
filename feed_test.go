@@ -342,7 +342,7 @@ func TestParse(t *testing.T) {
 }
 
 var mockFeedRecent = &SuperFeed{
-	ID: "4856",
+	ID: 4856,
 	SuperEvents: []*SuperEvent{
 		mockAnvandareAndradEvent,
 		mockAnvandareSkapadEventSuperEvent,
@@ -392,7 +392,7 @@ func TestMotherParser(t *testing.T) {
 
 func jsonSuperFeed(t *testing.T) []byte {
 	superFeed := &SuperFeed{
-		ID: "4856",
+		ID: 4856,
 		SuperEvents: []*SuperEvent{
 			mockAnvandareAndradEvent,
 			mockAnvandareSkapadEventSuperEvent,

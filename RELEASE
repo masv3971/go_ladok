@@ -18,3 +18,4 @@ v0.0.34 : Add content-type for atom feed.
 v0.0.35 : Add error message to do method.
 v0.0.36 : Fix url to feed.
 v0.0.37 : Bump-tag
+v0.0.38 : Change feedID type to int, easier to use.

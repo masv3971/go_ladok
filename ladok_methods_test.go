@@ -119,7 +119,7 @@ func TestFeedIDTrim(t *testing.T) {
 	tts := []struct {
 		name string
 		have FeedID
-		want string
+		want FeedID
 	}{
 		{
 			name: "OK",
