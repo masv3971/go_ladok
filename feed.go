@@ -3,7 +3,6 @@ package goladok3
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -413,65 +412,53 @@ func (s *feedService) feedURL() (string, error) {
 	}
 }
 
-// Recent atom feed /uppfoljning/feed/recent
+func (s *feedService) atomReader(ctx context.Context, param string) (*SuperFeed, *http.Response, error) {
+	envURL, err := s.feedURL()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	reply := &feedRecent{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, envURL, param, nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	superFeed, err := reply.parse()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return superFeed, resp, nil
+
+}
+
+// Recent atom feed .../feed/recent gets the most recent publiced feed
 func (s *feedService) Recent(ctx context.Context) (*SuperFeed, *http.Response, error) {
-	envURL, err := s.feedURL()
-	if err != nil {
-		return nil, nil, err
-	}
-	url := fmt.Sprintf("%s/%s", envURL, "recent")
-
-	reply := &feedRecent{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	superFeed, resp, err := s.atomReader(ctx, "recent")
 	if err != nil {
 		return nil, resp, err
-	}
-
-	superFeed, err := reply.parse()
-	if err != nil {
-		return nil, nil, err
 	}
 
 	return superFeed, resp, nil
 }
 
+// Historical atom feed .../feed/{id} gets feed of {id}
 func (s *feedService) Historical(ctx context.Context, id int) (*SuperFeed, *http.Response, error) {
-	url, err := s.feedURL()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	reply := &feedRecent{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, strconv.Itoa(id), nil, reply)
+	superFeed, resp, err := s.atomReader(ctx, strconv.Itoa(id))
 	if err != nil {
 		return nil, resp, err
-	}
-
-	superFeed, err := reply.parse()
-	if err != nil {
-		return nil, nil, err
 	}
 
 	return superFeed, resp, nil
 
 }
 
+// First atom feed .../feed/first gets the first publiced feed
 func (s *feedService) First(ctx context.Context) (*SuperFeed, *http.Response, error) {
-	envURL, err := s.feedURL()
-	if err != nil {
-		return nil, nil, err
-	}
-	url := fmt.Sprintf("%s/%s", envURL, "first")
-
-	reply := &feedRecent{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	superFeed, resp, err := s.atomReader(ctx, "first")
 	if err != nil {
 		return nil, resp, err
-	}
-
-	superFeed, err := reply.parse()
-	if err != nil {
-		return nil, nil, err
 	}
 
 	return superFeed, resp, nil
