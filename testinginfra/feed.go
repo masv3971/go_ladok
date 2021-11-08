@@ -1,5 +1,12 @@
 package testinginfra
 
+import (
+	"encoding/xml"
+	"strconv"
+
+	ladoktypes "github.com/masv3971/goladok3/ladok_types"
+)
+
 const (
 	// AnvandareAndradEventID test entry id
 	AnvandareAndradEventID = "e01ec574-2815-11ec-989a-cc769fd346b3"
@@ -470,3 +477,20 @@ var XMLFeedRecent = []byte(`
   </entry>
 </feed>
 `)
+
+// FeedXML return an xml event with id
+func FeedXML(id int) []byte {
+	f := &ladoktypes.Feed{}
+
+	if err := xml.Unmarshal(XMLFeedRecent, f); err != nil {
+		return nil
+	}
+
+	f.ID = ladoktypes.FeedID(strconv.Itoa(id))
+	b, err := xml.Marshal(f)
+	if err != nil {
+		return nil
+	}
+
+	return b
+}

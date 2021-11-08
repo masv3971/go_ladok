@@ -21,3 +21,4 @@ v0.0.37 : Bump-tag
 v0.0.38 : Change feedID type to int, easier to use.
 v0.0.39 : Add feed endpoint /first, /{id}.
 v0.0.40 : Add combined func for feed reading.
+v0.0.41 : Add separate type package.
