@@ -3,6 +3,7 @@ package ladokmocks
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"strconv"
 
 	"github.com/masv3971/goladok3/ladoktypes"
@@ -486,8 +487,7 @@ func FeedXML(id int) []byte {
 	if err := xml.Unmarshal(XMLFeedRecent, f); err != nil {
 		return nil
 	}
-
-	f.ID = ladoktypes.FeedID(strconv.Itoa(id))
+	f.ID = ladoktypes.FeedID(fmt.Sprintf("urn:id:%s", strconv.Itoa(id)))
 	b, err := xml.Marshal(f)
 	if err != nil {
 		return nil

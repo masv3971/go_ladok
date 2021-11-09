@@ -121,6 +121,7 @@ type KontaktuppgifterEvent struct {
 	StudentUID    string `xml:"StudentUID"`
 	Telefonnummer string `xml:"Telefonnummer"`
 }
+
 type LokalStudentEvent struct {
 	Text         string `xml:",chardata"`
 	Si           string `xml:"si,attr"`
@@ -175,6 +176,7 @@ type ExternPartEvent struct {
 	LandID            string `xml:"LandID"`
 	TypAvExternPartID string `xml:"TypAvExternPartID"`
 }
+
 type ResultatEvent struct {
 	Text         string `xml:",chardata"`
 	Rr           string `xml:"rr,attr"`

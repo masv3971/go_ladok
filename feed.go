@@ -45,7 +45,7 @@ func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes
 
 	superFeed, err := reply.Parse()
 	if err != nil {
-		return nil, nil, err
+		return nil, resp, err
 	}
 
 	return superFeed, resp, nil
