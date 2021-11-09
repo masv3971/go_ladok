@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/masv3971/goladok3/ladokmocks"
+	"github.com/masv3971/goladok3/ladoktypes"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,7 +39,7 @@ func TestKataloginformation(t *testing.T) {
 			url:        "/kataloginformation/anvandare/autentiserad",
 			payload:    ladokmocks.JSONErrors500,
 			statusCode: 500,
-			reply: &Errors{Ladok: &LadokError{
+			reply: &Errors{Ladok: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
 				FelkategoriText: "Generellt fel i applikationen",
@@ -62,7 +63,7 @@ func TestKataloginformation(t *testing.T) {
 			url:        "/kataloginformation/anvandarbehorighet/egna",
 			payload:    ladokmocks.JSONErrors500,
 			statusCode: 500,
-			reply: &Errors{Ladok: &LadokError{
+			reply: &Errors{Ladok: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
 				FelkategoriText: "Generellt fel i applikationen",
@@ -85,7 +86,7 @@ func TestKataloginformation(t *testing.T) {
 			name:    "GetBehorighetsprofil 500",
 			url:     "/kataloginformation/behorighetsprofil",
 			payload: ladokmocks.JSONErrors500,
-			reply: &Errors{Ladok: &LadokError{
+			reply: &Errors{Ladok: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
 				FelkategoriText: "Generellt fel i applikationen",

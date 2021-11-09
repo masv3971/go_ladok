@@ -1,10 +1,11 @@
 package ladokmocks
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"strconv"
 
-	ladoktypes "github.com/masv3971/goladok3/ladok_types"
+	"github.com/masv3971/goladok3/ladoktypes"
 )
 
 const (
@@ -496,106 +497,34 @@ func FeedXML(id int) []byte {
 }
 
 // JSONSuperFeed return SuperFeed in JSON
-func JSONSuperFeed() []byte {
-	return nil
+func JSONSuperFeed(id int) []byte {
+	s := MockSuperFeed(id)
+	json, _ := json.Marshal(s)
+	return json
 }
 
-func MockSuperFeed(id int) *SuperFeed {
-	s := &SuperFeed{
+func MockSuperFeed(id int) *ladoktypes.SuperFeed {
+	s := &ladoktypes.SuperFeed{
 		ID: id,
-		SuperEvents: []*SuperEvent{
+		SuperEvents: []*ladoktypes.SuperEvent{
 			MockAnvandareAndradEvent,
 			MockAnvandareSkapadEventSuperEvent,
-			MockExternPartEvent,
 			MockKontaktuppgifterEvent,
+			MockResultatPaModulAttesteratEvent,
+			MockExternPartEvent,
 			MockLokalStudentEvent,
 			MockResultatPaHelKursAttesteratEvent,
-			MockResultatPaModulAttesteratEvent,
 		},
 	}
 	return s
 }
 
-// SuperFeed is a made up type, in order to make unstructured data to structured data.
-type SuperFeed struct {
-	ID          int           `json:"id,omitempty"`
-	SuperEvents []*SuperEvent `json:"super_events,omitempty"`
-}
-
-// SuperEventContext is a made up type
-type SuperEventContext struct {
-	AnvandareUID string `json:"anvandare_uid"`
-	Anvandarnamn string `json:"anvandarnamn"`
-	LarosateID   string `json:"larosate_id"`
-}
-
-// SuperPostadress is a made up type
-type SuperPostadress struct {
-	Land             string `json:"land"`
-	PostadressTyp    string `json:"postadress_typ"`
-	Postnummer       string `json:"postnummer"`
-	Postort          string `json:"postort"`
-	Utdelningsadress string `json:"utdelningsadress"`
-	CareOf           string `json:"care_of"`
-}
-
-// SuperBeslut is a made up type
-type SuperBeslut struct {
-	BeslutUID         string `json:"beslut_uid"`
-	Beslutsdatum      string `json:"beslutsdatum"`
-	Beslutsfattare    string `json:"beslutsdattare"`
-	BeslutsfattareUID string `json:"beslutsfattare_uid"`
-}
-
-// SuperResultat is a made up type
-type SuperResultat struct {
-	BetygsgradID       string `json:"betygsgrad_id"`
-	BetygsskalaID      string `json:"betygsskala_id"`
-	Examinationsdatum  string `json:"examinationsdatum"`
-	GiltigSomSlutbetyg string `json:"giltig_som_slutbetyg"`
-	OmfattningsPoang   string `json:"omfattnings_poang"`
-	PrestationsPoang   string `json:"prestations_poang"`
-	ResultatUID        string `json:"resultat_uid"`
-}
-
-// SuperEvent is a made up type consists of all the aviable ladok attributes
-type SuperEvent struct {
-	EventTypeName         string            `json:"event_type_name"`
-	EntryID               string            `json:"entry_id"`
-	EventContext          SuperEventContext `json:"event_context"`
-	HandelseUID           string            `json:"handelse_uid"`
-	ID                    string            `json:"id"`
-	AnvandareUID          string            `json:"anvandare_uid"`
-	Efternamn             string            `json:"efternamn"`
-	Email                 string            `json:"email"`
-	Fornamn               string            `json:"fornamn"`
-	Handelsetyp           string            `json:"handelsetype"`
-	StudentUID            string            `json:"student_uid"`
-	Postadresser          []SuperPostadress `json:"postadresser"`
-	Telefonnummer         string            `json:"telefonnummer"`
-	Beslut                SuperBeslut       `json:"beslut"`
-	Resultat              SuperResultat     `json:"resultat"`
-	UtbildningsinstansUID string            `json:"utbildningsinstans_uid"`
-	Anvandarnamnet        string            `json:"anvandarnamnet"`
-	EventTyp              string            `json:"event_typ"`
-	Giltighetsperiod      string            `json:"giltighetsperiod"`
-	Kod                   string            `json:"kod"`
-	LandID                string            `json:"land_id"`
-	TypAvExternPartID     string            `json:"typ_av_extern_part_id"`
-	KursUID               string            `json:"kurs_uid"`
-	KursinstansUID        string            `json:"kursinstans_uid"`
-	KurstillfalleUID      string            `json:"kurstillfalle_uid"`
-	ExterntStudentUID     string            `json:"externt_student_uid"`
-	Fodelsedata           string            `json:"fodelsedata"`
-	Kon                   string            `json:"kon"`
-	Personnummer          string            `json:"personnummer"`
-}
-
-var MockAnvandareAndradEvent = &SuperEvent{
+// MockAnvandareAndradEvent mocks ladok response
+var MockAnvandareAndradEvent = &ladoktypes.SuperEvent{
 	EntryID:       "e01ec574-2815-11ec-989a-cc769fd346b3",
 	EventTypeName: "AnvandareAndradEvent",
 	HandelseUID:   "df3ca2cd-2815-11ec-b525-441c04d24542",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "de624944-2815-11ec-b525-441c04d24542",
 		Anvandarnamn: "system@ladokintern.se",
 		LarosateID:   "27",
@@ -606,11 +535,11 @@ var MockAnvandareAndradEvent = &SuperEvent{
 	Fornamn:        "testFornamn",
 }
 
-var MockAnvandareSkapadEventSuperEvent = &SuperEvent{
+var MockAnvandareSkapadEventSuperEvent = &ladoktypes.SuperEvent{
 	EntryID:       "df7ae52e-2815-11ec-989a-cc769fd346b3",
 	EventTypeName: "AnvandareSkapadEvent",
 	HandelseUID:   "deeef7f0-2815-11ec-b525-441c04d24542",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "de624944-2815-11ec-b525-441c04d24542",
 		Anvandarnamn: "system@ladokintern.se",
 		LarosateID:   "27",
@@ -620,10 +549,10 @@ var MockAnvandareSkapadEventSuperEvent = &SuperEvent{
 	Fornamn:        "sunet@KF",
 }
 
-var MockExternPartEvent = &SuperEvent{
+var MockExternPartEvent = &ladoktypes.SuperEvent{
 	EntryID:       "4994B8E2-B4E9-41CB-B73D-F9A26D454294",
 	EventTypeName: "ExternPartEvent",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "3d284b5a-8dc6-11e5-923c-c49715df4966",
 		Anvandarnamn: "testName@example.com",
 		LarosateID:   "-1",
@@ -636,10 +565,10 @@ var MockExternPartEvent = &SuperEvent{
 	TypAvExternPartID: "1",
 }
 
-var MockKontaktuppgifterEvent = &SuperEvent{
+var MockKontaktuppgifterEvent = &ladoktypes.SuperEvent{
 	EntryID:       "63073d13-27c2-11ec-a5df-22713cb94088",
 	EventTypeName: "KontaktuppgifterEvent",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "6209f0e8-27c2-11ec-b742-49fcffce49ad",
 		Anvandarnamn: "feedevent@ladokintern.se",
 		LarosateID:   "27",
@@ -647,7 +576,7 @@ var MockKontaktuppgifterEvent = &SuperEvent{
 	HandelseUID: "62127c6a-27c2-11ec-b742-49fcffce49ad",
 	Handelsetyp: "UPPDATERAD",
 	Email:       "testMail@example.com",
-	Postadresser: []SuperPostadress{
+	Postadresser: []ladoktypes.SuperPostadress{
 		{
 			PostadressTyp:    "POSTADRESS",
 			Postnummer:       "10010",
@@ -667,10 +596,10 @@ var MockKontaktuppgifterEvent = &SuperEvent{
 	Telefonnummer: "0701234567",
 }
 
-var MockResultatPaModulAttesteratEvent = &SuperEvent{
+var MockResultatPaModulAttesteratEvent = &ladoktypes.SuperEvent{
 	EntryID:       "684731cb-276c-11ec-a5df-22713cb94088",
 	EventTypeName: "ResultatPaModulAttesteratEvent",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
 		Anvandarnamn: "testName@example.com",
 		LarosateID:   "27",
@@ -678,13 +607,13 @@ var MockResultatPaModulAttesteratEvent = &SuperEvent{
 	HandelseUID:   "67a12d1a-276c-11ec-a60e-c0f64d1847cf",
 	StudentUID:    "a32402ed-52be-11e8-9ac9-7d414daf4d27",
 	Telefonnummer: "",
-	Beslut: SuperBeslut{
+	Beslut: ladoktypes.SuperBeslut{
 		BeslutUID:         "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
 		Beslutsdatum:      "2021-10-07",
 		Beslutsfattare:    "TestFornamn TestEfterNamn",
 		BeslutsfattareUID: "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
 	},
-	Resultat: SuperResultat{
+	Resultat: ladoktypes.SuperResultat{
 		BetygsgradID:       "2302",
 		BetygsskalaID:      "2",
 		Examinationsdatum:  "2021-10-01",
@@ -699,23 +628,23 @@ var MockResultatPaModulAttesteratEvent = &SuperEvent{
 	KurstillfalleUID:      "1aac3ee2-ae07-11e8-8034-bd68ea484fc7",
 }
 
-var MockResultatPaHelKursAttesteratEvent = &SuperEvent{
+var MockResultatPaHelKursAttesteratEvent = &ladoktypes.SuperEvent{
 	EntryID:       "A2D30F0A-2CD6-4EBF-B814-426646030252",
 	EventTypeName: "ResultatPaHelKursAttesteratEvent",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "b0289ab3-5186-11ea-8091-b70ab71540fa",
 		Anvandarnamn: "TestNamn@konstfack.se",
 		LarosateID:   "27",
 	},
 	HandelseUID: "0e627df9-3279-11ec-871f-f5b046564fb2",
 	StudentUID:  "ebac93d8-0b38-11e8-8b82-013496834cc0",
-	Beslut: SuperBeslut{
+	Beslut: ladoktypes.SuperBeslut{
 		BeslutUID:         "b0289ab3-5186-11ea-8091-b70ab71540fa",
 		Beslutsdatum:      "2021-10-21",
 		Beslutsfattare:    "TestForOchEfternamn",
 		BeslutsfattareUID: "b0289ab3-5186-11ea-8091-b70ab71540fa",
 	},
-	Resultat: SuperResultat{
+	Resultat: ladoktypes.SuperResultat{
 		BetygsgradID:       "101313",
 		BetygsskalaID:      "101312",
 		Examinationsdatum:  "2021-10-21",
@@ -730,10 +659,10 @@ var MockResultatPaHelKursAttesteratEvent = &SuperEvent{
 	KurstillfalleUID:      "b4294f9e-5438-11eb-bec3-d5a2938f4dea",
 }
 
-var MockLokalStudentEvent = &SuperEvent{
+var MockLokalStudentEvent = &ladoktypes.SuperEvent{
 	EntryID:       "36E561D5-88D4-42E0-953B-6C86FA47E299",
 	EventTypeName: "LokalStudentEvent",
-	EventContext: SuperEventContext{
+	EventContext: ladoktypes.SuperEventContext{
 		AnvandareUID: "799b04af-32be-11ec-aeeb-67874d294267",
 		Anvandarnamn: "feedevent@ladokintern.se",
 		LarosateID:   "27",

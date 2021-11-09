@@ -23,3 +23,4 @@ v0.0.39 : Add feed endpoint /first, /{id}.
 v0.0.40 : Add combined func for feed reading.
 v0.0.41 : Add separate type package.
 v0.0.42 : Change name of test-package since it describe the intent better.
+v0.0.43 : Rearrange types to other package.

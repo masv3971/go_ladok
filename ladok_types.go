@@ -33,21 +33,6 @@ const (
 	envIntTestAPI = "Int-test-API"
 	envProdAPI    = "Prod-API"
 	envTestAPI    = "Test-API"
-
-	// LokalStudentEventName type
-	LokalStudentEventName = "LokalStudentEvent"
-	// AnvandareAndradEventName type
-	AnvandareAndradEventName = "AnvandareAndradEvent"
-	// AnvandareSkapadEventName type
-	AnvandareSkapadEventName = "AnvandareSkapadEvent"
-	// ExternPartEventName type
-	ExternPartEventName = "ExternPartEvent"
-	// KontaktuppgifterEventName type
-	KontaktuppgifterEventName = "KontaktuppgifterEvent"
-	// ResultatPaModulAttesteratEventName type
-	ResultatPaModulAttesteratEventName = "ResultatPaModulAttesteratEvent"
-	// ResultatPaHelKursAttesteratEventName type
-	ResultatPaHelKursAttesteratEventName = "ResultatPaHelKursAttesteratEvent"
 )
 
 var (

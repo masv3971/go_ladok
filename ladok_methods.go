@@ -3,15 +3,15 @@ package goladok3
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
+
+	"github.com/masv3971/goladok3/ladoktypes"
 )
 
 // IsLadokPermissionsSufficient compare ladok permissions with ps
 func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions Permissions) (bool, error) {
 	var (
 		e             = &Errors{}
-		internalError = []InternalError{}
+		internalError = []ladoktypes.InternalError{}
 	)
 
 	egna, _, err := c.Kataloginformation.GetAnvandarbehorighetEgna(ctx)
@@ -47,7 +47,7 @@ func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions
 		}
 		if notFound {
 			//missingPermission[myPermissionsID] = myPermissionsValue
-			internalError = append(internalError, InternalError{
+			internalError = append(internalError, ladoktypes.InternalError{
 				Msg:  fmt.Sprintf("Missing id: %d, value: %q", myPermissionsID, myPermissionsValue),
 				Type: "Permission",
 			})
@@ -72,17 +72,4 @@ func (c *Client) environment() (string, error) {
 	default:
 		return "", ErrNoEnvFound
 	}
-}
-
-// trim remove "urn"
-func (id FeedID) trim() FeedID {
-	return FeedID(strings.Split(string(id), ":")[2])
-}
-
-func (id FeedID) int() (int, error) {
-	i, err := strconv.Atoi(string(id))
-	if err != nil {
-		return 0, err
-	}
-	return i, nil
 }

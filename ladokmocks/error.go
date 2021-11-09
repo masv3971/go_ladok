@@ -1,5 +1,7 @@
 package ladokmocks
 
+import "github.com/masv3971/goladok3/ladoktypes"
+
 // JSONErrors500 ladok error
 var JSONErrors500 = []byte(`
 	  {
@@ -25,3 +27,11 @@ var JSONErrorValideringsFel = []byte(`
 		"link": []
 	  } 
 	  `)
+
+var GeneralErrorMessage = &ladoktypes.LadokError{
+	FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
+	Felkategori:     "commons.fel.kategori.applikationsfel",
+	FelkategoriText: "Generellt fel i applikationen",
+	Meddelande:      "java.lang.NullPointerException null",
+	Link:            []interface{}{},
+}

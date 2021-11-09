@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/masv3971/goladok3/ladoktypes"
 	"golang.org/x/time/rate"
 
 	"software.sslmate.com/src/go-pkcs12"
@@ -230,7 +231,7 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 		if _, err := buf.ReadFrom(resp.Body); err != nil {
 			return nil, oneError("Cant process buffer", "buf.ReadFrom", "do", err.Error())
 		}
-		ladokError := &LadokError{}
+		ladokError := &ladoktypes.LadokError{}
 		e := &Errors{}
 		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil { // TODO(masv): Fix xml error parsing into Errors.
 			return nil, oneError("Cant unmarshal json to  Errors ", "json.Unmarshal", "do", err.Error())

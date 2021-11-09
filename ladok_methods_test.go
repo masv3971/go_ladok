@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/masv3971/goladok3/ladokmocks"
+	"github.com/masv3971/goladok3/ladoktypes"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +38,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name:       "Missing id 0 with permission las",
 			have:       Permissions{61001: "rattighetsniva.las", 0: "rattighetsniva.las"},
-			want:       &Errors{Internal: []InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
+			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
 			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
@@ -45,7 +46,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name:       "Empty input Permissions map",
 			have:       Permissions{},
-			want:       &Errors{Internal: []InternalError{{Msg: "No permissions provided", Type: "Permission"}}},
+			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions provided", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
 			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
@@ -53,7 +54,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name:       "Ladok does not have any permissions",
 			have:       Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:       &Errors{Internal: []InternalError{{Msg: "No permissions found in ladok", Type: "Permission"}}},
+			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions found in ladok", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
 			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
@@ -61,7 +62,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name: "Egna does not respond",
 			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want: &Errors{Ladok: &LadokError{
+			want: &Errors{Ladok: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
 				FelkategoriText: "Generellt fel i applikationen",
@@ -75,7 +76,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name: "Profil does not respond",
 			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want: &Errors{Ladok: &LadokError{
+			want: &Errors{Ladok: &ladoktypes.LadokError{
 				Detaljkod:       "commons.domain.uid",
 				DetaljkodText:   "Unik identifierare",
 				FelUID:          "14c837fd-3a60-11ec-aa00-acd34b504da7",
@@ -111,26 +112,6 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			case *Errors:
 				assert.Equal(t, tt.want, err)
 			}
-		})
-	}
-}
-
-func TestFeedIDTrim(t *testing.T) {
-	tts := []struct {
-		name string
-		have FeedID
-		want FeedID
-	}{
-		{
-			name: "OK",
-			have: "urn:id:4856",
-			want: "4856",
-		},
-	}
-
-	for _, tt := range tts {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.have.trim())
 		})
 	}
 }

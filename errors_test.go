@@ -3,17 +3,18 @@ package goladok3
 import (
 	"testing"
 
+	"github.com/masv3971/goladok3/ladoktypes"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestErrorsError(t *testing.T) {
-	var mockInternalError = InternalError{
+	var mockInternalError = ladoktypes.InternalError{
 		Msg:           "testMsg",
 		Type:          "testType",
 		Func:          "testFunc",
 		PreviousError: "testPreviousError",
 	}
-	var mockLadokError = &LadokError{
+	var mockLadokError = &ladoktypes.LadokError{
 		Detaljkod:       "testDetaljkod",
 		DetaljkodText:   "testDetaljkodText",
 		FelUID:          "testFelUID",
@@ -31,12 +32,12 @@ func TestErrorsError(t *testing.T) {
 	}{
 		{
 			name: "OK, ladok & internal",
-			have: &Errors{Internal: []InternalError{mockInternalError, mockInternalError}, Ladok: mockLadokError},
+			have: &Errors{Internal: []ladoktypes.InternalError{mockInternalError, mockInternalError}, Ladok: mockLadokError},
 			want: "internal error: [{testMsg testType testFunc testPreviousError} {testMsg testType testFunc testPreviousError}], ladok error: &{testDetaljkod testDetaljkodText testFelUID testFelgrupp testFelgruppText testFelkategori testFelkategoriText testMeddelande []}",
 		},
 		{
 			name: "OK, only internal",
-			have: &Errors{Internal: []InternalError{mockInternalError}},
+			have: &Errors{Internal: []ladoktypes.InternalError{mockInternalError}},
 			want: "internal error: [{testMsg testType testFunc testPreviousError}]",
 		},
 		{
