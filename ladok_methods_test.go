@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/masv3971/goladok3/testinginfra"
+	"github.com/masv3971/goladok3/ladokmocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			want:       true,
 			param:      uid,
 			statusCode: statusCode{200, 200},
-			payload:    payload{testinginfra.JSONKataloginformationEgna, testinginfra.JSONKataloginformationBehorighetsprofil},
+			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
 			name:       "Missing id 0 with permission las",
@@ -40,7 +40,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			want:       &Errors{Internal: []InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
-			payload:    payload{testinginfra.JSONKataloginformationEgna, testinginfra.JSONKataloginformationBehorighetsprofil},
+			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
 			name:       "Empty input Permissions map",
@@ -48,7 +48,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			want:       &Errors{Internal: []InternalError{{Msg: "No permissions provided", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
-			payload:    payload{testinginfra.JSONKataloginformationEgna, testinginfra.JSONKataloginformationBehorighetsprofil},
+			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
 			name:       "Ladok does not have any permissions",
@@ -56,7 +56,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			want:       &Errors{Internal: []InternalError{{Msg: "No permissions found in ladok", Type: "Permission"}}},
 			param:      uid,
 			statusCode: statusCode{200, 200},
-			payload:    payload{testinginfra.JSONKataloginformationEgna, testinginfra.JSONKataloginformationBehorighetsprofilNoPermissions},
+			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
 		},
 		{
 			name: "Egna does not respond",
@@ -70,7 +70,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			}},
 			param:      uid,
 			statusCode: statusCode{500, 200},
-			payload:    payload{testinginfra.JSONErrors500, testinginfra.JSONKataloginformationBehorighetsprofil},
+			payload:    payload{ladokmocks.JSONErrors500, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
 			name: "Profil does not respond",
@@ -88,7 +88,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			}},
 			param:      uid,
 			statusCode: statusCode{200, 500},
-			payload:    payload{testinginfra.JSONKataloginformationEgna, testinginfra.JSONErrorValideringsFel},
+			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONErrorValideringsFel},
 		},
 	}
 

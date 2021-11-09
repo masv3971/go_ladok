@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/masv3971/goladok3/testinginfra"
+	"github.com/masv3971/goladok3/ladokmocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,7 +65,7 @@ func testFeed(t *testing.T, env string, url string) {
 		{
 			name:       "recent 200",
 			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
-			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
 			fn:         client.Feed.Recent,
@@ -73,7 +73,7 @@ func testFeed(t *testing.T, env string, url string) {
 		{
 			name:       "recent 500",
 			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
-			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.JSONErrors500},
 			reply:      &Errors{Ladok: generalErrorMessage},
 			statusCode: 500,
 			fn:         client.Feed.Recent,
@@ -82,7 +82,7 @@ func testFeed(t *testing.T, env string, url string) {
 			name:       "historical 200",
 			serverURL:  url,
 			param:      100,
-			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
 			fn:         client.Feed.Historical,
@@ -91,7 +91,7 @@ func testFeed(t *testing.T, env string, url string) {
 			name:       "historical 500",
 			serverURL:  url,
 			param:      100,
-			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.JSONErrors500},
 			reply:      &Errors{Ladok: generalErrorMessage},
 			statusCode: 500,
 			fn:         client.Feed.Historical,
@@ -99,7 +99,7 @@ func testFeed(t *testing.T, env string, url string) {
 		{
 			name:       "first 200",
 			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
-			payload:    payload{jsonSuperFeed(t), testinginfra.XMLFeedRecent},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.XMLFeedRecent},
 			reply:      &SuperFeed{},
 			statusCode: 200,
 			fn:         client.Feed.First,
@@ -107,7 +107,7 @@ func testFeed(t *testing.T, env string, url string) {
 		{
 			name:       "first 500",
 			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
-			payload:    payload{jsonSuperFeed(t), testinginfra.JSONErrors500},
+			payload:    payload{jsonSuperFeed(t), ladokmocks.JSONErrors500},
 			reply:      &Errors{Ladok: generalErrorMessage},
 			statusCode: 500,
 			fn:         client.Feed.First,
@@ -330,49 +330,49 @@ func TestParse(t *testing.T) {
 			event:   &anvandareEvent{},
 			entryID: "e01ec574-2815-11ec-989a-cc769fd346b3",
 			want:    mockAnvandareAndradEvent,
-			payload: testinginfra.XMLAnvandareAndraEvent,
+			payload: ladokmocks.XMLAnvandareAndraEvent,
 		},
 		{
 			name:    "AnvandareSkapadEvent",
 			event:   &anvandareEvent{},
 			entryID: "df7ae52e-2815-11ec-989a-cc769fd346b3",
 			want:    mockAnvandareSkapadEventSuperEvent,
-			payload: testinginfra.XMLAnvandareSkapadEvent,
+			payload: ladokmocks.XMLAnvandareSkapadEvent,
 		},
 		{
 			name:    "ExternPartEvent",
 			event:   &externPartEvent{},
 			entryID: "4994B8E2-B4E9-41CB-B73D-F9A26D454294",
 			want:    mockExternPartEvent,
-			payload: testinginfra.XMLExternPartEvent,
+			payload: ladokmocks.XMLExternPartEvent,
 		},
 		{
 			name:    "KontaktuppgifterEvent",
 			event:   &kontaktuppgifterEvent{},
 			entryID: "63073d13-27c2-11ec-a5df-22713cb94088",
 			want:    mockKontaktuppgifterEvent,
-			payload: testinginfra.XMLKontaktuppgifterEvent,
+			payload: ladokmocks.XMLKontaktuppgifterEvent,
 		},
 		{
 			name:    "ResultatPaModulAttesteratEvent",
 			event:   &resultatEvent{},
 			entryID: "684731cb-276c-11ec-a5df-22713cb94088",
 			want:    mockResultatPaModulAttesteratEvent,
-			payload: testinginfra.XMLResultatPaModulAttesteratEvent,
+			payload: ladokmocks.XMLResultatPaModulAttesteratEvent,
 		},
 		{
 			name:    "ResultatPaHelKursAttesteratEvent",
 			event:   &resultatEvent{},
 			entryID: "A2D30F0A-2CD6-4EBF-B814-426646030252",
 			want:    mockResultatPaHelKursAttesteratEvent,
-			payload: testinginfra.XMLResultatPaHelKursAttesteratEvent,
+			payload: ladokmocks.XMLResultatPaHelKursAttesteratEvent,
 		},
 		{
 			name:    "LokalStudentEvent",
 			event:   &lokalStudentEvent{},
 			entryID: "36E561D5-88D4-42E0-953B-6C86FA47E299",
 			want:    mockLokalStudentEvent,
-			payload: testinginfra.XMLLokalStudentEvent,
+			payload: ladokmocks.XMLLokalStudentEvent,
 		},
 	}
 	// ExternPartEvent.parse()
@@ -426,7 +426,7 @@ func TestMotherParser(t *testing.T) {
 	}{
 		{
 			name:    "OK",
-			payload: testinginfra.XMLFeedRecent,
+			payload: ladokmocks.XMLFeedRecent,
 			event:   &feedRecent{},
 			want:    mockFeedRecent,
 		},

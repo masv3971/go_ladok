@@ -1,4 +1,4 @@
-package testinginfra
+package ladokmocks
 
 // JSONErrors500 ladok error
 var JSONErrors500 = []byte(`

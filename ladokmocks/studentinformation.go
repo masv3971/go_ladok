@@ -1,4 +1,4 @@
-package testinginfra
+package ladokmocks
 
 // StudentUID uid for testing student
 var StudentUID = "339A47C0-426D-4012-B83A-6427E9587352"

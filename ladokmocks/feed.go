@@ -1,4 +1,4 @@
-package testinginfra
+package ladokmocks
 
 import (
 	"encoding/xml"
@@ -493,4 +493,258 @@ func FeedXML(id int) []byte {
 	}
 
 	return b
+}
+
+// JSONSuperFeed return SuperFeed in JSON
+func JSONSuperFeed() []byte {
+	return nil
+}
+
+func MockSuperFeed(id int) *SuperFeed {
+	s := &SuperFeed{
+		ID: id,
+		SuperEvents: []*SuperEvent{
+			MockAnvandareAndradEvent,
+			MockAnvandareSkapadEventSuperEvent,
+			MockExternPartEvent,
+			MockKontaktuppgifterEvent,
+			MockLokalStudentEvent,
+			MockResultatPaHelKursAttesteratEvent,
+			MockResultatPaModulAttesteratEvent,
+		},
+	}
+	return s
+}
+
+// SuperFeed is a made up type, in order to make unstructured data to structured data.
+type SuperFeed struct {
+	ID          int           `json:"id,omitempty"`
+	SuperEvents []*SuperEvent `json:"super_events,omitempty"`
+}
+
+// SuperEventContext is a made up type
+type SuperEventContext struct {
+	AnvandareUID string `json:"anvandare_uid"`
+	Anvandarnamn string `json:"anvandarnamn"`
+	LarosateID   string `json:"larosate_id"`
+}
+
+// SuperPostadress is a made up type
+type SuperPostadress struct {
+	Land             string `json:"land"`
+	PostadressTyp    string `json:"postadress_typ"`
+	Postnummer       string `json:"postnummer"`
+	Postort          string `json:"postort"`
+	Utdelningsadress string `json:"utdelningsadress"`
+	CareOf           string `json:"care_of"`
+}
+
+// SuperBeslut is a made up type
+type SuperBeslut struct {
+	BeslutUID         string `json:"beslut_uid"`
+	Beslutsdatum      string `json:"beslutsdatum"`
+	Beslutsfattare    string `json:"beslutsdattare"`
+	BeslutsfattareUID string `json:"beslutsfattare_uid"`
+}
+
+// SuperResultat is a made up type
+type SuperResultat struct {
+	BetygsgradID       string `json:"betygsgrad_id"`
+	BetygsskalaID      string `json:"betygsskala_id"`
+	Examinationsdatum  string `json:"examinationsdatum"`
+	GiltigSomSlutbetyg string `json:"giltig_som_slutbetyg"`
+	OmfattningsPoang   string `json:"omfattnings_poang"`
+	PrestationsPoang   string `json:"prestations_poang"`
+	ResultatUID        string `json:"resultat_uid"`
+}
+
+// SuperEvent is a made up type consists of all the aviable ladok attributes
+type SuperEvent struct {
+	EventTypeName         string            `json:"event_type_name"`
+	EntryID               string            `json:"entry_id"`
+	EventContext          SuperEventContext `json:"event_context"`
+	HandelseUID           string            `json:"handelse_uid"`
+	ID                    string            `json:"id"`
+	AnvandareUID          string            `json:"anvandare_uid"`
+	Efternamn             string            `json:"efternamn"`
+	Email                 string            `json:"email"`
+	Fornamn               string            `json:"fornamn"`
+	Handelsetyp           string            `json:"handelsetype"`
+	StudentUID            string            `json:"student_uid"`
+	Postadresser          []SuperPostadress `json:"postadresser"`
+	Telefonnummer         string            `json:"telefonnummer"`
+	Beslut                SuperBeslut       `json:"beslut"`
+	Resultat              SuperResultat     `json:"resultat"`
+	UtbildningsinstansUID string            `json:"utbildningsinstans_uid"`
+	Anvandarnamnet        string            `json:"anvandarnamnet"`
+	EventTyp              string            `json:"event_typ"`
+	Giltighetsperiod      string            `json:"giltighetsperiod"`
+	Kod                   string            `json:"kod"`
+	LandID                string            `json:"land_id"`
+	TypAvExternPartID     string            `json:"typ_av_extern_part_id"`
+	KursUID               string            `json:"kurs_uid"`
+	KursinstansUID        string            `json:"kursinstans_uid"`
+	KurstillfalleUID      string            `json:"kurstillfalle_uid"`
+	ExterntStudentUID     string            `json:"externt_student_uid"`
+	Fodelsedata           string            `json:"fodelsedata"`
+	Kon                   string            `json:"kon"`
+	Personnummer          string            `json:"personnummer"`
+}
+
+var MockAnvandareAndradEvent = &SuperEvent{
+	EntryID:       "e01ec574-2815-11ec-989a-cc769fd346b3",
+	EventTypeName: "AnvandareAndradEvent",
+	HandelseUID:   "df3ca2cd-2815-11ec-b525-441c04d24542",
+	EventContext: SuperEventContext{
+		AnvandareUID: "de624944-2815-11ec-b525-441c04d24542",
+		Anvandarnamn: "system@ladokintern.se",
+		LarosateID:   "27",
+	},
+	AnvandareUID:   "db20a822-2814-11ec-b525-441c04d24542",
+	Anvandarnamnet: "konsortiesupport-mape5338@konstfack.se",
+	Efternamn:      "Konsortiesupport TestEfternamn",
+	Fornamn:        "testFornamn",
+}
+
+var MockAnvandareSkapadEventSuperEvent = &SuperEvent{
+	EntryID:       "df7ae52e-2815-11ec-989a-cc769fd346b3",
+	EventTypeName: "AnvandareSkapadEvent",
+	HandelseUID:   "deeef7f0-2815-11ec-b525-441c04d24542",
+	EventContext: SuperEventContext{
+		AnvandareUID: "de624944-2815-11ec-b525-441c04d24542",
+		Anvandarnamn: "system@ladokintern.se",
+		LarosateID:   "27",
+	},
+	AnvandareUID:   "db17f56c-2814-11ec-b525-441c04d24542",
+	Anvandarnamnet: "sunet@kf",
+	Fornamn:        "sunet@KF",
+}
+
+var MockExternPartEvent = &SuperEvent{
+	EntryID:       "4994B8E2-B4E9-41CB-B73D-F9A26D454294",
+	EventTypeName: "ExternPartEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "3d284b5a-8dc6-11e5-923c-c49715df4966",
+		Anvandarnamn: "testName@example.com",
+		LarosateID:   "-1",
+	},
+	HandelseUID:       "e849148a-276b-11ec-a912-d80914c94ada",
+	ID:                "152447",
+	EventTyp:          "SKAPAD",
+	Kod:               "MINSK10",
+	LandID:            "25",
+	TypAvExternPartID: "1",
+}
+
+var MockKontaktuppgifterEvent = &SuperEvent{
+	EntryID:       "63073d13-27c2-11ec-a5df-22713cb94088",
+	EventTypeName: "KontaktuppgifterEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "6209f0e8-27c2-11ec-b742-49fcffce49ad",
+		Anvandarnamn: "feedevent@ladokintern.se",
+		LarosateID:   "27",
+	},
+	HandelseUID: "62127c6a-27c2-11ec-b742-49fcffce49ad",
+	Handelsetyp: "UPPDATERAD",
+	Email:       "testMail@example.com",
+	Postadresser: []SuperPostadress{
+		{
+			PostadressTyp:    "POSTADRESS",
+			Postnummer:       "10010",
+			Postort:          "CITY",
+			Utdelningsadress: "TESTGATAN 2 LGH 1000",
+			CareOf:           "NAME",
+		},
+		{
+			Land:             "Sverige",
+			PostadressTyp:    "FOLKBOKFORINGSADRESS",
+			Postnummer:       "10020",
+			Postort:          "CITY",
+			Utdelningsadress: "TESTGATAN 1 LGH 1000",
+		},
+	},
+	StudentUID:    "041e8b44-b593-11e7-96e6-896ca17746d1",
+	Telefonnummer: "0701234567",
+}
+
+var MockResultatPaModulAttesteratEvent = &SuperEvent{
+	EntryID:       "684731cb-276c-11ec-a5df-22713cb94088",
+	EventTypeName: "ResultatPaModulAttesteratEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
+		Anvandarnamn: "testName@example.com",
+		LarosateID:   "27",
+	},
+	HandelseUID:   "67a12d1a-276c-11ec-a60e-c0f64d1847cf",
+	StudentUID:    "a32402ed-52be-11e8-9ac9-7d414daf4d27",
+	Telefonnummer: "",
+	Beslut: SuperBeslut{
+		BeslutUID:         "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
+		Beslutsdatum:      "2021-10-07",
+		Beslutsfattare:    "TestFornamn TestEfterNamn",
+		BeslutsfattareUID: "ba1ca180-7ad2-11e9-8e63-5fd9b2d24100",
+	},
+	Resultat: SuperResultat{
+		BetygsgradID:       "2302",
+		BetygsskalaID:      "2",
+		Examinationsdatum:  "2021-10-01",
+		GiltigSomSlutbetyg: "true",
+		OmfattningsPoang:   "1.5",
+		PrestationsPoang:   "1.5",
+		ResultatUID:        "fb770d5e-276b-11ec-a60e-c0f64d1847cf",
+	},
+	UtbildningsinstansUID: "bd07fd89-be5e-11e7-a688-df865af0497f",
+	KursUID:               "bd391f51-be5e-11e7-a74b-fbb589e24dac",
+	KursinstansUID:        "bcf84602-be5e-11e7-a688-df865af0497f",
+	KurstillfalleUID:      "1aac3ee2-ae07-11e8-8034-bd68ea484fc7",
+}
+
+var MockResultatPaHelKursAttesteratEvent = &SuperEvent{
+	EntryID:       "A2D30F0A-2CD6-4EBF-B814-426646030252",
+	EventTypeName: "ResultatPaHelKursAttesteratEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "b0289ab3-5186-11ea-8091-b70ab71540fa",
+		Anvandarnamn: "TestNamn@konstfack.se",
+		LarosateID:   "27",
+	},
+	HandelseUID: "0e627df9-3279-11ec-871f-f5b046564fb2",
+	StudentUID:  "ebac93d8-0b38-11e8-8b82-013496834cc0",
+	Beslut: SuperBeslut{
+		BeslutUID:         "b0289ab3-5186-11ea-8091-b70ab71540fa",
+		Beslutsdatum:      "2021-10-21",
+		Beslutsfattare:    "TestForOchEfternamn",
+		BeslutsfattareUID: "b0289ab3-5186-11ea-8091-b70ab71540fa",
+	},
+	Resultat: SuperResultat{
+		BetygsgradID:       "101313",
+		BetygsskalaID:      "101312",
+		Examinationsdatum:  "2021-10-21",
+		GiltigSomSlutbetyg: "true",
+		OmfattningsPoang:   "15.0",
+		PrestationsPoang:   "0.0",
+		ResultatUID:        "0e627df6-3279-11ec-871f-f5b046564fb2",
+	},
+	UtbildningsinstansUID: "c9ef5dc4-ca2c-11e9-89dc-9348f6ec4783",
+	KursUID:               "bf010dbe-be5e-11e7-a74b-fbb589e24dac",
+	KursinstansUID:        "c9ef5dc4-ca2c-11e9-89dc-9348f6ec4783",
+	KurstillfalleUID:      "b4294f9e-5438-11eb-bec3-d5a2938f4dea",
+}
+
+var MockLokalStudentEvent = &SuperEvent{
+	EntryID:       "36E561D5-88D4-42E0-953B-6C86FA47E299",
+	EventTypeName: "LokalStudentEvent",
+	EventContext: SuperEventContext{
+		AnvandareUID: "799b04af-32be-11ec-aeeb-67874d294267",
+		Anvandarnamn: "feedevent@ladokintern.se",
+		LarosateID:   "27",
+	},
+	HandelseUID:       "79a2cce2-32be-11ec-aeeb-67874d294267",
+	Efternamn:         "TestEfternamn",
+	Fornamn:           "TestFornamn",
+	Handelsetyp:       "UPPDATERAD",
+	StudentUID:        "54871756-790b-11e7-807b-490425ec48ab",
+	ExterntStudentUID: "1e32b258-2ad3-4804-b288-11338efe6e44",
+	Fodelsedata:       "1970-01-01",
+	Kon:               "1",
+	Personnummer:      "197001014622",
 }
