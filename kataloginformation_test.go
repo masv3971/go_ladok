@@ -30,7 +30,7 @@ func TestKataloginformation(t *testing.T) {
 			url:        "/kataloginformation/anvandare/autentiserad",
 			payload:    ladokmocks.JSONKataloginformationAutentiserad,
 			statusCode: 200,
-			reply:      &AnvandareAutentiserad{},
+			reply:      &ladoktypes.KataloginformationAnvandareAutentiserad{},
 			param:      "",
 			fn:         client.Kataloginformation.GetAnvandareAutentiserad,
 		},
@@ -54,7 +54,7 @@ func TestKataloginformation(t *testing.T) {
 			url:        "/kataloginformation/anvandarbehorighet/egna",
 			payload:    ladokmocks.JSONKataloginformationEgna,
 			statusCode: 200,
-			reply:      &KataloginformationAnvandarbehorighetEgna{},
+			reply:      &ladoktypes.KataloginformationAnvandarbehorighetEgna{},
 			param:      "",
 			fn:         client.Kataloginformation.GetAnvandarbehorighetEgna,
 		},
@@ -78,7 +78,7 @@ func TestKataloginformation(t *testing.T) {
 			url:        "/kataloginformation/behorighetsprofil",
 			payload:    ladokmocks.JSONKataloginformationProfil,
 			statusCode: 200,
-			reply:      &KataloginformationBehorighetsprofil{},
+			reply:      &ladoktypes.KataloginformationBehorighetsprofil{},
 			param:      uuid.NewString(),
 			fn:         client.Kataloginformation.GetBehorighetsprofil,
 		},
@@ -111,8 +111,8 @@ func TestKataloginformation(t *testing.T) {
 			}
 
 			switch tt.fn.(type) {
-			case func(context.Context) (*AnvandareAutentiserad, *http.Response, error):
-				f := tt.fn.(func(context.Context) (*AnvandareAutentiserad, *http.Response, error))
+			case func(context.Context) (*ladoktypes.KataloginformationAnvandareAutentiserad, *http.Response, error):
+				f := tt.fn.(func(context.Context) (*ladoktypes.KataloginformationAnvandareAutentiserad, *http.Response, error))
 				switch tt.statusCode {
 				case 200:
 					reply, _, err := f(context.TODO())
@@ -127,8 +127,8 @@ func TestKataloginformation(t *testing.T) {
 					_, _, err = f(context.TODO())
 					assert.Equal(t, err, tt.reply.(*Errors))
 				}
-			case func(context.Context) (*KataloginformationAnvandarbehorighetEgna, *http.Response, error):
-				f := tt.fn.(func(context.Context) (*KataloginformationAnvandarbehorighetEgna, *http.Response, error))
+			case func(context.Context) (*ladoktypes.KataloginformationAnvandarbehorighetEgna, *http.Response, error):
+				f := tt.fn.(func(context.Context) (*ladoktypes.KataloginformationAnvandarbehorighetEgna, *http.Response, error))
 				switch tt.statusCode {
 				case 200:
 					reply, _, err := f(context.TODO())
@@ -143,8 +143,8 @@ func TestKataloginformation(t *testing.T) {
 					_, _, err = f(context.TODO())
 					assert.Equal(t, err, tt.reply.(*Errors))
 				}
-			case func(context.Context, *GetBehorighetsprofilerCfg) (*KataloginformationBehorighetsprofil, *http.Response, error):
-				f := tt.fn.(func(context.Context, *GetBehorighetsprofilerCfg) (*KataloginformationBehorighetsprofil, *http.Response, error))
+			case func(context.Context, *GetBehorighetsprofilerCfg) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error):
+				f := tt.fn.(func(context.Context, *GetBehorighetsprofilerCfg) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error))
 				switch tt.statusCode {
 				case 200:
 					reply, _, err := f(context.TODO(), &GetBehorighetsprofilerCfg{UID: tt.param})

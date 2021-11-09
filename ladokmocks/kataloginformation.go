@@ -1,5 +1,11 @@
 package ladokmocks
 
+import (
+	"encoding/json"
+
+	"github.com/masv3971/goladok3/ladoktypes"
+)
+
 // BehorighetsprofilUID uid for testing behörighetsprofiler
 var BehorighetsprofilUID = "3BAD6192-AEBC-4641-9EFD-C740C076E720"
 
@@ -72,6 +78,13 @@ var JSONKataloginformationProfil = []byte(`{
 		"rel": "http://schemas.ladok.se"
 	}]
 }`)
+
+// MockKataloginformationProfil return mock
+func MockKataloginformationProfil() *ladoktypes.KataloginformationBehorighetsprofil {
+	s := &ladoktypes.KataloginformationBehorighetsprofil{}
+	json.Unmarshal(JSONKataloginformationProfil, s)
+	return s
+}
 
 // JSONKataloginformationBehorighetsprofilNoPermissions ladok reply
 var JSONKataloginformationBehorighetsprofilNoPermissions = []byte(`
@@ -166,6 +179,13 @@ var JSONKataloginformationBehorighetsprofil = []byte(`
   }
 `)
 
+//MockKataloginformationBehorighetsprofil return mock ladok KataloginformationBehorighetsprofil
+func MockKataloginformationBehorighetsprofil() *ladoktypes.KataloginformationBehorighetsprofil {
+	s := &ladoktypes.KataloginformationBehorighetsprofil{}
+	json.Unmarshal(JSONKataloginformationBehorighetsprofil, s)
+	return s
+}
+
 // JSONKataloginformationAutentiserad ladok reply
 var JSONKataloginformationAutentiserad = []byte(`
 {
@@ -184,6 +204,13 @@ var JSONKataloginformationAutentiserad = []byte(`
 		} ]
 	  }
 `)
+
+// MockKataloginformationAutentiserad return ladok mock
+func MockKataloginformationAutentiserad() *ladoktypes.KataloginformationAnvandareAutentiserad {
+	s := &ladoktypes.KataloginformationAnvandareAutentiserad{}
+	json.Unmarshal(JSONKataloginformationAutentiserad, s)
+	return s
+}
 
 // JSONKataloginformationEgna ladok reply
 var JSONKataloginformationEgna = []byte(`{
@@ -260,3 +287,10 @@ var JSONKataloginformationEgna = []byte(`{
 		  "rel": "http://schemas.ladok.se"
 		}]
 	  }`)
+
+// MockKataloginformationEgna return mock
+func MockKataloginformationEgna() *ladoktypes.KataloginformationAnvandarbehorighetEgna {
+	s := &ladoktypes.KataloginformationAnvandarbehorighetEgna{}
+	json.Unmarshal(JSONKataloginformationEgna, s)
+	return s
+}

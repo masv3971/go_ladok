@@ -23,13 +23,13 @@ func TestGetStudent(t *testing.T) {
 		reply      interface{}
 		req        *GetStudentReq
 		statusCode int
-		fn         func(context.Context, *GetStudentReq) (*Student, *http.Response, error)
+		fn         func(context.Context, *GetStudentReq) (*ladoktypes.Student, *http.Response, error)
 	}{
 		{
 			name:       "Get:/student 200",
 			url:        "/studentinformation/student",
 			payload:    ladokmocks.JSONStudentinformationStudent,
-			reply:      &Student{},
+			reply:      &ladoktypes.Student{},
 			req:        &GetStudentReq{UID: uuid.NewString()},
 			statusCode: 200,
 			fn:         c.Studentinformation.GetStudent,
@@ -86,26 +86,26 @@ func TestGetStudent(t *testing.T) {
 func TestGenderString(t *testing.T) {
 	tts := []struct {
 		name string
-		have *Student
+		have *ladoktypes.Student
 		want string
 	}{
 		{
 			name: "female",
-			have: &Student{
+			have: &ladoktypes.Student{
 				KonID: 1,
 			},
 			want: "female",
 		},
 		{
 			name: "male",
-			have: &Student{
+			have: &ladoktypes.Student{
 				KonID: 2,
 			},
 			want: "male",
 		},
 		{
 			name: "n/a",
-			have: &Student{
+			have: &ladoktypes.Student{
 				KonID: 10,
 			},
 			want: "n/a",
