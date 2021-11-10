@@ -27,7 +27,7 @@ type Config struct {
 	URL         string
 	Certificate *x509.Certificate
 	PrivateKey  *rsa.PrivateKey
-	Chain       *x509.CertPool
+	Chain       []*x509.Certificate
 }
 
 // Client holds the ladok object
@@ -60,7 +60,7 @@ func New(config Config) (*Client, error) {
 		rateLimit:   rate.NewLimiter(rate.Every(1*time.Second), 30),
 	}
 
-	if err := c.unwrapCertificate(); err != nil {
+	if err := c.unwrapCertificate(config.Chain); err != nil {
 		return nil, err
 	}
 	if err := c.httpConfigure(); err != nil {
@@ -75,7 +75,7 @@ func New(config Config) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) unwrapCertificate() error {
+func (c *Client) unwrapCertificate(chainCerts []*x509.Certificate) error {
 	certPem := &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: c.certificate.Raw,
@@ -83,6 +83,11 @@ func (c *Client) unwrapCertificate() error {
 	keyPEM := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(c.privateKey),
+	}
+
+	c.chain = x509.NewCertPool()
+	for _, cert := range chainCerts {
+		c.chain.AddCert(cert)
 	}
 
 	c.certificatePEM = pem.EncodeToMemory(certPem)

@@ -1,12 +1,10 @@
 package ladokmocks
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/pem"
 	"math/big"
 	"testing"
 	"time"
@@ -17,7 +15,7 @@ import (
 // MockCertificatePassword mock password for certificate
 var MockCertificatePassword = "testPassword"
 
-func mockCACertificateAndKey(t *testing.T) (*x509.Certificate, *rsa.PrivateKey, *bytes.Buffer) {
+func mockCACertificateAndKey(t *testing.T) (*x509.Certificate, *rsa.PrivateKey, []*x509.Certificate) {
 	ca := &x509.Certificate{
 		SignatureAlgorithm: x509.SHA256WithRSA,
 		PublicKeyAlgorithm: x509.RSA,
@@ -36,11 +34,10 @@ func mockCACertificateAndKey(t *testing.T) (*x509.Certificate, *rsa.PrivateKey, 
 			SerialNumber:       "",
 			CommonName:         "sunet@KF",
 		},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().AddDate(10, 0, 0),
-		IsCA:      true,
-		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
-		//ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		NotBefore:  time.Now(),
+		NotAfter:   time.Now().AddDate(10, 0, 0),
+		IsCA:       true,
+		KeyUsage:   x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		OCSPServer: []string{"URI:http://ca01.rome08.led.ladok.se:8080/ca/ocsp"},
 	}
 
@@ -53,18 +50,24 @@ func mockCACertificateAndKey(t *testing.T) (*x509.Certificate, *rsa.PrivateKey, 
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-	caPEM := new(bytes.Buffer)
-	pem.Encode(caPEM, &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: caBytes,
-	})
 
-	return ca, privateKey, caPEM
+	signRootCA, err := x509.ParseCertificates(caBytes)
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+
+	//	caPEM := new(bytes.Buffer)
+	//	pem.Encode(caPEM, &pem.Block{
+	//		Type:  "CERTIFICATE",
+	//		Bytes: caBytes,
+	//	})
+
+	return ca, privateKey, signRootCA
 }
 
 // MockCertificateAndKey return mock certificate template
-func MockCertificateAndKey(t *testing.T, env string, notBefore, notAfter int) (*x509.Certificate, *rsa.PrivateKey, *x509.CertPool) {
-	ca, caPrivateKey, caPEM := mockCACertificateAndKey(t)
+func MockCertificateAndKey(t *testing.T, env string, notBefore, notAfter int) (*x509.Certificate, *rsa.PrivateKey, []*x509.Certificate) {
+	ca, caPrivateKey, signRootCA := mockCACertificateAndKey(t)
 
 	certTemplate := &x509.Certificate{
 		SignatureAlgorithm: x509.SHA256WithRSA,
@@ -105,8 +108,5 @@ func MockCertificateAndKey(t *testing.T, env string, notBefore, notAfter int) (*
 		t.FailNow()
 	}
 
-	chain := x509.NewCertPool()
-	chain.AppendCertsFromPEM(caPEM.Bytes())
-
-	return clientCert, certPrivateKey, chain
+	return clientCert, certPrivateKey, signRootCA
 }
