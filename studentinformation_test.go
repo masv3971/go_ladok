@@ -14,7 +14,7 @@ import (
 
 func TestGetStudent(t *testing.T) {
 	var (
-		c = mockNewClient(t, envIntTestAPI, "")
+		c = mockNewClient(t, ladoktypes.EnvIntTestAPI, "")
 	)
 	tts := []struct {
 		name       string
@@ -53,7 +53,7 @@ func TestGetStudent(t *testing.T) {
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			mux, server, _ := mockSetup(t, envIntTestAPI)
+			mux, server, _ := mockSetup(t, ladoktypes.EnvIntTestAPI)
 			c.url = server.URL
 
 			mockGenericEndpointServer(t, mux, ContentTypeStudentinformationJSON, "GET", tt.url, tt.req.UID, tt.payload, tt.statusCode)

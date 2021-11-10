@@ -14,12 +14,6 @@ type serviceTypes struct {
 	acceptHeader string
 }
 
-const (
-	envIntTestAPI = "Int-test-API"
-	envProdAPI    = "Prod-API"
-	envTestAPI    = "Test-API"
-)
-
 var (
 	// ContentTypeStudiedeltagandeJSON server response content type
 	ContentTypeStudiedeltagandeJSON = "application/vnd.ladok-studiedeltagande+json;charset=UTF-8"

@@ -24,7 +24,7 @@ func (s *feedService) feedURL() (string, error) {
 	}
 
 	switch env {
-	case envIntTestAPI:
+	case ladoktypes.EnvIntTestAPI:
 		return "handelser/feed", nil
 	default:
 		return "uppfoljning/feed", nil

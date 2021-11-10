@@ -20,15 +20,15 @@ func TestFeed(t *testing.T) {
 		url string
 	}{
 		{
-			env: envIntTestAPI,
+			env: ladoktypes.EnvIntTestAPI,
 			url: "/handelser/feed",
 		},
 		{
-			env: envTestAPI,
+			env: ladoktypes.EnvTestAPI,
 			url: "/uppfoljning/feed",
 		},
 		{
-			env: envProdAPI,
+			env: ladoktypes.EnvProdAPI,
 			url: "/uppfoljning/feed",
 		},
 	}

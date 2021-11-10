@@ -14,7 +14,7 @@ import (
 
 func TestKataloginformation(t *testing.T) {
 	var (
-		client = mockNewClient(t, envProdAPI, "")
+		client = mockNewClient(t, ladoktypes.EnvProdAPI, "")
 	)
 	tts := []struct {
 		name       string
@@ -100,7 +100,7 @@ func TestKataloginformation(t *testing.T) {
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			mux, server, _ := mockSetup(t, envIntTestAPI)
+			mux, server, _ := mockSetup(t, ladoktypes.EnvIntTestAPI)
 			client.url = server.URL
 
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.url, tt.param, tt.payload, tt.statusCode)

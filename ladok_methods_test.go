@@ -95,7 +95,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			mux, server, client := mockSetup(t, envIntTestAPI)
+			mux, server, client := mockSetup(t, ladoktypes.EnvIntTestAPI)
 			defer server.Close()
 
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", "/kataloginformation/anvandarbehorighet/egna", "", tt.payload.egna, tt.statusCode.egna)

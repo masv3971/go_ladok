@@ -63,12 +63,12 @@ func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions
 
 func (c *Client) environment() (string, error) {
 	switch c.certificate.Subject.OrganizationalUnit[1] {
-	case envIntTestAPI:
-		return envIntTestAPI, nil
-	case envProdAPI:
-		return envProdAPI, nil
-	case envTestAPI:
-		return envTestAPI, nil
+	case ladoktypes.EnvIntTestAPI:
+		return ladoktypes.EnvIntTestAPI, nil
+	case ladoktypes.EnvProdAPI:
+		return ladoktypes.EnvProdAPI, nil
+	case ladoktypes.EnvTestAPI:
+		return ladoktypes.EnvTestAPI, nil
 	default:
 		return "", ErrNoEnvFound
 	}

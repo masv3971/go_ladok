@@ -28,3 +28,4 @@ v0.0.44 : Fix FeedID bug.
 v0.0.45 : Add more mock functions.
 v0.0.46 : Change from pkcs12 cert to x509 due to deploy restrictions.
 v0.0.47 : Change type from return mock certificate chain.
+v0.0.48 : Exposed ladok envs from ladoktypes.

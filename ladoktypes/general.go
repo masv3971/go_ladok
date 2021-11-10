@@ -14,3 +14,12 @@ type Benamning struct {
 	Text     string     `json:"Text"`
 	Link     []struct{} `json:"link"`
 }
+
+const (
+	// EnvIntTestAPI ladok integration environment
+	EnvIntTestAPI = "Int-test-API"
+	// EnvProdAPI ladok production environment
+	EnvProdAPI = "Prod-API"
+	// EnvTestAPI ladok test environment
+	EnvTestAPI = "Test-API"
+)
