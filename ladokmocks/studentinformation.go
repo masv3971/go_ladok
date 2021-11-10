@@ -1,5 +1,11 @@
 package ladokmocks
 
+import (
+	"encoding/json"
+
+	"github.com/masv3971/goladok3/ladoktypes"
+)
+
 // StudentUID uid for testing student
 var StudentUID = "339A47C0-426D-4012-B83A-6427E9587352"
 
@@ -48,3 +54,10 @@ var JSONStudentinformationStudent = []byte(`{
 				"rel": "http://schemas.ladok.se"
 			}]
 		}`)
+
+// MockStudentinformationStudent return mock
+func MockStudentinformationStudent() *ladoktypes.Student {
+	s := &ladoktypes.Student{}
+	json.Unmarshal(JSONStudentinformationStudent, s)
+	return s
+}

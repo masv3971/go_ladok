@@ -18,16 +18,16 @@ import (
 
 	"github.com/masv3971/goladok3/ladoktypes"
 	"golang.org/x/time/rate"
-
-	"software.sslmate.com/src/go-pkcs12"
 )
 
 // Config configures new function
 type Config struct {
 	Password string
 	//Format       string
-	URL    string
-	Pkcs12 []byte
+	URL         string
+	Certificate *x509.Certificate
+	PrivateKey  *rsa.PrivateKey
+	Chain       *x509.CertPool
 }
 
 // Client holds the ladok object
@@ -37,7 +37,6 @@ type Client struct {
 	format         string
 	url            string
 	password       string
-	pkcs12         []byte
 	certificate    *x509.Certificate
 	chain          *x509.CertPool
 	certificatePEM []byte
@@ -53,14 +52,15 @@ type Client struct {
 // New create a new instanace of ladok
 func New(config Config) (*Client, error) {
 	c := &Client{
-		password:  config.Password,
-		format:    "json",
-		url:       config.URL,
-		pkcs12:    config.Pkcs12,
-		rateLimit: rate.NewLimiter(rate.Every(1*time.Second), 30),
+		password:    config.Password,
+		format:      "json",
+		url:         config.URL,
+		privateKey:  config.PrivateKey,
+		certificate: config.Certificate,
+		rateLimit:   rate.NewLimiter(rate.Every(1*time.Second), 30),
 	}
 
-	if err := c.unwrapPkcs12(); err != nil {
+	if err := c.unwrapCertificate(); err != nil {
 		return nil, err
 	}
 	if err := c.httpConfigure(); err != nil {
@@ -75,30 +75,18 @@ func New(config Config) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) unwrapPkcs12() error {
-	privateKey, clientCert, chainCerts, err := pkcs12.DecodeChain(c.pkcs12, c.password)
-	if err != nil {
-		return err
-	}
-
+func (c *Client) unwrapCertificate() error {
 	certPem := &pem.Block{
 		Type:  "CERTIFICATE",
-		Bytes: clientCert.Raw,
+		Bytes: c.certificate.Raw,
 	}
 	keyPEM := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(privateKey.(*rsa.PrivateKey)),
+		Bytes: x509.MarshalPKCS1PrivateKey(c.privateKey),
 	}
 
-	c.certificate = clientCert
-	c.privateKey = privateKey.(*rsa.PrivateKey)
 	c.certificatePEM = pem.EncodeToMemory(certPem)
 	c.privateKeyPEM = pem.EncodeToMemory(keyPEM)
-
-	c.chain = x509.NewCertPool()
-	for _, chainCert := range chainCerts {
-		c.chain.AddCert(chainCert)
-	}
 
 	return nil
 }

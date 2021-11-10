@@ -26,3 +26,4 @@ v0.0.42 : Change name of test-package since it describe the intent better.
 v0.0.43 : Rearrange types to other package.
 v0.0.44 : Fix FeedID bug.
 v0.0.45 : Add more mock functions.
+v0.0.46 : Change from pkcs12 cert to x509 due to deploy restrictions.
