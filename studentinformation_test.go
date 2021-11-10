@@ -14,7 +14,7 @@ import (
 
 func TestGetStudent(t *testing.T) {
 	var (
-		c = mockNewClient(t, ladoktypes.EnvIntTestAPI, "")
+		c = mockNewClient(t, ladoktypes.EnvIntTestAPI, "test")
 	)
 	tts := []struct {
 		name       string

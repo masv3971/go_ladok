@@ -14,7 +14,7 @@ import (
 
 func TestKataloginformation(t *testing.T) {
 	var (
-		client = mockNewClient(t, ladoktypes.EnvProdAPI, "")
+		client = mockNewClient(t, ladoktypes.EnvProdAPI, "test")
 	)
 	tts := []struct {
 		name       string

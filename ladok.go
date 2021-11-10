@@ -22,12 +22,11 @@ import (
 
 // Config configures new function
 type Config struct {
-	Password string
-	//Format       string
-	URL         string
-	Certificate *x509.Certificate
-	PrivateKey  *rsa.PrivateKey
-	Chain       []*x509.Certificate
+	Password    string              `validate:"required"`
+	URL         string              `validate:"required"`
+	Certificate *x509.Certificate   `validate:"required"`
+	PrivateKey  *rsa.PrivateKey     `validate:"required"`
+	Chain       []*x509.Certificate `validate:"required"`
 }
 
 // Client holds the ladok object
@@ -51,6 +50,9 @@ type Client struct {
 
 // New create a new instanace of ladok
 func New(config Config) (*Client, error) {
+	if err := Check(config); err != nil {
+		return nil, err
+	}
 	c := &Client{
 		password:    config.Password,
 		format:      "json",

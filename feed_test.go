@@ -41,7 +41,7 @@ func TestFeed(t *testing.T) {
 }
 
 func testFeed(t *testing.T, env string, url string) {
-	client := mockNewClient(t, env, "")
+	client := mockNewClient(t, env, "test")
 
 	type payload struct {
 		client, server []byte
