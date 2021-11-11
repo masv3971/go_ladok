@@ -22,7 +22,6 @@ import (
 
 // Config configures new function
 type Config struct {
-	Password    string              `validate:"required"`
 	URL         string              `validate:"required"`
 	Certificate *x509.Certificate   `validate:"required"`
 	PrivateKey  *rsa.PrivateKey     `validate:"required"`
@@ -54,7 +53,6 @@ func New(config Config) (*Client, error) {
 		return nil, err
 	}
 	c := &Client{
-		password:    config.Password,
 		format:      "json",
 		url:         config.URL,
 		privateKey:  config.PrivateKey,
