@@ -8,7 +8,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -22,22 +21,25 @@ import (
 
 // Config configures new function
 type Config struct {
-	URL         string              `validate:"required"`
-	Certificate *x509.Certificate   `validate:"required"`
-	PrivateKey  *rsa.PrivateKey     `validate:"required"`
-	Chain       []*x509.Certificate `validate:"required"`
+	URL            string            `validate:"required"`
+	Certificate    *x509.Certificate `validate:"required"`
+	CertificatePEM []byte            `validate:"required"`
+	PrivateKey     *rsa.PrivateKey   `validate:"required"`
+	PrivateKeyPEM  []byte            `validate:"required"`
+	//Chain         []*x509.Certificate `validate:"required"`
 }
 
 // Client holds the ladok object
 type Client struct {
+	//password       string
 	HTTPClient     *http.Client
 	rateLimit      *rate.Limiter
 	format         string
 	url            string
-	password       string
 	certificate    *x509.Certificate
-	chain          *x509.CertPool
 	certificatePEM []byte
+	chain          *x509.CertPool
+	chainPEM       []byte
 	privateKey     *rsa.PrivateKey
 	privateKeyPEM  []byte
 
@@ -53,16 +55,15 @@ func New(config Config) (*Client, error) {
 		return nil, err
 	}
 	c := &Client{
-		format:      "json",
-		url:         config.URL,
-		privateKey:  config.PrivateKey,
-		certificate: config.Certificate,
-		rateLimit:   rate.NewLimiter(rate.Every(1*time.Second), 30),
+		format:         "json",
+		url:            config.URL,
+		privateKeyPEM:  config.PrivateKeyPEM,
+		certificatePEM: config.CertificatePEM,
+		certificate:    config.Certificate,
+		privateKey:     config.PrivateKey,
+		rateLimit:      rate.NewLimiter(rate.Every(1*time.Second), 30),
 	}
 
-	if err := c.unwrapCertificate(config.Chain); err != nil {
-		return nil, err
-	}
 	if err := c.httpConfigure(); err != nil {
 		return nil, err
 	}
@@ -75,27 +76,6 @@ func New(config Config) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) unwrapCertificate(chainCerts []*x509.Certificate) error {
-	certPem := &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: c.certificate.Raw,
-	}
-	keyPEM := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(c.privateKey),
-	}
-
-	c.chain = x509.NewCertPool()
-	for _, cert := range chainCerts {
-		c.chain.AddCert(cert)
-	}
-
-	c.certificatePEM = pem.EncodeToMemory(certPem)
-	c.privateKeyPEM = pem.EncodeToMemory(keyPEM)
-
-	return nil
-}
-
 func (c *Client) httpConfigure() error {
 	keyPair, err := tls.X509KeyPair(c.certificatePEM, c.privateKeyPEM)
 	if err != nil {
@@ -103,11 +83,11 @@ func (c *Client) httpConfigure() error {
 	}
 
 	tlsCfg := &tls.Config{
-		Rand:               rand.Reader,
-		Certificates:       []tls.Certificate{keyPair},
-		NextProtos:         []string{},
-		ClientAuth:         tls.RequireAndVerifyClientCert,
-		ClientCAs:          c.chain,
+		Rand:         rand.Reader,
+		Certificates: []tls.Certificate{keyPair},
+		NextProtos:   []string{},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		//ClientCAs:          c.chainDER,
 		InsecureSkipVerify: false,
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,

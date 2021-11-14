@@ -31,3 +31,4 @@ v0.0.47 : Change type from return mock certificate chain.
 v0.0.48 : Exposed ladok envs from ladoktypes.
 v0.0.49 : Add validation to config struct.
 v0.0.50 : Remove password field.
+v0.0.51 : Change from DER to PEM.
