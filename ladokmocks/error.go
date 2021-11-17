@@ -13,8 +13,8 @@ var JSONErrors500 = []byte(`
 	  } 
 	  `)
 
-// JSONErrorValideringsFel ladok error
-var JSONErrorValideringsFel = []byte(`
+// JSONErrorsValideringsFel ladok error
+var JSONErrorsValideringsFel = []byte(`
 	  {
 		"Detaljkod": "commons.domain.uid",
 		"DetaljkodText": "Unik identifierare",
@@ -28,7 +28,8 @@ var JSONErrorValideringsFel = []byte(`
 	  } 
 	  `)
 
-var GeneralErrorMessage = &ladoktypes.LadokError{
+// Errors500 return struct containing 500 error
+var Errors500 = &ladoktypes.LadokError{
 	FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 	Felkategori:     "commons.fel.kategori.applikationsfel",
 	FelkategoriText: "Generellt fel i applikationen",

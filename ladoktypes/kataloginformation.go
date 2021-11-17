@@ -73,3 +73,44 @@ type KataloginformationBehorighetsprofil struct {
 	UID               string              `json:"Uid"`
 	Link              []Link              `json:"link"`
 }
+
+// KataloginformationGrunddataLarosatesinformation ladok type
+type KataloginformationGrunddataLarosatesinformation struct {
+	LarosateID           int `json:"LarosateID"`
+	Larosatesinformation []struct {
+		Benamning struct {
+			Sv string `json:"sv"`
+		} `json:"Benamning"`
+		Beskrivning struct {
+			Sv string `json:"sv"`
+		} `json:"Beskrivning"`
+		EpostadressForAdmingranssnitt   string `json:"EpostadressForAdmingranssnitt"`
+		EpostadressForStudentgranssnitt string `json:"EpostadressForStudentgranssnitt"`
+		Giltighetsperiod                struct {
+			LarosateID int    `json:"LarosateID"`
+			Slutdatum  string `json:"Slutdatum"`
+			Startdatum string `json:"Startdatum"`
+			Link       []Link `json:"link"`
+		} `json:"Giltighetsperiod"`
+		ID                string `json:"ID"`
+		Kod               string `json:"Kod"`
+		LankTillWebbplats struct {
+			Lanktext string `json:"Lanktext"`
+			URL      string `json:"Url"`
+		} `json:"LankTillWebbplats"`
+		LankTillWebbplatsEngelskSida struct {
+			Lanktext string `json:"Lanktext"`
+			URL      string `json:"Url"`
+		} `json:"LankTillWebbplatsEngelskSida"`
+		LarosateID int `json:"LarosateID"`
+		OrtID      int `json:"OrtID"`
+		Postadress struct {
+			Postnummer       string `json:"Postnummer"`
+			Postort          string `json:"Postort"`
+			Utdelningsadress string `json:"Utdelningsadress"`
+		} `json:"Postadress"`
+		Telefonnummer string `json:"Telefonnummer"`
+		Link          []Link `json:"link"`
+	} `json:"Larosatesinformation"`
+	Link []Link `json:"link"`
+}

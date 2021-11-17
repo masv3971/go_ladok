@@ -2,6 +2,7 @@ package goladok3
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -37,8 +38,10 @@ func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes
 		return nil, nil, err
 	}
 
+	url := fmt.Sprintf("%s/%s", envURL, param)
+
 	reply := &ladoktypes.Feed{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, envURL, param, nil, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -62,15 +65,19 @@ func (s *feedService) Recent(ctx context.Context) (*ladoktypes.SuperFeed, *http.
 	return superFeed, resp, nil
 }
 
+// HistoricalReq is config for Historical endpoint
+type HistoricalReq struct {
+	ID int `validate:"required"`
+}
+
 // Historical atom feed .../feed/{id} gets feed of {id}
-func (s *feedService) Historical(ctx context.Context, id int) (*ladoktypes.SuperFeed, *http.Response, error) {
-	superFeed, resp, err := s.atomReader(ctx, strconv.Itoa(id))
+func (s *feedService) Historical(ctx context.Context, req *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error) {
+	superFeed, resp, err := s.atomReader(ctx, strconv.Itoa(req.ID))
 	if err != nil {
 		return nil, resp, err
 	}
 
 	return superFeed, resp, nil
-
 }
 
 // First atom feed .../feed/first gets the first publiced feed

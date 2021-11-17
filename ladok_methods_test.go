@@ -2,6 +2,7 @@ package goladok3
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/masv3971/goladok3/ladokmocks"
@@ -13,55 +14,59 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 	var (
 		uid = "11111111-2222-0000-0000-000000000000"
 	)
-	type statusCode struct {
-		egna, profile int
+	type serverStatusCode struct {
+		egna, profil int
 	}
-	type payload struct {
-		egna, profile []byte
+	type serverReply struct {
+		egna, profil []byte
+	}
+	type serverURL struct {
+		egna, profil string
 	}
 	tts := []struct {
-		name       string
-		have       Permissions
-		want       interface{}
-		param      string
-		statusCode statusCode
-		payload    payload
+		name             string
+		serverStatusCode serverStatusCode
+		serverReply      serverReply
+		serverURL        serverURL
+		have             Permissions
+		want             interface{}
 	}{
 		{
-			name:       "OK",
-			have:       Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:       true,
-			param:      uid,
-			statusCode: statusCode{200, 200},
-			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			name:             "OK",
+			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			serverStatusCode: serverStatusCode{200, 200},
+			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			have:             Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			want:             true,
 		},
 		{
-			name:       "Missing id 0 with permission las",
-			have:       Permissions{61001: "rattighetsniva.las", 0: "rattighetsniva.las"},
-			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
-			param:      uid,
-			statusCode: statusCode{200, 200},
-			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			name:             "Missing id 0 with permission las",
+			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:             Permissions{61001: "rattighetsniva.las", 0: "rattighetsniva.las"},
+			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
+			serverStatusCode: serverStatusCode{200, 200},
+			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
-			name:       "Empty input Permissions map",
-			have:       Permissions{},
-			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions provided", Type: "Permission"}}},
-			param:      uid,
-			statusCode: statusCode{200, 200},
-			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			name:             "Empty input Permissions map",
+			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:             Permissions{},
+			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions provided", Type: "Permission"}}},
+			serverStatusCode: serverStatusCode{200, 200},
+			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
-			name:       "Ladok does not have any permissions",
-			have:       Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:       &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions found in ladok", Type: "Permission"}}},
-			param:      uid,
-			statusCode: statusCode{200, 200},
-			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
+			name:             "Ladok does not have any permissions",
+			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:             Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions found in ladok", Type: "Permission"}}},
+			serverStatusCode: serverStatusCode{200, 200},
+			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
 		},
 		{
-			name: "Egna does not respond",
-			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			name:      "Egna does not respond",
+			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
 			want: &Errors{Ladok: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
@@ -69,13 +74,13 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 				Meddelande:      "java.lang.NullPointerException null",
 				Link:            []interface{}{},
 			}},
-			param:      uid,
-			statusCode: statusCode{500, 200},
-			payload:    payload{ladokmocks.JSONErrors500, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			serverStatusCode: serverStatusCode{500, 200},
+			serverReply:      serverReply{ladokmocks.JSONErrors500, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
-			name: "Profil does not respond",
-			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			name:      "Profil does not respond",
+			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
 			want: &Errors{Ladok: &ladoktypes.LadokError{
 				Detaljkod:       "commons.domain.uid",
 				DetaljkodText:   "Unik identifierare",
@@ -87,9 +92,8 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 				Meddelande:      "Uid: 6daf0d1e-114f-11ec-95ca-f52940734df",
 				Link:            []interface{}{},
 			}},
-			param:      uid,
-			statusCode: statusCode{200, 500},
-			payload:    payload{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONErrorValideringsFel},
+			serverStatusCode: serverStatusCode{200, 500},
+			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONErrorsValideringsFel},
 		},
 	}
 
@@ -98,8 +102,8 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			mux, server, client := mockSetup(t, ladoktypes.EnvIntTestAPI)
 			defer server.Close()
 
-			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", "/kataloginformation/anvandarbehorighet/egna", "", tt.payload.egna, tt.statusCode.egna)
-			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", "/kataloginformation/behorighetsprofil", tt.param, tt.payload.profile, tt.statusCode.profile)
+			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.egna, tt.serverReply.egna, tt.serverStatusCode.egna)
+			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.profil, tt.serverReply.profil, tt.serverStatusCode.profil)
 
 			got, err := client.IsLadokPermissionsSufficient(context.TODO(), tt.have)
 

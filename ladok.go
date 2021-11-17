@@ -9,7 +9,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -195,22 +194,20 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, oneError("cant perform http.client.do", "HTTPClient.Do", "do", err.Error())
+		return nil, oneError("Can't perform http.client.do", "HTTPClient.Do", "do", err.Error())
 	}
 	defer resp.Body.Close()
 
 	if err := checkResponse(resp); err != nil {
 		buf := &bytes.Buffer{}
 		if _, err := buf.ReadFrom(resp.Body); err != nil {
-			return nil, oneError("Cant process buffer", "buf.ReadFrom", "do", err.Error())
+			return nil, oneError("Can't process buffer", "buf.ReadFrom", "do", err.Error())
 		}
 		ladokError := &ladoktypes.LadokError{}
-		e := &Errors{}
 		if err := json.Unmarshal(buf.Bytes(), ladokError); err != nil { // TODO(masv): Fix xml error parsing into Errors.
-			return nil, oneError("Cant unmarshal json to  Errors ", "json.Unmarshal", "do", err.Error())
+			return nil, oneError("Can't unmarshal json to Errors ", "json.Unmarshal", "do", err.Error())
 		}
-		e.Ladok = ladokError
-		return nil, e
+		return nil, &Errors{Ladok: ladokError}
 	}
 
 	switch resp.Header.Get("Content-Type") {
@@ -239,12 +236,12 @@ func checkResponse(r *http.Response) error {
 	return oneError("Invalid request", "statusCode", "checkResponse", "")
 }
 
-func (c *Client) call(ctx context.Context, acceptHeader, method, path, param string, req, reply interface{}) (*http.Response, error) {
+func (c *Client) call(ctx context.Context, acceptHeader, method, url string, req, reply interface{}) (*http.Response, error) {
 	request, err := c.newRequest(
 		ctx,
 		acceptHeader,
 		method,
-		fmt.Sprintf("/%s/%s", path, param),
+		url,
 		req,
 	)
 	if err != nil {

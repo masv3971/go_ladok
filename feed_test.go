@@ -6,7 +6,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
-	"strconv"
 	"testing"
 
 	"github.com/masv3971/goladok3/ladokmocks"
@@ -43,107 +42,103 @@ func TestFeed(t *testing.T) {
 func testFeed(t *testing.T, env string, url string) {
 	client := mockNewClient(t, env, "test")
 
-	type payload struct {
+	type reply struct {
 		client, server []byte
 	}
 	tts := []struct {
-		name       string
-		serverURL  string
-		param      int
-		payload    payload
-		reply      interface{}
-		statusCode int
-		fn         interface{}
+		name             string
+		serverURL        string
+		reply            reply
+		clientReplyType  interface{}
+		serverStatusCode int
+		clientReq        interface{}
+		clientFn         interface{}
 	}{
 		{
-			name:       "recent 200",
-			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
-			reply:      &ladoktypes.SuperFeed{},
-			statusCode: 200,
-			fn:         client.Feed.Recent,
+			name:             "recent",
+			serverURL:        fmt.Sprintf("%s/%s", url, "recent"),
+			serverStatusCode: 200,
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
+			clientReplyType:  &ladoktypes.SuperFeed{},
+			clientFn:         client.Feed.Recent,
 		},
 		{
-			name:       "recent 500",
-			serverURL:  fmt.Sprintf("%s/%s", url, "recent"),
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			reply:      &Errors{Ladok: ladokmocks.GeneralErrorMessage},
-			statusCode: 500,
-			fn:         client.Feed.Recent,
+			name:             "recent",
+			serverURL:        fmt.Sprintf("%s/%s", url, "recent"),
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
+			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			serverStatusCode: 500,
+			clientFn:         client.Feed.Recent,
 		},
 		{
-			name:       "historical 200",
-			serverURL:  url,
-			param:      100,
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
-			reply:      &ladoktypes.SuperFeed{},
-			statusCode: 200,
-			fn:         client.Feed.Historical,
+			name:             "historical",
+			serverURL:        fmt.Sprintf("%s/%d", url, 100),
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
+			clientReplyType:  &ladoktypes.SuperFeed{},
+			serverStatusCode: 200,
+			clientReq:        &HistoricalReq{ID: 100},
+			clientFn:         client.Feed.Historical,
 		},
 		{
-			name:       "historical 500",
-			serverURL:  url,
-			param:      100,
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			reply:      &Errors{Ladok: ladokmocks.GeneralErrorMessage},
-			statusCode: 500,
-			fn:         client.Feed.Historical,
+			name:             "historical",
+			serverURL:        fmt.Sprintf("%s/%d", url, 100),
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
+			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			serverStatusCode: 500,
+			clientReq:        &HistoricalReq{ID: 100},
+			clientFn:         client.Feed.Historical,
 		},
 		{
-			name:       "first 200",
-			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
-			reply:      &ladoktypes.SuperFeed{},
-			statusCode: 200,
-			fn:         client.Feed.First,
+			name:             "first",
+			serverURL:        fmt.Sprintf("%s/%s", url, "first"),
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.XMLFeedRecent},
+			clientReplyType:  &ladoktypes.SuperFeed{},
+			serverStatusCode: 200,
+			clientFn:         client.Feed.First,
 		},
 		{
-			name:       "first 500",
-			serverURL:  fmt.Sprintf("%s/%s", url, "first"),
-			payload:    payload{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			reply:      &Errors{Ladok: ladokmocks.GeneralErrorMessage},
-			statusCode: 500,
-			fn:         client.Feed.First,
+			name:             "first",
+			serverURL:        fmt.Sprintf("%s/%s", url, "first"),
+			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
+			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			serverStatusCode: 500,
+			clientFn:         client.Feed.First,
 		},
 	}
 
 	for _, tt := range tts {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s %d-- %s", tt.serverURL, tt.serverStatusCode, tt.name), func(t *testing.T) {
 			mux, server, _ := mockSetup(t, env)
 			client.url = server.URL
-			if tt.param != 0 {
-				mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.serverURL, strconv.Itoa(tt.param), tt.payload.server, tt.statusCode)
-			} else {
-				mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.serverURL, "", tt.payload.server, tt.statusCode)
-			}
+			mockGenericEndpointServer(t, mux, ContentTypeAtomXML, "GET", tt.serverURL, tt.reply.server, tt.serverStatusCode)
 
-			err := json.Unmarshal(tt.payload.client, tt.reply)
+			err := json.Unmarshal(tt.reply.client, tt.clientReplyType)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
 
-			switch tt.fn.(type) {
+			switch tt.clientFn.(type) {
 			case func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error):
-				f := tt.fn.(func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error))
-				switch tt.reply.(type) {
-				case *ladoktypes.SuperFeed:
+				f := tt.clientFn.(func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error))
+				switch tt.serverStatusCode {
+				case 200:
 					got, _, _ := f(context.TODO())
 
-					assert.Equal(t, tt.reply, got, "Should be equal")
-				case *Errors:
+					assert.Equal(t, tt.clientReplyType, got, "Should be equal")
+				case 500:
 					_, _, err = f(context.TODO())
-					assert.Equal(t, tt.reply.(*Errors), err)
+					assert.Equal(t, tt.clientReplyType.(*Errors), err)
 				}
-			case func(context.Context, int) (*ladoktypes.SuperFeed, *http.Response, error):
-				f := tt.fn.(func(context.Context, int) (*ladoktypes.SuperFeed, *http.Response, error))
-				switch tt.reply.(type) {
-				case *ladoktypes.SuperFeed:
-					got, _, _ := f(context.TODO(), tt.param)
+			case func(context.Context, *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error):
+				f := tt.clientFn.(func(context.Context, *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error))
+				switch tt.serverStatusCode {
+				case 200:
+					got, _, _ := f(context.TODO(), tt.clientReq.(*HistoricalReq))
 
-					assert.Equal(t, tt.reply, got, "Should be equal")
-				case *Errors:
-					_, _, err = f(context.TODO(), tt.param)
-					assert.Equal(t, tt.reply.(*Errors), err)
+					assert.Equal(t, tt.clientReplyType, got, "Should be equal")
+				case 500:
+					_, _, err = f(context.TODO(), tt.clientReq.(*HistoricalReq))
+					assert.Equal(t, tt.clientReplyType.(*Errors), err)
 				}
 			}
 

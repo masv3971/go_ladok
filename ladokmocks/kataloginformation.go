@@ -294,3 +294,60 @@ func MockKataloginformationEgna() *ladoktypes.KataloginformationAnvandarbehorigh
 	json.Unmarshal(JSONKataloginformationEgna, s)
 	return s
 }
+
+var JSONKataloginformationGrunddataLarosateinformation = []byte(`
+{
+	"LarosateID" : 96,
+	"Larosatesinformation" : [ {
+	  "Benamning" : {
+		"sv" : "Svensk benämning"
+	  },
+	  "Beskrivning" : {
+		"sv" : "Svensk benämning"
+	  },
+	  "EpostadressForAdmingranssnitt" : "info@hsk.se",
+	  "EpostadressForStudentgranssnitt" : "info-student@hsk.se",
+	  "Giltighetsperiod" : {
+		"LarosateID" : 96,
+		"Slutdatum" : "2014-06-25",
+		"Startdatum" : "2014-01-25",
+		"link" : [ {
+		  "method" : "POST",
+		  "uri" : "https://api.mit.ladok.se:443/test",
+		  "mediaType" : "application/vnd.ladok+xml",
+		  "rel" : "http://schemas.ladok.se"
+		} ]
+	  },
+	  "ID" : "123",
+	  "Kod" : "KOD",
+	  "LankTillWebbplats" : {
+		"Lanktext" : "10100",
+		"Url" : "https://hsk.se"
+	  },
+	  "LankTillWebbplatsEngelskSida" : {
+		"Lanktext" : "10100",
+		"Url" : "https://hsk.se"
+	  },
+	  "LarosateID" : 96,
+	  "OrtID" : 1,
+	  "Postadress" : {
+		"Postnummer" : "10100",
+		"Postort" : "Storstan",
+		"Utdelningsadress" : "Storgatan 1"
+	  },
+	  "Telefonnummer" : "010-778899",
+	  "link" : [ {
+		"method" : "POST",
+		"uri" : "https://api.mit.ladok.se:443/test",
+		"mediaType" : "application/vnd.ladok+xml",
+		"rel" : "http://schemas.ladok.se"
+	  } ]
+	} ],
+	"link" : [ {
+	  "method" : "POST",
+	  "uri" : "https://api.mit.ladok.se:443/test",
+	  "mediaType" : "application/vnd.ladok+xml",
+	  "rel" : "http://schemas.ladok.se"
+	} ]
+  }
+`)

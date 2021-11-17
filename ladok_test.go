@@ -2,7 +2,6 @@ package goladok3
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,14 +11,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, method, url, param string, payload []byte, statusCode int) {
-	mux.HandleFunc(fmt.Sprintf("%s/%s", url, param),
+func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, method, url string, reply []byte, statusCode int) {
+	mux.HandleFunc(url,
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", contentType)
 			w.WriteHeader(statusCode)
 			testMethod(t, r, method)
-			testURL(t, r, fmt.Sprintf("%s/%s", url, param))
-			w.Write(payload)
+			testURL(t, r, url)
+			w.Write(reply)
 		},
 	)
 }

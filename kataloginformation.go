@@ -22,23 +22,23 @@ func (s *kataloginformationService) acceptHeader() string {
 func (s *kataloginformationService) GetAnvandareAutentiserad(ctx context.Context) (*ladoktypes.KataloginformationAnvandareAutentiserad, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", s.service, "anvandare/autentiserad")
 	reply := &ladoktypes.KataloginformationAnvandareAutentiserad{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}
 	return reply, resp, nil
 }
 
-// GetBehorighetsprofilerCfg configuration for GetBehorighetsprofil
-type GetBehorighetsprofilerCfg struct {
+// GetBehorighetsprofilerReq configuration for GetBehorighetsprofil
+type GetBehorighetsprofilerReq struct {
 	UID string `validate:"required,uuid"`
 }
 
 // GetBehorighetsprofil return structure of rights for uid
-func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, req *GetBehorighetsprofilerCfg) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error) {
-	url := fmt.Sprintf("%s/%s", s.service, "behorighetsprofil")
+func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, req *GetBehorighetsprofilerReq) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s/%s", s.service, "behorighetsprofil", req.UID)
 	reply := &ladoktypes.KataloginformationBehorighetsprofil{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, req.UID, nil, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -49,7 +49,18 @@ func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, re
 func (s *kataloginformationService) GetAnvandarbehorighetEgna(ctx context.Context) (*ladoktypes.KataloginformationAnvandarbehorighetEgna, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", s.service, "anvandarbehorighet/egna")
 	reply := &ladoktypes.KataloginformationAnvandarbehorighetEgna{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, "", nil, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
+	if err != nil {
+		return nil, resp, err
+	}
+	return reply, resp, nil
+}
+
+// GetAnvandarbehorighetEgna return structure of ladok permission
+func (s *kataloginformationService) GetGrunddataLarosatesinformation(ctx context.Context) (*ladoktypes.KataloginformationGrunddataLarosatesinformation, *http.Response, error) {
+	url := fmt.Sprintf("%s/%s/%s", s.service, "grunddata", "larosatesinformation")
+	reply := &ladoktypes.KataloginformationGrunddataLarosatesinformation{}
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}
