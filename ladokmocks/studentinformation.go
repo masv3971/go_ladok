@@ -6,15 +6,6 @@ import (
 	"github.com/masv3971/goladok3/ladoktypes"
 )
 
-var (
-	// StudentUID uid for testing student
-	StudentUID = "339A47C0-426D-4012-B83A-6427E9587352"
-	// ExterntUID uid for testing student
-	ExterntUID = "72460B4B-8F15-442C-A464-0743BDFB1429"
-	// Personnummer is a mock number from skatteverket
-	Personnummer = "198602179882"
-)
-
 // JSONStudentinformationStudent mock ladok reply
 var JSONStudentinformationStudent = []byte(`
 {
@@ -61,20 +52,57 @@ func MockStudentinformationStudent() *ladoktypes.Student {
 }
 
 // StudentJSON return JSON object of a student
-func StudentJSON(uid, externtUID, personnummer string) []byte {
+func StudentJSON(studentData StudentData) []byte {
 	s := &ladoktypes.Student{}
 
 	if err := json.Unmarshal(JSONStudentinformationStudent, s); err != nil {
 		return nil
 	}
 
-	s.Personnummer = personnummer
-	s.UID = uid
-	s.ExterntUID = externtUID
+	s.Personnummer = studentData.Personnummer
+	s.UID = studentData.StudentUID
+	s.ExterntUID = studentData.ExterntUID
+	s.Fodelsedata = studentData.DateOfBirth
 
 	b, err := json.Marshal(s)
 	if err != nil {
 		return nil
 	}
 	return b
+}
+
+// StudentData keeps a mock record of a student
+type StudentData struct {
+	Personnummer string
+	StudentUID   string
+	ExterntUID   string
+	DateOfBirth  string
+}
+
+// Students mocks a student with personnummer, studentUID, externtUID and birth date
+var Students = map[int]StudentData{
+	0: {
+		Personnummer: "198601049995",
+		StudentUID:   "44889B47-C78B-440B-BA98-A16C2C27BE7C",
+		ExterntUID:   "72A06BD3-A7A0-44A3-A3AA-51B9E3208015",
+		DateOfBirth:  "1986-01-04",
+	},
+	1: {
+		Personnummer: "198602179882",
+		StudentUID:   "339A47C0-426D-4012-B83A-6427E9587352",
+		ExterntUID:   "72460B4B-8F15-442C-A464-0743BDFB1429",
+		DateOfBirth:  "1986-02-17",
+	},
+	2: {
+		Personnummer: "198603139885",
+		StudentUID:   "82E208E7-FCDC-407E-9EE4-D2708CD609CC",
+		ExterntUID:   "0BDF38F5-30A3-4F1E-B851-D538E8A83FBB",
+		DateOfBirth:  "1986-03-13",
+	},
+	3: {
+		Personnummer: "198603249999",
+		StudentUID:   "9711A40B-2C40-414D-ACC9-FAC4C4D35C50",
+		ExterntUID:   "9C0E5285-41E1-4190-BA49-6DC134A014D4",
+		DateOfBirth:  "1986-03-24",
+	},
 }
