@@ -25,7 +25,7 @@ type Config struct {
 	CertificatePEM []byte            `validate:"required"`
 	PrivateKey     *rsa.PrivateKey   `validate:"required"`
 	PrivateKeyPEM  []byte            `validate:"required"`
-	ProxyURL       string            `validate:required"`
+	ProxyURL       string
 	//Chain         []*x509.Certificate `validate:"required"`
 }
 
@@ -102,9 +102,17 @@ func (c *Client) httpConfigure() error {
 	}
 
 	tlsCfg.BuildNameToCertificate()
-	proxyURL, err := url.Parse(c.proxyURL)
-	if err != nil {
-		return err
+
+	var proxyConfig func(*http.Request) (*url.URL, error)
+	if c.proxyURL != "" {
+		proxyURL, err := url.Parse(c.proxyURL)
+		if err != nil {
+			return err
+		}
+
+		proxyConfig = http.ProxyURL(proxyURL)
+	} else {
+		proxyConfig = nil
 	}
 
 	c.HTTPClient = &http.Client{
@@ -112,7 +120,7 @@ func (c *Client) httpConfigure() error {
 			TLSClientConfig:     tlsCfg,
 			DialContext:         nil,
 			TLSHandshakeTimeout: 30 * time.Second,
-			Proxy:               http.ProxyURL(proxyURL),
+			Proxy:               proxyConfig,
 		},
 	}
 

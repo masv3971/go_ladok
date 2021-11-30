@@ -26,7 +26,8 @@ func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, me
 func mockNewClient(t *testing.T, env, url string) *Client {
 	certPEM, cert, privateKeyPEM, privateKey := ladokmocks.MockCertificateAndKey(t, env, 0, 100)
 	cfg := Config{
-		URL:            url,
+		URL: url,
+		//ProxyURL:       url,
 		Certificate:    cert,
 		CertificatePEM: certPEM,
 		PrivateKey:     privateKey,
