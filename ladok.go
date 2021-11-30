@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -109,9 +110,11 @@ func (c *Client) httpConfigure() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println("LOGGING, using proxy:", proxyURL)
 
 		proxyConfig = http.ProxyURL(proxyURL)
 	} else {
+		fmt.Println("LOGGING, no proxy using")
 		proxyConfig = nil
 	}
 
