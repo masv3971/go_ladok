@@ -224,6 +224,11 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	}
 	defer resp.Body.Close()
 
+	if os.Getenv("HTTP_PROXY") == "true" {
+		out, _ := httputil.DumpResponse(resp, false)
+		fmt.Println("DEBUG dumpResponse", string(out))
+	}
+
 	if err := checkResponse(resp); err != nil {
 		buf := &bytes.Buffer{}
 		if _, err := buf.ReadFrom(resp.Body); err != nil {
@@ -272,11 +277,6 @@ func (c *Client) call(ctx context.Context, acceptHeader, method, url string, req
 	)
 	if err != nil {
 		return nil, err
-	}
-
-	if os.Getenv("DEBUG") == "true" {
-		out, _ := httputil.DumpRequest(request, false)
-		fmt.Println("DEBUG dumpRequest", string(out))
 	}
 
 	resp, err := c.do(request, reply)
