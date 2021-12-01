@@ -12,7 +12,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/masv3971/goladok3/ladoktypes"
@@ -201,6 +203,11 @@ func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, pa
 	req.Header.Set("Accept", acceptHeader)
 	req.Header.Set("User-Agent", "goladok3/0.0.15")
 
+	if os.Getenv("DEBUG") == "true" {
+		out, _ := httputil.DumpRequest(req, false)
+		fmt.Println("DEBUG dumprequest", string(out))
+	}
+
 	return req, nil
 }
 
@@ -265,6 +272,11 @@ func (c *Client) call(ctx context.Context, acceptHeader, method, url string, req
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	if os.Getenv("DEBUG") == "true" {
+		out, _ := httputil.DumpRequest(request, false)
+		fmt.Println("DEBUG dumpRequest", string(out))
 	}
 
 	resp, err := c.do(request, reply)
