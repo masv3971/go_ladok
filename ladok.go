@@ -106,26 +106,27 @@ func (c *Client) httpConfigure() error {
 
 	tlsCfg.BuildNameToCertificate()
 
-	var proxyConfig func(*http.Request) (*url.URL, error)
-	if c.proxyURL != "" {
-		proxyURL, err := url.Parse(c.proxyURL)
-		if err != nil {
-			return err
-		}
-
-		proxyConfig = http.ProxyURL(proxyURL)
-		fmt.Println("LOGGING, using proxy:", proxyURL)
-	} else {
-		proxyConfig = nil
-		fmt.Println("LOGGING, no proxy is using")
-	}
+	//	var proxyConfig func(*http.Request) (*url.URL, error)
+	//	if c.proxyURL != "" {
+	//		proxyURL, err := url.Parse(c.proxyURL)
+	//		if err != nil {
+	//			return err
+	//		}
+	//
+	//		proxyConfig = http.ProxyURL(proxyURL)
+	//		fmt.Println("LOGGING, using proxy:", proxyURL)
+	//	} else {
+	//		proxyConfig = nil
+	//		fmt.Println("LOGGING, no proxy is using")
+	//	}
 
 	c.HTTPClient = &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig:     tlsCfg,
 			DialContext:         nil,
 			TLSHandshakeTimeout: 30 * time.Second,
-			Proxy:               proxyConfig,
+			//ProxyConnectHeader: ,
+			Proxy: http.ProxyFromEnvironment,
 		},
 	}
 
@@ -228,7 +229,7 @@ func (c *Client) do(req *http.Request, value interface{}) (*http.Response, error
 	}
 	defer resp.Body.Close()
 
-	if os.Getenv("HTTP_PROXY") == "true" {
+	if os.Getenv("DEBUG") == "true" {
 		out, _ := httputil.DumpResponse(resp, false)
 		fmt.Println("DEBUG dumpResponse", string(out))
 	}
