@@ -112,12 +112,12 @@ func (c *Client) httpConfigure() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("LOGGING, using proxy:", proxyURL)
 
 		proxyConfig = http.ProxyURL(proxyURL)
+		fmt.Println("LOGGING, using proxy:", proxyURL)
 	} else {
-		fmt.Println("LOGGING, no proxy using")
 		proxyConfig = nil
+		fmt.Println("LOGGING, no proxy is using")
 	}
 
 	c.HTTPClient = &http.Client{
@@ -127,6 +127,10 @@ func (c *Client) httpConfigure() error {
 			TLSHandshakeTimeout: 30 * time.Second,
 			Proxy:               proxyConfig,
 		},
+	}
+
+	if os.Getenv("DEBUG") == "true" {
+		fmt.Println("DEBUG HTTPClient transport", c.HTTPClient.Transport)
 	}
 
 	return nil
