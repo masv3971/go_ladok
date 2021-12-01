@@ -209,7 +209,8 @@ func (c *Client) newRequest(ctx context.Context, acceptHeader string, method, pa
 
 	c.HTTPClient = &http.Client{
 		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
+			ProxyConnectHeader: make(http.Header),
+			Proxy:              http.ProxyURL(proxyURL),
 		},
 	}
 
