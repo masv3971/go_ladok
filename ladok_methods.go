@@ -23,7 +23,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 		return ErrNotSufficientPermissions
 	}
 
-	ladokProfile, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerReq{UID: egna.UID})
+	ladokProfile, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerReq{UID: egna.Anvandarbehorighet[0].BehorighetsprofilRef.UID})
 	if err != nil {
 		return err
 	}
