@@ -51,6 +51,9 @@ type GetAktivPaLarosateReq struct {
 }
 
 func (s *studentinformationService) GetAktivPaLarosate(ctx context.Context, req *GetAktivPaLarosateReq) (*ladoktypes.AktivPaLarosate, *http.Response, error) {
+	if err := Check(req); err != nil {
+		return nil, nil, err
+	}
 	url := fmt.Sprintf("%s/%s/%s/%s", s.service, "student", req.UID, "aktivpalarosaten")
 	reply := &ladoktypes.AktivPaLarosate{}
 	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, req, reply)

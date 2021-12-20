@@ -240,11 +240,6 @@ func checkResponse(r *http.Response) error {
 }
 
 func (c *Client) call(ctx context.Context, acceptHeader, method, url string, req, reply interface{}) (*http.Response, error) {
-	if req != nil {
-		if err := Check(req); err != nil {
-			return nil, err
-		}
-	}
 	request, err := c.newRequest(
 		ctx,
 		acceptHeader,
