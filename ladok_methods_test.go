@@ -43,7 +43,7 @@ func TestCheckPermission(t *testing.T) {
 			name:             "Missing id 0 with permission las",
 			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
 			have:             Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
-			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing ladok permission id: 8888, permission level: \"rattighetsniva.las\"", Type: "Ladok permission"}}},
+			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing ladok permission id: 8888 (Undefined), permission level: \"rattighetsniva.las\"", Type: "Ladok permission"}}},
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},

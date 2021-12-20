@@ -43,7 +43,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 		if !ok {
 			// Ladok does not have the required permission
 			internalError = append(internalError, ladoktypes.InternalError{
-				Msg:  fmt.Sprintf("Missing ladok permission id: %d, permission level: %q", permissionID, c.translatePermission(data["my"])),
+				Msg:  fmt.Sprintf("Missing ladok permission id: %d (%s), permission level: %q", permissionID, c.translateID(permissionID), c.translatePermission(data["my"])),
 				Type: "Ladok permission",
 			})
 			continue
@@ -53,7 +53,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 			// ladokPermission does not reach myPermission
 			myPermission := data["my"]
 			internalError = append(internalError, ladoktypes.InternalError{
-				Msg:  fmt.Sprintf("Not sufficient permission: %q for id: %d", c.translatePermission(myPermission), permissionID),
+				Msg:  fmt.Sprintf("Not sufficient permission: %q for id: %d (%s)", c.translatePermission(myPermission), permissionID, c.translateID(permissionID)),
 				Type: "Ladok permission",
 			})
 		}
@@ -142,7 +142,23 @@ func (c *Client) translatePermission(p int64) string {
 	default:
 		return "Undefined"
 	}
+}
 
+func (c *Client) translateID(p int64) string {
+	switch p {
+	case 90019:
+		return "uppfoljning.feeds"
+	case 51001:
+		return "studiedeltagande.las"
+	case 61001:
+		return "studentinformation.lasa"
+	case 11004:
+		return "kataloginformation.las"
+	case 860131:
+		return "extintegration.lasa"
+	default:
+		return "Undefined"
+	}
 }
 
 func (c *Client) environment() (string, error) {
