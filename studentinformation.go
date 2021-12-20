@@ -38,7 +38,7 @@ func (s *studentinformationService) GetStudent(ctx context.Context, req *GetStud
 		url = fmt.Sprintf("%s/%s/%s/%s", s.service, "student", "externtuuid", req.ExterntUID)
 	}
 
-	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, req, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -56,7 +56,7 @@ func (s *studentinformationService) GetAktivPaLarosate(ctx context.Context, req 
 	}
 	url := fmt.Sprintf("%s/%s/%s/%s", s.service, "student", req.UID, "aktivpalarosaten")
 	reply := &ladoktypes.AktivPaLarosate{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, req, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), "GET", url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}

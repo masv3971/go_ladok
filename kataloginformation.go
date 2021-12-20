@@ -42,7 +42,7 @@ func (s *kataloginformationService) GetBehorighetsprofil(ctx context.Context, re
 
 	url := fmt.Sprintf("%s/%s/%s", s.service, "behorighetsprofil", req.UID)
 	reply := &ladoktypes.KataloginformationBehorighetsprofil{}
-	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, req, reply)
+	resp, err := s.client.call(ctx, s.acceptHeader(), http.MethodGet, url, nil, reply)
 	if err != nil {
 		return nil, resp, err
 	}

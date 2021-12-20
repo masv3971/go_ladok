@@ -50,3 +50,4 @@ v0.0.66 : Add validate check on each request.
 v0.0.67 : Fixes to struct validate.
 v0.0.68 : Wrong UID used.
 v0.0.69 : Can't use validator like that.
+v0.0.70 : Change name in call for body and set nil for handlers.
