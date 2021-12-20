@@ -7,8 +7,8 @@ import (
 	"github.com/masv3971/goladok3/ladoktypes"
 )
 
-// IsLadokPermissionsSufficient compare ladok permissions with ps
-func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions Permissions) (bool, error) {
+// CheckPermission compare ladok permissions with ps
+func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions) error {
 	var (
 		e             = &Errors{}
 		internalError = []ladoktypes.InternalError{}
@@ -16,20 +16,20 @@ func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions
 
 	egna, _, err := c.Kataloginformation.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(egna.Anvandarbehorighet) < 1 {
-		return false, ErrNotSufficientPermissions
+		return ErrNotSufficientPermissions
 	}
 
 	ladokProfile, _, err := c.Kataloginformation.GetBehorighetsprofil(ctx, &GetBehorighetsprofilerReq{UID: egna.UID})
 	if err != nil {
-		return false, err
+		return err
 	}
 	permissions, err := c.permissionUnify(*ladokProfile, myPermissions)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for permissionID, data := range permissions {
@@ -60,10 +60,10 @@ func (c *Client) IsLadokPermissionsSufficient(ctx context.Context, myPermissions
 	}
 	if len(internalError) > 0 {
 		e.Internal = internalError
-		return false, e
+		return e
 
 	}
-	return true, nil
+	return nil
 }
 
 // comparePermission compare l with m permission.

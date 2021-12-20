@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsLadokPermissionsSufficient(t *testing.T) {
+func TestCheckPermission(t *testing.T) {
 	var (
 		uid = "11111111-2222-0000-0000-000000000000"
 	)
@@ -29,7 +29,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		serverReply      serverReply
 		serverURL        serverURL
 		have             Permissions
-		want             interface{}
+		want             *Errors
 	}{
 		{
 			name:             "OK",
@@ -37,7 +37,7 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 			have:             Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:             true,
+			want:             nil,
 		},
 		{
 			name:             "Missing id 0 with permission las",
@@ -105,16 +105,13 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.egna, tt.serverReply.egna, tt.serverStatusCode.egna)
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.profil, tt.serverReply.profil, tt.serverStatusCode.profil)
 
-			got, err := client.IsLadokPermissionsSufficient(context.TODO(), tt.have)
-
-			switch tt.want.(type) {
-			case bool:
-				if !assert.NoError(t, err) {
+			got := client.CheckPermission(context.TODO(), tt.have)
+			if tt.want != nil {
+				if !assert.Equal(t, tt.want, got) {
 					t.FailNow()
 				}
-				assert.Equal(t, tt.want, got)
-			case *Errors:
-				assert.Equal(t, tt.want, err)
+			} else {
+				assert.NoError(t, got)
 			}
 		})
 	}
