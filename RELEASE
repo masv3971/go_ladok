@@ -47,3 +47,4 @@ v0.0.63 : Remove unnecessary debugging related to proxy.
 v0.0.64 : Re-work on ladok permission checker. 
 v0.0.65 : Remove bool from permission checker since it's not needed.
 v0.0.66 : Add validate check on each request.
+v0.0.67 : Fixes to struct validate.
