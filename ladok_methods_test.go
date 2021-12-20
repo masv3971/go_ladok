@@ -42,8 +42,8 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 		{
 			name:             "Missing id 0 with permission las",
 			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:             Permissions{61001: "rattighetsniva.las", 0: "rattighetsniva.las"},
-			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing id: 0, value: \"rattighetsniva.las\"", Type: "Permission"}}},
+			have:             Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
+			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing ladok permission id: 8888, permission level: \"rattighetsniva.las\"", Type: "ladok permission"}}},
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
@@ -116,6 +116,143 @@ func TestIsLadokPermissionsSufficient(t *testing.T) {
 			case *Errors:
 				assert.Equal(t, tt.want, err)
 			}
+		})
+	}
+}
+
+func TestComparePermission(t *testing.T) {
+	client := mockNewClient(t, ladoktypes.EnvIntTestAPI, "localhost")
+
+	type have struct {
+		ladok, my int64
+	}
+	tts := []struct {
+		name string
+		have have
+		want bool
+	}{
+		{
+			name: "Equal permissions",
+			have: have{
+				ladok: 6,
+				my:    6,
+			},
+			want: true,
+		},
+		{
+			name: "Ladok require less permissions then what's provided",
+			have: have{
+				ladok: 4,
+				my:    6,
+			},
+			want: true,
+		},
+		{
+			name: "Ladok require better permissions then what's provided",
+			have: have{
+				ladok: 6,
+				my:    4,
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			got := client.comparePermission(tt.have.ladok, tt.have.my)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestPermissionUnify(t *testing.T) {
+	type have struct {
+		ladok ladoktypes.KataloginformationBehorighetsprofil
+		my    Permissions
+	}
+	tts := []struct {
+		name string
+		have have
+		want map[int64]map[string]int64
+	}{
+		{
+			name: "Same permissions",
+			have: have{
+				ladok: ladoktypes.KataloginformationBehorighetsprofil{
+					Systemaktiviteter: []ladoktypes.Systemaktiviteter{
+						{
+							ID:             51001,
+							Rattighetsniva: "rattighetsniva.las",
+						},
+					},
+				},
+				my: map[int64]string{
+					51001: "rattighetsniva.las",
+				},
+			},
+			want: map[int64]map[string]int64{
+				51001: {
+					"ladok": 4,
+					"my":    4,
+				},
+			},
+		},
+		{
+			name: "Not the same permissions",
+			have: have{
+				ladok: ladoktypes.KataloginformationBehorighetsprofil{
+					Systemaktiviteter: []ladoktypes.Systemaktiviteter{
+						{
+							ID:             41001,
+							Rattighetsniva: "rattighetsniva.lokal",
+						},
+					},
+				},
+				my: map[int64]string{
+					61001: "rattighetsniva.las",
+				},
+			},
+			want: map[int64]map[string]int64{
+				41001: {
+					"ladok": 6,
+				},
+				61001: {
+					"my": 4,
+				},
+			},
+		},
+		{
+			name: "The same permission with different permission levels.",
+			have: have{
+				ladok: ladoktypes.KataloginformationBehorighetsprofil{
+					Systemaktiviteter: []ladoktypes.Systemaktiviteter{
+
+						{
+							ID:             81001,
+							Rattighetsniva: "rattighetsniva.las",
+						},
+					},
+				},
+				my: map[int64]string{
+					81001: "rattighetsniva.lokal",
+				},
+			},
+			want: map[int64]map[string]int64{
+				81001: {
+					"ladok": 4,
+					"my":    6,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			client := mockNewClient(t, ladoktypes.EnvIntTestAPI, "localhost")
+			permissions, err := client.permissionUnify(tt.have.ladok, tt.have.my)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tt.want, permissions)
 		})
 	}
 }
