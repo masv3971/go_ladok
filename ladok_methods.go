@@ -44,7 +44,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 			// Ladok does not have the required permission
 			internalError = append(internalError, ladoktypes.InternalError{
 				Msg:  fmt.Sprintf("Missing ladok permission id: %d, permission level: %q", permissionID, c.translatePermission(data["my"])),
-				Type: "ladok permission",
+				Type: "Ladok permission",
 			})
 			continue
 		}
@@ -54,7 +54,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 			myPermission := data["my"]
 			internalError = append(internalError, ladoktypes.InternalError{
 				Msg:  fmt.Sprintf("Not sufficient permission: %q for id: %d", c.translatePermission(myPermission), permissionID),
-				Type: "ladok permission",
+				Type: "Ladok permission",
 			})
 		}
 	}
