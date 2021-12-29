@@ -246,7 +246,7 @@ func TestPermissionUnify(t *testing.T) {
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
 			client := mockNewClient(t, ladoktypes.EnvIntTestAPI, "localhost")
-			permissions, err := client.permissionUnify(tt.have.ladok, tt.have.my)
+			permissions, err := client.permissionUnify(context.TODO(), tt.have.ladok, tt.have.my)
 			assert.NoError(t, err)
 
 			assert.Equal(t, tt.want, permissions)

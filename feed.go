@@ -18,8 +18,11 @@ func (s *feedService) acceptHeader() string {
 	return ladokAcceptHeader[s.service]["xml"]
 }
 
-func (s *feedService) feedURL() (string, error) {
-	env, err := s.client.environment()
+func (s *feedService) feedURL(ctx context.Context) (string, error) {
+	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.feedURL")
+	defer span.End()
+
+	env, err := s.client.environment(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +39,7 @@ func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes
 	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.atomReader")
 	defer span.End()
 
-	envURL, err := s.feedURL()
+	envURL, err := s.feedURL(ctx)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -55,3 +55,4 @@ v0.0.71 : Add translation for ID (int64) to string for readability.
 v0.0.72 : Add tracing to all endpoints.
 v0.0.73 : bumptag
 v0.0.74 : bumptag
+v0.0.75 : Add some more tracing to other methods as well.
