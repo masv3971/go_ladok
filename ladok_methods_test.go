@@ -156,7 +156,7 @@ func TestComparePermission(t *testing.T) {
 
 	for _, tt := range tts {
 		t.Run(tt.name, func(t *testing.T) {
-			got := client.comparePermission(tt.have.ladok, tt.have.my)
+			got := client.comparePermission(context.TODO(), tt.have.ladok, tt.have.my)
 			assert.Equal(t, tt.want, got)
 		})
 	}

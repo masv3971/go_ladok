@@ -9,6 +9,9 @@ import (
 
 // CheckPermission compare ladok permissions with ps
 func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions) error {
+	ctx, span := c.tp.Start(ctx, "goladok3.CheckPermission")
+	defer span.End()
+
 	var (
 		e             = &Errors{}
 		internalError = []ladoktypes.InternalError{}
@@ -49,7 +52,7 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 			continue
 		}
 
-		if !c.comparePermission(ladokPermission, myPermission) {
+		if !c.comparePermission(ctx, ladokPermission, myPermission) {
 			// ladokPermission does not reach myPermission
 			myPermission := data["my"]
 			internalError = append(internalError, ladoktypes.InternalError{
@@ -67,7 +70,10 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 }
 
 // comparePermission compare l with m permission.
-func (c *Client) comparePermission(l, m int64) bool {
+func (c *Client) comparePermission(ctx context.Context, l, m int64) bool {
+	ctx, span := c.tp.Start(ctx, "goladok3.comparePermission")
+	defer span.End()
+
 	if l == m {
 		return true
 	}

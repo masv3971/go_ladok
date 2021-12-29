@@ -33,6 +33,9 @@ func (s *feedService) feedURL() (string, error) {
 }
 
 func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes.SuperFeed, *http.Response, error) {
+	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.atomReader")
+	defer span.End()
+
 	envURL, err := s.feedURL()
 	if err != nil {
 		return nil, nil, err
@@ -57,6 +60,9 @@ func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes
 
 // Recent atom feed .../feed/recent gets the most recent publiced feed
 func (s *feedService) Recent(ctx context.Context) (*ladoktypes.SuperFeed, *http.Response, error) {
+	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.Reader")
+	defer span.End()
+
 	superFeed, resp, err := s.atomReader(ctx, "recent")
 	if err != nil {
 		return nil, resp, err
@@ -72,6 +78,9 @@ type HistoricalReq struct {
 
 // Historical atom feed .../feed/{id} gets feed of {id}
 func (s *feedService) Historical(ctx context.Context, req *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error) {
+	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.Historical")
+	defer span.End()
+
 	superFeed, resp, err := s.atomReader(ctx, strconv.Itoa(req.ID))
 	if err != nil {
 		return nil, resp, err
@@ -82,6 +91,9 @@ func (s *feedService) Historical(ctx context.Context, req *HistoricalReq) (*lado
 
 // First atom feed .../feed/first gets the first publiced feed
 func (s *feedService) First(ctx context.Context) (*ladoktypes.SuperFeed, *http.Response, error) {
+	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.First")
+	defer span.End()
+
 	superFeed, resp, err := s.atomReader(ctx, "first")
 	if err != nil {
 		return nil, resp, err
