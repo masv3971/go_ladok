@@ -19,9 +19,6 @@ func (s *feedService) acceptHeader() string {
 }
 
 func (s *feedService) feedURL(ctx context.Context) (string, error) {
-	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.feedURL")
-	defer span.End()
-
 	env, err := s.client.environment(ctx)
 	if err != nil {
 		return "", err
@@ -36,9 +33,6 @@ func (s *feedService) feedURL(ctx context.Context) (string, error) {
 }
 
 func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes.SuperFeed, *http.Response, error) {
-	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.atomReader")
-	defer span.End()
-
 	envURL, err := s.feedURL(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -61,11 +55,8 @@ func (s *feedService) atomReader(ctx context.Context, param string) (*ladoktypes
 
 }
 
-// Recent atom feed .../feed/recent gets the most recent publiced feed
+// Recent atom feed .../feed/recent gets the most recent publicized feed
 func (s *feedService) Recent(ctx context.Context) (*ladoktypes.SuperFeed, *http.Response, error) {
-	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.Reader")
-	defer span.End()
-
 	superFeed, resp, err := s.atomReader(ctx, "recent")
 	if err != nil {
 		return nil, resp, err
@@ -81,8 +72,9 @@ type HistoricalReq struct {
 
 // Historical atom feed .../feed/{id} gets feed of {id}
 func (s *feedService) Historical(ctx context.Context, req *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error) {
-	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.Historical")
-	defer span.End()
+	if err := Check(req); err != nil {
+		return nil, nil, err
+	}
 
 	superFeed, resp, err := s.atomReader(ctx, strconv.Itoa(req.ID))
 	if err != nil {
@@ -92,11 +84,8 @@ func (s *feedService) Historical(ctx context.Context, req *HistoricalReq) (*lado
 	return superFeed, resp, nil
 }
 
-// First atom feed .../feed/first gets the first publiced feed
+// First atom feed .../feed/first gets the first publicized feed
 func (s *feedService) First(ctx context.Context) (*ladoktypes.SuperFeed, *http.Response, error) {
-	ctx, span := s.client.tp.Start(ctx, "goladok3.feedService.First")
-	defer span.End()
-
 	superFeed, resp, err := s.atomReader(ctx, "first")
 	if err != nil {
 		return nil, resp, err

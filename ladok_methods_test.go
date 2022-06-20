@@ -29,7 +29,7 @@ func TestCheckPermission(t *testing.T) {
 		serverReply      serverReply
 		serverURL        serverURL
 		have             Permissions
-		want             *Errors
+		want             interface{}
 	}{
 		{
 			name:             "OK",
@@ -40,26 +40,35 @@ func TestCheckPermission(t *testing.T) {
 			want:             nil,
 		},
 		{
-			name:             "Missing id 0 with permission las",
-			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:             Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
-			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "Missing ladok permission id: 8888 (Undefined), permission level: \"rattighetsniva.las\"", Type: "Ladok permission"}}},
+			name:      "Missing id 0 with permission las",
+			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:      Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
+			want: ladoktypes.PermissionErrors{{
+				Msg:                 "Missing ladok permission",
+				MissingPermissionID: 8888,
+				PermissionLevel:     "rattighetsniva.las",
+			}},
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
-			name:             "Empty input Permissions map",
-			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:             Permissions{},
-			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions provided", Type: "Ladok permission"}}},
+			name:      "Empty input Permissions map",
+			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:      Permissions{},
+			want: ladoktypes.PermissionErrors{
+				{
+					Msg: "No permissions provided",
+				}},
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
 		{
-			name:             "Ladok does not have any permissions",
-			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:             Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:             &Errors{Internal: []ladoktypes.InternalError{{Msg: "No permissions found in ladok", Type: "Ladok permission"}}},
+			name:      "Ladok does not have any permissions",
+			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			want: ladoktypes.PermissionError{
+				Msg: "No permission found in ladok",
+			},
 			serverStatusCode: serverStatusCode{200, 200},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
 		},
@@ -67,13 +76,13 @@ func TestCheckPermission(t *testing.T) {
 			name:      "Egna does not respond",
 			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
 			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want: &Errors{Ladok: &ladoktypes.LadokError{
+			want: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
 				FelkategoriText: "Generellt fel i applikationen",
 				Meddelande:      "java.lang.NullPointerException null",
 				Link:            []interface{}{},
-			}},
+			},
 			serverStatusCode: serverStatusCode{500, 200},
 			serverReply:      serverReply{ladokmocks.JSONErrors500, ladokmocks.JSONKataloginformationBehorighetsprofil},
 		},
@@ -81,7 +90,7 @@ func TestCheckPermission(t *testing.T) {
 			name:      "Profil does not respond",
 			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
 			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want: &Errors{Ladok: &ladoktypes.LadokError{
+			want: &ladoktypes.LadokError{
 				Detaljkod:       "commons.domain.uid",
 				DetaljkodText:   "Unik identifierare",
 				FelUID:          "14c837fd-3a60-11ec-aa00-acd34b504da7",
@@ -91,7 +100,7 @@ func TestCheckPermission(t *testing.T) {
 				FelkategoriText: "Valideringsfel",
 				Meddelande:      "Uid: 6daf0d1e-114f-11ec-95ca-f52940734df",
 				Link:            []interface{}{},
-			}},
+			},
 			serverStatusCode: serverStatusCode{200, 500},
 			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONErrorsValideringsFel},
 		},
@@ -105,13 +114,17 @@ func TestCheckPermission(t *testing.T) {
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.egna, tt.serverReply.egna, tt.serverStatusCode.egna)
 			mockGenericEndpointServer(t, mux, ContentTypeKataloginformationJSON, "GET", tt.serverURL.profil, tt.serverReply.profil, tt.serverStatusCode.profil)
 
-			got := client.CheckPermission(context.TODO(), tt.have)
-			if tt.want != nil {
-				if !assert.Equal(t, tt.want, got) {
-					t.FailNow()
-				}
-			} else {
-				assert.NoError(t, got)
+			err := client.CheckPermission(context.TODO(), tt.have)
+
+			switch tt.want.(type) {
+			case *ladoktypes.LadokError:
+				want := tt.want.(*ladoktypes.LadokError)
+				assert.Equal(t, want, err)
+			case *ladoktypes.PermissionErrors:
+				want := tt.want.(*ladoktypes.PermissionErrors)
+				assert.Equal(t, want, err)
+			case nil:
+				assert.Equal(t, ladoktypes.PermissionErrors{}, err)
 			}
 		})
 	}
@@ -250,6 +263,34 @@ func TestPermissionUnify(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, tt.want, permissions)
+		})
+	}
+}
+
+func TestTranslateID(t *testing.T) {
+	tts := []struct {
+		name string
+		have int64
+		want string
+	}{
+		{
+			name: "OK",
+			have: 61001,
+			want: "studentinformation.lasa",
+		},
+		{
+			name: "Undefined",
+			have: 00000,
+			want: "undefined",
+		},
+	}
+
+	for _, tt := range tts {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test function
+			client := mockNewClient(t, ladoktypes.EnvIntTestAPI, "localhost")
+			got := client.translateID(tt.have)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

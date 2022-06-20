@@ -66,7 +66,7 @@ func testFeed(t *testing.T, env string, url string) {
 			name:             "recent",
 			serverURL:        fmt.Sprintf("%s/%s", url, "recent"),
 			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:  ladokmocks.Errors500,
 			serverStatusCode: 500,
 			clientFn:         client.Feed.Recent,
 		},
@@ -83,7 +83,7 @@ func testFeed(t *testing.T, env string, url string) {
 			name:             "historical",
 			serverURL:        fmt.Sprintf("%s/%d", url, 100),
 			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:  ladokmocks.Errors500,
 			serverStatusCode: 500,
 			clientReq:        &HistoricalReq{ID: 100},
 			clientFn:         client.Feed.Historical,
@@ -100,7 +100,7 @@ func testFeed(t *testing.T, env string, url string) {
 			name:             "first",
 			serverURL:        fmt.Sprintf("%s/%s", url, "first"),
 			reply:            reply{ladokmocks.JSONSuperFeed(4856), ladokmocks.JSONErrors500},
-			clientReplyType:  &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:  ladokmocks.Errors500,
 			serverStatusCode: 500,
 			clientFn:         client.Feed.First,
 		},
@@ -118,27 +118,27 @@ func testFeed(t *testing.T, env string, url string) {
 			}
 
 			switch tt.clientFn.(type) {
+			// Recent
 			case func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error):
-				f := tt.clientFn.(func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error))
+				fn := tt.clientFn.(func(context.Context) (*ladoktypes.SuperFeed, *http.Response, error))
 				switch tt.serverStatusCode {
 				case 200:
-					got, _, _ := f(context.TODO())
-
+					got, _, _ := fn(context.TODO())
 					assert.Equal(t, tt.clientReplyType, got, "Should be equal")
 				case 500:
-					_, _, err = f(context.TODO())
-					assert.Equal(t, tt.clientReplyType.(*Errors), err)
+					_, _, err = fn(context.TODO())
+					assert.Equal(t, tt.clientReplyType.(*ladoktypes.LadokError), err)
 				}
+				// Historical
 			case func(context.Context, *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error):
-				f := tt.clientFn.(func(context.Context, *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error))
+				fn := tt.clientFn.(func(context.Context, *HistoricalReq) (*ladoktypes.SuperFeed, *http.Response, error))
 				switch tt.serverStatusCode {
 				case 200:
-					got, _, _ := f(context.TODO(), tt.clientReq.(*HistoricalReq))
-
+					got, _, _ := fn(context.TODO(), tt.clientReq.(*HistoricalReq))
 					assert.Equal(t, tt.clientReplyType, got, "Should be equal")
 				case 500:
-					_, _, err = f(context.TODO(), tt.clientReq.(*HistoricalReq))
-					assert.Equal(t, tt.clientReplyType.(*Errors), err)
+					_, _, err = fn(context.TODO(), tt.clientReq.(*HistoricalReq))
+					assert.Equal(t, tt.clientReplyType.(*ladoktypes.LadokError), err)
 				}
 			}
 
@@ -263,7 +263,7 @@ func TestMotherParser(t *testing.T) {
 					t.FailNow()
 				}
 				assert.Equal(t, tt.want, got)
-			case *Errors:
+			case *ladoktypes.LadokError:
 				assert.Equal(t, tt.want, err)
 			}
 		})

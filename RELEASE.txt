@@ -56,3 +56,4 @@ v0.0.72 : Add tracing to all endpoints.
 v0.0.73 : bumptag
 v0.0.74 : bumptag
 v0.0.75 : Add some more tracing to other methods as well.
+v0.0.76 : Hopefully made a better error implementation.

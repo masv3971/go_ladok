@@ -44,7 +44,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverContentType: ContentTypeKataloginformationJSON,
 			serverReply:       ladokmocks.JSONErrors500,
 			serverStatusCode:  500,
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Kataloginformation.GetAnvandareAutentiserad,
 		},
 		{
@@ -64,7 +64,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverReply:       ladokmocks.JSONErrors500,
 			serverStatusCode:  500,
 			serverContentType: ContentTypeKataloginformationJSON,
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Kataloginformation.GetAnvandarbehorighetEgna,
 		},
 		{
@@ -86,7 +86,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverStatusCode:  500,
 			serverContentType: ContentTypeKataloginformationJSON,
 			clientReq:         &GetBehorighetsprofilerReq{UID: ladokmocks.Students[0].StudentUID},
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Kataloginformation.GetBehorighetsprofil,
 		},
 		{
@@ -106,7 +106,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverReply:       ladokmocks.JSONErrors500,
 			serverStatusCode:  500,
 			serverContentType: ContentTypeKataloginformationJSON,
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Kataloginformation.GetGrunddataLarosatesinformation,
 		},
 		{
@@ -128,7 +128,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverStatusCode:  500,
 			serverContentType: ContentTypeStudentinformationJSON,
 			clientReq:         &GetStudentReq{UID: ladokmocks.Students[0].StudentUID},
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Studentinformation.GetStudent,
 		},
 		{
@@ -150,7 +150,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverStatusCode:  500,
 			serverContentType: ContentTypeStudentinformationJSON,
 			clientReq:         &GetStudentReq{Personnummer: ladokmocks.Students[0].Personnummer},
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Studentinformation.GetStudent,
 		},
 		{
@@ -172,7 +172,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverStatusCode:  500,
 			serverContentType: ContentTypeStudentinformationJSON,
 			clientReq:         &GetStudentReq{ExterntUID: ladokmocks.Students[0].ExterntUID},
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Studentinformation.GetStudent,
 		},
 		{
@@ -194,7 +194,7 @@ func TestHTTPHandlers(t *testing.T) {
 			serverStatusCode:  500,
 			serverContentType: ContentTypeStudentinformationJSON,
 			clientReq:         &GetAktivPaLarosateReq{UID: ladokmocks.Students[0].StudentUID},
-			clientReplyType:   &Errors{Ladok: ladokmocks.Errors500},
+			clientReplyType:   ladokmocks.Errors500,
 			clientFn:          client.Studentinformation.GetAktivPaLarosate,
 		},
 	}
@@ -228,7 +228,7 @@ func TestHTTPHandlers(t *testing.T) {
 					}
 				case 500:
 					_, _, err = f(context.TODO())
-					if !assert.Equal(t, err, tt.clientReplyType.(*Errors)) {
+					if !assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError)) {
 						t.FailNow()
 					}
 				}
@@ -246,7 +246,7 @@ func TestHTTPHandlers(t *testing.T) {
 					}
 				case 500:
 					_, _, err = f(context.TODO())
-					assert.Equal(t, err, tt.clientReplyType.(*Errors))
+					assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError))
 				}
 			case func(context.Context, *GetBehorighetsprofilerReq) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error):
 				f := tt.clientFn.(func(context.Context, *GetBehorighetsprofilerReq) (*ladoktypes.KataloginformationBehorighetsprofil, *http.Response, error))
@@ -262,7 +262,7 @@ func TestHTTPHandlers(t *testing.T) {
 					}
 				case 500:
 					_, _, err = f(context.TODO(), tt.clientReq.(*GetBehorighetsprofilerReq))
-					assert.Equal(t, err, tt.clientReplyType.(*Errors))
+					assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError))
 				}
 			case func(context.Context, *GetStudentReq) (*ladoktypes.Student, *http.Response, error):
 				f := tt.clientFn.(func(context.Context, *GetStudentReq) (*ladoktypes.Student, *http.Response, error))
@@ -278,7 +278,7 @@ func TestHTTPHandlers(t *testing.T) {
 					}
 				case 500:
 					_, _, err = f(context.TODO(), tt.clientReq.(*GetStudentReq))
-					assert.Equal(t, err, tt.clientReplyType.(*Errors))
+					assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError))
 				}
 			case func(context.Context, *GetAktivPaLarosateReq) (*ladoktypes.AktivPaLarosate, *http.Response, error):
 				f := tt.clientFn.(func(context.Context, *GetAktivPaLarosateReq) (*ladoktypes.AktivPaLarosate, *http.Response, error))
@@ -295,7 +295,7 @@ func TestHTTPHandlers(t *testing.T) {
 
 				case 500:
 					_, _, err = f(context.TODO(), tt.clientReq.(*GetAktivPaLarosateReq))
-					assert.Equal(t, err, tt.clientReplyType.(*Errors))
+					assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError))
 				}
 			case func(context.Context) (*ladoktypes.KataloginformationGrunddataLarosatesinformation, *http.Response, error):
 				f := tt.clientFn.(func(context.Context) (*ladoktypes.KataloginformationGrunddataLarosatesinformation, *http.Response, error))
@@ -312,7 +312,7 @@ func TestHTTPHandlers(t *testing.T) {
 
 				case 500:
 					_, _, err = f(context.TODO())
-					assert.Equal(t, err, tt.clientReplyType.(*Errors))
+					assert.Equal(t, err, tt.clientReplyType.(*ladoktypes.LadokError))
 				}
 			default:
 				t.Fatalf("ERROR No function signature found! %T", tt.clientFn)
