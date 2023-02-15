@@ -32,50 +32,77 @@ func TestCheckPermission(t *testing.T) {
 		want             interface{}
 	}{
 		{
-			name:             "OK",
-			serverURL:        serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
+			name: "OK",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
 			serverStatusCode: serverStatusCode{200, 200},
-			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
-			have:             Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
-			want:             nil,
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONKataloginformationEgna,
+				profil: ladokmocks.JSONKataloginformationBehorighetsprofil,
+			},
+			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			want: nil,
 		},
 		{
-			name:      "Missing id 0 with permission las",
-			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:      Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
+			name: "Missing id 0 with permission las",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
+			have: Permissions{61001: "rattighetsniva.las", 8888: "rattighetsniva.las"},
 			want: ladoktypes.PermissionErrors{{
 				Msg:                 "Missing ladok permission",
 				MissingPermissionID: 8888,
 				PermissionLevel:     "rattighetsniva.las",
 			}},
 			serverStatusCode: serverStatusCode{200, 200},
-			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONKataloginformationEgna,
+				profil: ladokmocks.JSONKataloginformationBehorighetsprofil,
+			},
 		},
 		{
-			name:      "Empty input Permissions map",
-			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:      Permissions{},
+			name: "Empty input Permissions map",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
+			have: Permissions{},
 			want: ladoktypes.PermissionErrors{
 				{
 					Msg: "No permissions provided",
 				}},
 			serverStatusCode: serverStatusCode{200, 200},
-			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONKataloginformationEgna,
+				profil: ladokmocks.JSONKataloginformationBehorighetsprofil,
+			},
 		},
 		{
-			name:      "Ladok does not have any permissions",
-			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			name: "Ladok does not have any permissions",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
+			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
 			want: ladoktypes.PermissionError{
 				Msg: "No permission found in ladok",
 			},
 			serverStatusCode: serverStatusCode{200, 200},
-			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions},
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONKataloginformationEgna,
+				profil: ladokmocks.JSONKataloginformationBehorighetsprofilNoPermissions,
+			},
 		},
 		{
-			name:      "Egna does not respond",
-			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			name: "Egna does not respond",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
+			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
 			want: &ladoktypes.LadokError{
 				FelUID:          "c0f52d2c-3a5f-11ec-aa00-acd34b504da7",
 				Felkategori:     "commons.fel.kategori.applikationsfel",
@@ -84,12 +111,18 @@ func TestCheckPermission(t *testing.T) {
 				Link:            []interface{}{},
 			},
 			serverStatusCode: serverStatusCode{500, 200},
-			serverReply:      serverReply{ladokmocks.JSONErrors500, ladokmocks.JSONKataloginformationBehorighetsprofil},
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONErrors500,
+				profil: ladokmocks.JSONKataloginformationBehorighetsprofil,
+			},
 		},
 		{
-			name:      "Profil does not respond",
-			serverURL: serverURL{"/kataloginformation/anvandarbehorighet/egna", fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid)},
-			have:      Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
+			name: "Profil does not respond",
+			serverURL: serverURL{
+				egna:   "/kataloginformation/anvandarbehorighet/egna",
+				profil: fmt.Sprintf("/kataloginformation/behorighetsprofil/%s", uid),
+			},
+			have: Permissions{61001: "rattighetsniva.las", 90019: "rattighetsniva.las"},
 			want: &ladoktypes.LadokError{
 				Detaljkod:       "commons.domain.uid",
 				DetaljkodText:   "Unik identifierare",
@@ -102,7 +135,10 @@ func TestCheckPermission(t *testing.T) {
 				Link:            []interface{}{},
 			},
 			serverStatusCode: serverStatusCode{200, 500},
-			serverReply:      serverReply{ladokmocks.JSONKataloginformationEgna, ladokmocks.JSONErrorsValideringsFel},
+			serverReply: serverReply{
+				egna:   ladokmocks.JSONKataloginformationEgna,
+				profil: ladokmocks.JSONErrorsValideringsFel,
+			},
 		},
 	}
 
@@ -124,7 +160,7 @@ func TestCheckPermission(t *testing.T) {
 				want := tt.want.(*ladoktypes.PermissionErrors)
 				assert.Equal(t, want, err)
 			case nil:
-				assert.Equal(t, ladoktypes.PermissionErrors{}, err)
+				assert.Equal(t, nil, err)
 			}
 		})
 	}

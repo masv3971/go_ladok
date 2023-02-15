@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/masv/git/goladok3'
-make: Leaving directory '/home/masv/git/goladok3'
- 
-Makefile:50: *** v0.0.75 is already used, make other one please.  Stop.
-

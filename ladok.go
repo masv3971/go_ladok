@@ -19,14 +19,18 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Config configures new function
-type Config struct {
+// X509Config configures new function
+type X509Config struct {
 	URL            string            `validate:"required"`
 	Certificate    *x509.Certificate `validate:"required"`
 	CertificatePEM []byte            `validate:"required"`
 	PrivateKey     *rsa.PrivateKey   `validate:"required"`
 	PrivateKeyPEM  []byte            `validate:"required"`
 	ProxyURL       string
+}
+
+// OidcConfig configures NewOIDC function
+type OidcConfig struct {
 }
 
 // Client holds the ladok object
@@ -49,8 +53,8 @@ type Client struct {
 	Feed               *feedService
 }
 
-// New create a new instance of ladok
-func New(config Config) (*Client, error) {
+// NewX509 create a new x509 instance of ladok
+func NewX509(config X509Config) (*Client, error) {
 	if err := Check(config); err != nil {
 		return nil, err
 	}
@@ -75,6 +79,11 @@ func New(config Config) (*Client, error) {
 	c.Feed = &feedService{client: c, service: "feed"}
 
 	return c, nil
+}
+
+// NewOIDC create a new OIDC instance of ladok
+func NewOIDC(config OidcConfig) (*Client, error) {
+	return nil, nil
 }
 
 func (c *Client) httpConfigure() error {

@@ -8,11 +8,7 @@ import (
 
 // CheckPermission compare ladok permissions with ps
 func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions) error {
-	var (
-		permissionErrors = ladoktypes.PermissionErrors{}
-		//permissionError []ladoktypes.PermissionError{}
-		//internalError = []ladoktypes.InternalError{}
-	)
+	permissionErrors := ladoktypes.PermissionErrors{}
 
 	egna, _, err := c.Kataloginformation.GetAnvandarbehorighetEgna(ctx)
 	if err != nil {
@@ -47,10 +43,6 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 				MissingPermissionID: permissionID,
 				PermissionLevel:     c.translatePermission(ctx, data["my"]),
 			})
-			//	internalError = append(internalError, ladoktypes.InternalError{
-			//		Msg:  fmt.Sprintf("Missing ladok permission id: %d (%s), permission level: %q", permissionID, c.translateID(permissionID), c.translatePermission(ctx, data["my"])),
-			//		Type: "Ladok permission",
-			//	})
 			continue
 		}
 
@@ -62,18 +54,10 @@ func (c *Client) CheckPermission(ctx context.Context, myPermissions Permissions)
 				MissingPermissionID: permissionID,
 				PermissionLevel:     c.translatePermission(ctx, myPermission),
 			})
-			//	internalError = append(internalError, ladoktypes.InternalError{
-			//		Msg:  fmt.Sprintf("Not sufficient permission: %q for id: %d (%s)", c.translatePermission(ctx, myPermission), permissionID, c.translateID(permissionID)),
-			//		Type: "Ladok permission",
-			//	})
 		}
 	}
-	//if len(internalError) > 0 {
-	//	e.Internal = internalError
-	//	return e
 
-	//}
-	if permissionErrors != nil {
+	if len(permissionErrors) > 0 {
 		return permissionErrors
 	}
 	return nil
@@ -157,6 +141,7 @@ func (c *Client) translatePermission(ctx context.Context, p int64) string {
 	}
 }
 
+// PermissionID is a map of permissionID and permission
 var PermissionID = map[int64]string{
 	1008:   "examen.allt.las",
 	11004:  "kataloginformation.las",
@@ -205,4 +190,42 @@ func (c *Client) environment(ctx context.Context) (string, error) {
 	default:
 		return "", ladoktypes.ErrNoEnvFound
 	}
+}
+
+// StudentDegree is a student degree.
+type StudentDegree struct {
+	Name string `json:"name"`
+}
+
+// MyStudentDegrees array of student degrees.
+type MyStudentDegrees []StudentDegree
+
+func (degrees *MyStudentDegrees) MarshalPDF() {}
+
+// GetMyStudentDegrees get student data.
+func (c *Client) GetMyStudentDegrees(ctx context.Context) (MyStudentDegrees, error) {
+	myStudentDegrees := []StudentDegree{}
+
+	return myStudentDegrees, nil
+}
+
+// IsStudentReq is a request to check if a user is a student.
+type IsStudentReq struct {
+	UID          string `validate:"required_without_all=Personnummer ExterntUID"`
+	ExterntUID   string `validate:"required_without_all=Personnummer UID"`
+	Personnummer string `validate:"required_without_all=UID ExterntUID"`
+}
+
+// IsStudent check if requested user is a student.
+func (c *Client) IsStudent(ctx context.Context, req *IsStudentReq) (bool, error) {
+	getStudentReq := &GetStudentReq{
+		UID:          req.UID,
+		ExterntUID:   req.ExterntUID,
+		Personnummer: req.Personnummer,
+	}
+	_, _, err := c.Studentinformation.GetStudent(ctx, getStudentReq)
+	if err != nil {
+		return false, err
+	}
+	return false, nil
 }

@@ -25,7 +25,7 @@ func mockGenericEndpointServer(t *testing.T, mux *http.ServeMux, contentType, me
 
 func mockNewClient(t *testing.T, env, url string) *Client {
 	certPEM, cert, privateKeyPEM, privateKey := ladokmocks.MockCertificateAndKey(t, env, 0, 100)
-	cfg := Config{
+	cfg := X509Config{
 		URL: url,
 		//ProxyURL:       url,
 		Certificate:    cert,
@@ -33,7 +33,7 @@ func mockNewClient(t *testing.T, env, url string) *Client {
 		PrivateKey:     privateKey,
 		PrivateKeyPEM:  privateKeyPEM,
 	}
-	client, err := New(cfg)
+	client, err := NewX509(cfg)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
@@ -51,13 +51,11 @@ func mockSetup(t *testing.T, env string) (*http.ServeMux, *httptest.Server, *Cli
 }
 
 func testMethod(t *testing.T, r *http.Request, want string) {
-	got := r.Method
-	assert.Equal(t, want, got)
+	assert.Equal(t, want, r.Method)
 }
 
 func testURL(t *testing.T, r *http.Request, want string) {
-	got := r.RequestURI
-	assert.Equal(t, want, got)
+	assert.Equal(t, want, r.RequestURI)
 }
 
 func testBody(t *testing.T, r *http.Request, want string) {
