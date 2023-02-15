@@ -1,12 +1,25 @@
 {
     "cSpell.words": [
+        "addresslista",
+        "bumptag",
+        "bungcip",
         "Detaljkod",
+        "devcontainers",
+        "dokumenteradebeslut",
+        "extintegration",
         "goladok",
+        "httpclient",
+        "kataloginformationbehorighet",
         "ladok",
         "ladokmocks",
         "ladoktypes",
         "masv",
         "OIDC",
-        "Protos"
+        "Protos",
+        "stretchr",
+        "struct",
+        "testinfra",
+        "tillfallesantagningar",
+        "zenor"
     ]
 }

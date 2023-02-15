@@ -200,6 +200,7 @@ type StudentDegree struct {
 // MyStudentDegrees array of student degrees.
 type MyStudentDegrees []StudentDegree
 
+// MarshalPDF marshal MyStudentDegrees to PDF.
 func (degrees *MyStudentDegrees) MarshalPDF() {}
 
 // GetMyStudentDegrees get student data.

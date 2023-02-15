@@ -58,3 +58,4 @@ v0.0.74 : bumptag
 v0.0.75 : Add some more tracing to other methods as well.
 v0.0.76 : Hopefully made a better error implementation.
 v0.0.77 : Add some ground structure for OIDC and some methods related to wallet project.
+v0.0.78 : Add comment and some words to dictionary.
