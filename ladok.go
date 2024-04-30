@@ -19,14 +19,19 @@ import (
 	"golang.org/x/time/rate"
 )
 
+var (
+	ErrInvalidRequest    = errors.New("Invalid request")
+	ErrNotAllowedRequest = errors.New("Not allowed request")
+)
+
 // X509Config configures new function
 type X509Config struct {
 	URL            string            `validate:"required"`
 	Certificate    *x509.Certificate `validate:"required"`
 	CertificatePEM []byte            `validate:"required"`
-	PrivateKey     *rsa.PrivateKey   `validate:"required"`
-	PrivateKeyPEM  []byte            `validate:"required"`
-	ProxyURL       string
+	//PrivateKey     *rsa.PrivateKey   `validate:"required"`
+	PrivateKeyPEM []byte `validate:"required"`
+	ProxyURL      string
 }
 
 // OidcConfig configures NewOIDC function
@@ -65,8 +70,8 @@ func NewX509(config X509Config) (*Client, error) {
 		privateKeyPEM:  config.PrivateKeyPEM,
 		certificatePEM: config.CertificatePEM,
 		certificate:    config.Certificate,
-		privateKey:     config.PrivateKey,
-		rateLimit:      rate.NewLimiter(rate.Every(1*time.Second), 30),
+		//privateKey:     config.PrivateKey,
+		rateLimit: rate.NewLimiter(rate.Every(1*time.Second), 30),
 	}
 
 	if err := c.httpConfigure(); err != nil {
@@ -109,7 +114,7 @@ func (c *Client) httpConfigure() error {
 		KeyLogWriter:                nil,
 	}
 
-	tlsCfg.BuildNameToCertificate()
+	//	tlsCfg.BuildNameToCertificate()
 
 	c.HTTPClient = &http.Client{
 		Transport: &http.Transport{
@@ -243,9 +248,12 @@ func checkResponse(r *http.Response) error {
 	case 200, 201, 202, 204, 304:
 		return nil
 	case 500:
-		return errors.New("Invalid")
+		return ErrInvalidRequest
+	case 401:
+		return ErrNotAllowedRequest
 	}
-	return errors.New("Invalid request")
+
+	return ErrInvalidRequest
 }
 
 func (c *Client) call(ctx context.Context, acceptHeader, method, url string, body, reply interface{}) (*http.Response, error) {

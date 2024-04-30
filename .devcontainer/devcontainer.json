@@ -3,14 +3,13 @@
 {
 	"name": "Go",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/go:0-1.19-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/go:latest",
 	"customizations": {
 		"vscode": {
 			"settings": {
 				"cSpell.language": "en-GB,en,sv"
 			},
 			"extensions": [
-				"GitHub.copilot",
 				"GitHub.vscode-pull-request-github",
 				"streetsidesoftware.code-spell-checker",
 				"streetsidesoftware.code-spell-checker-swedish",
